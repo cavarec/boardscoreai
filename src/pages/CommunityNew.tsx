@@ -87,7 +87,9 @@ export default function CommunityNew() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col">
+    // min-h-dvh (pas min-h-screen) : voir MatchRanking.tsx, même correction
+    // pour le bouton "Publier à la communauté" poussé par mt-auto.
+    <div className="flex min-h-dvh flex-col">
       <TopBar title="Nouveau modèle" />
       <div className="flex flex-1 flex-col gap-5 px-5 py-6">
         <div>

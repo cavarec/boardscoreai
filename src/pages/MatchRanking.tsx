@@ -43,7 +43,10 @@ export default function MatchRanking() {
   const podiumOrder = [top3[1], top3[0], top3[2]].filter(Boolean) as PlayerResult[];
 
   return (
-    <div className="flex min-h-screen flex-col">
+    // min-h-dvh (pas min-h-screen) : sur Safari iOS, 100vh déborde de la zone
+    // réellement visible, ce qui poussait le bouton "Terminer" (mt-auto)
+    // plus bas que l'écran visible.
+    <div className="flex min-h-dvh flex-col">
       <TopBar title="Classement" />
       <div className="flex flex-1 flex-col gap-5 px-5 py-6">
         {podiumOrder.length > 0 && (
