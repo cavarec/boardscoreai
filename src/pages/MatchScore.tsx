@@ -61,10 +61,14 @@ export default function MatchScore() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col">
+    // h-screen + le seul bloc du milieu qui défile : sur un petit écran (ex.
+    // iPhone 13, barre Safari qui grignote la hauteur), les onglets joueurs
+    // et le bouton classement restaient auparavant dans le flux normal de la
+    // page et pouvaient sortir de l'écran l'un ou l'autre selon le scroll.
+    <div className="flex h-screen flex-col">
       <TopBar title={full.game.name} />
 
-      <div className="flex gap-1 overflow-x-auto border-b border-line px-3 py-2">
+      <div className="flex shrink-0 gap-1 overflow-x-auto border-b border-line px-3 py-2">
         {full.players.map((p) => (
           <button
             key={p.id}
@@ -80,8 +84,8 @@ export default function MatchScore() {
         ))}
       </div>
 
-      <div className="flex flex-1 flex-col gap-3 px-5 py-5">
-        <div className="flex items-center justify-between">
+      <div className="min-h-0 flex-1 overflow-y-auto px-5 py-5">
+        <div className="mb-3 flex items-center justify-between">
           <p className="text-ink-soft">Total actuel</p>
           <p className="font-mono text-2xl font-bold tabular-nums text-felt-strong">{total} pts</p>
         </div>
@@ -98,12 +102,12 @@ export default function MatchScore() {
             />
           ))}
         </div>
+      </div>
 
-        <div className="mt-auto flex flex-col gap-3 pt-6">
-          <Button disabled={finishing} className="w-full" onClick={finish}>
-            Voir le classement
-          </Button>
-        </div>
+      <div className="safe-bottom shrink-0 border-t border-line px-5 py-3">
+        <Button disabled={finishing} className="w-full" onClick={finish}>
+          Voir le classement
+        </Button>
       </div>
     </div>
   );
