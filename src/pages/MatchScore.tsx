@@ -64,6 +64,43 @@ export default function MatchScore() {
     };
   }, [activePlayerId, quickCategory, full]);
 
+  // Vérifié pour TOUS les joueurs, pas seulement l'onglet actif : sinon on
+  // ne verrait jamais qu'un autre joueur a déjà atteint l'objectif.
+  const [roundsByPlayer, setRoundsByPlayer] = useState<Record<string, number>>({});
+
+  useEffect(() => {
+    if (!quickCategory || !full) {
+      setRoundsByPlayer({});
+      return;
+    }
+    let cancelled = false;
+    Promise.all(
+      full.players.map(
+        async (p) => [p.id, (await getRounds(p.id, quickCategory.id)).length] as const
+      )
+    ).then((entries) => {
+      if (!cancelled) setRoundsByPlayer(Object.fromEntries(entries));
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [quickCategory, full]);
+
+  const achievements =
+    full && quickCategory
+      ? full.players
+          .map((p) => {
+            const { total } = computePlayerBreakdown(full.ruleSet, full.scores, p);
+            const rounds = roundsByPlayer[p.id] ?? 0;
+            const scoreReached = Boolean(full.match.targetScore && total >= full.match.targetScore);
+            const roundsReached = Boolean(
+              full.match.targetRounds && rounds >= full.match.targetRounds
+            );
+            return { player: p, total, rounds, scoreReached, roundsReached };
+          })
+          .filter((a) => a.scoreReached || a.roundsReached)
+      : [];
+
   if (!full || full.players.length === 0 || !activePlayerId) return null;
 
   const activePlayer = full.players.find((p) => p.id === activePlayerId);
@@ -106,6 +143,24 @@ export default function MatchScore() {
           </button>
         ))}
       </div>
+
+      {achievements.length > 0 && (
+        <div className="shrink-0 border-b border-line bg-amber-tint px-5 py-3">
+          {achievements.map((a) => (
+            <p key={a.player.id} className="text-sm font-medium text-amber-strong">
+              {a.player.name} :{" "}
+              {a.scoreReached && a.roundsReached
+                ? `objectif de points et nombre de manches atteints (${a.total} pts)`
+                : a.scoreReached
+                  ? `objectif de ${full.match.targetScore} pts atteint (${a.total} pts)`
+                  : `${full.match.targetRounds} manches jouées`}
+            </p>
+          ))}
+          <p className="mt-1 text-xs text-ink-faint">
+            La partie continue tant que vous ne regardez pas le classement.
+          </p>
+        </div>
+      )}
 
       <div className="min-h-0 flex-1 overflow-y-auto px-5 py-5">
         <div className="mb-1 flex items-center justify-between">
