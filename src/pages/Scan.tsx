@@ -23,8 +23,10 @@ export default function Scan() {
   const location = useLocation();
   const { games } = useGames();
 
-  // Le code-barres n'a de sens que pour la boîte — une fiche de score n'en a pas.
-  const [captureMode, setCaptureMode] = useState<CaptureMode>(mode === "box" ? "barcode" : "photo");
+  // L'OCR est le chemin éprouvé par défaut. Le scan de code-barres (n'a de
+  // sens que pour la boîte) reste disponible en option via le bouton
+  // ci-dessous, le temps de fiabiliser son comportement sur tous les mobiles.
+  const [captureMode, setCaptureMode] = useState<CaptureMode>("photo");
   // Conservé pour mémoriser l'association code-barres -> jeu une fois le jeu
   // confirmé, même si on est passé par l'OCR ou la recherche en secours.
   const [pendingBarcode, setPendingBarcode] = useState<string | null>(
@@ -51,7 +53,9 @@ export default function Scan() {
             variant="ghost"
             onClick={() => setCaptureMode(captureMode === "barcode" ? "photo" : "barcode")}
           >
-            {captureMode === "barcode" ? "Plutôt scanner le nom du jeu" : "Plutôt scanner le code-barres"}
+            {captureMode === "barcode"
+              ? "Plutôt scanner le nom du jeu"
+              : "Essayer le scan de code-barres (bêta)"}
           </Button>
         </div>
       )}

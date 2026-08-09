@@ -197,6 +197,9 @@ function RoundEntry({
 }) {
   const [rounds, setRounds] = useState<ScoreRound[]>([]);
   const [draft, setDraft] = useState("");
+  // Bouton de signe dédié : le clavier numérique mobile (inputMode="numeric")
+  // n'a pas de touche "-", taper un score négatif serait sinon impossible.
+  const [negative, setNegative] = useState(false);
 
   async function refreshRounds() {
     setRounds(await getRounds(playerId, category.id));
@@ -208,9 +211,9 @@ function RoundEntry({
   }, [playerId, category.id]);
 
   async function addRound() {
-    const parsed = Number(draft);
-    if (!draft.trim() || Number.isNaN(parsed)) return;
-    await addRoundScore(playerId, category.id, parsed);
+    const magnitude = Math.abs(Number(draft));
+    if (!draft.trim() || Number.isNaN(magnitude)) return;
+    await addRoundScore(playerId, category.id, negative ? -magnitude : magnitude);
     setDraft("");
     await refreshRounds();
     onChanged();
@@ -238,6 +241,18 @@ function RoundEntry({
         }}
         className="flex gap-2"
       >
+        <button
+          type="button"
+          onClick={() => setNegative((n) => !n)}
+          aria-label={negative ? "Score négatif (appuyer pour positif)" : "Score positif (appuyer pour négatif)"}
+          className={`w-11 shrink-0 rounded-lg border text-lg font-bold ${
+            negative
+              ? "border-brick bg-brick-tint text-brick"
+              : "border-line-strong text-ink-soft"
+          }`}
+        >
+          {negative ? "−" : "+"}
+        </button>
         <input
           type="number"
           inputMode="numeric"

@@ -96,6 +96,10 @@ export default function Settings() {
       <Button variant="danger" size="md" onClick={resetData}>
         Réinitialiser les données locales
       </Button>
+
+      <p className="text-center font-mono text-xs text-ink-faint">
+        Version {__APP_VERSION__}
+      </p>
     </div>
   );
 }

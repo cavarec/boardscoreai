@@ -8,3 +8,6 @@ interface ImportMetaEnv {
 interface ImportMeta {
   readonly env: ImportMetaEnv;
 }
+
+/** Identifiant de build injecté par vite.config.ts (hash de commit ou horodatage). */
+declare const __APP_VERSION__: string;

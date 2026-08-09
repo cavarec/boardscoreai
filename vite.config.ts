@@ -3,7 +3,18 @@ import react from "@vitejs/plugin-react";
 import { VitePWA } from "vite-plugin-pwa";
 import path from "node:path";
 
+// Identifiant de build affiché dans Réglages : sert à vérifier sans
+// ambiguïté quelle version tourne réellement sur un appareil donné, plutôt
+// que de deviner si un correctif a été pris en compte ou si le service
+// worker sert encore une version en cache.
+const appVersion =
+  process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7) ??
+  new Date().toISOString().slice(0, 16).replace("T", " ");
+
 export default defineConfig({
+  define: {
+    __APP_VERSION__: JSON.stringify(appVersion),
+  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
