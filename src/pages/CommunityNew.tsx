@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { TopBar } from "@/components/layout/TopBar";
 import { Button } from "@/components/ui/Button";
-import { submitCommunityTemplate } from "@/lib/db";
+import { createMatch, submitCommunityTemplate } from "@/lib/db";
 import { pushCommunityTemplate } from "@/lib/sync";
 import { FORMULA_LABELS } from "@/lib/scoreEngine";
 import type { FormulaType, ScoreCategory } from "@/types";
@@ -67,13 +67,17 @@ export default function CommunityNew() {
   async function handleSubmit() {
     if (!gameName.trim() || categories.length === 0) return;
     setSubmitting(true);
-    const template = await submitCommunityTemplate({
+    const { template, game } = await submitCommunityTemplate({
       gameNameGuess: gameName.trim(),
       proposedCategories: categories.map(toScoreCategory),
       sourceNote: sourceNote.trim() || undefined,
     });
     void pushCommunityTemplate(template);
-    navigate("/community");
+    // Le modèle est déjà jouable localement (voir submitCommunityTemplate) :
+    // on enchaîne directement sur une partie plutôt que de renvoyer vers la
+    // liste communautaire, pour fermer la boucle "jeu inconnu -> jouable".
+    const match = await createMatch(game.id);
+    navigate(`/match/${match.id}/players`);
   }
 
   return (

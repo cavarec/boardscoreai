@@ -1,5 +1,5 @@
 import Dexie, { type EntityTable } from "dexie";
-import { GAMES_SEED } from "@/data/games.seed";
+import { GAMES_SEED, SEED_VERSION } from "@/data/games.seed";
 import { computeRanking } from "@/lib/scoreEngine";
 import type {
   CommunityTemplate,
@@ -50,12 +50,18 @@ class BoardScoreDB extends Dexie {
 export const db = new BoardScoreDB();
 
 let seeded = false;
+const SEED_VERSION_KEY = "catalogSeedVersion";
 
-/** Recharge le catalogue embarqué en base locale (idempotent). */
+/**
+ * Recharge le catalogue embarqué en base locale (idempotent), et le
+ * réapplique après une mise à jour de l'app si SEED_VERSION a changé — sinon
+ * un appareil ayant déjà joué garderait indéfiniment l'ancien catalogue
+ * puisque ce cache local ne se resynchronise jamais tout seul.
+ */
 export async function ensureSeeded(): Promise<void> {
   if (seeded) return;
-  const count = await db.games.count();
-  if (count > 0) {
+  const installedVersion = await getMeta(SEED_VERSION_KEY, 0);
+  if (installedVersion >= SEED_VERSION) {
     seeded = true;
     return;
   }
@@ -68,6 +74,7 @@ export async function ensureSeeded(): Promise<void> {
       await db.categories.bulkPut(categories);
     }
   });
+  await setMeta(SEED_VERSION_KEY, SEED_VERSION);
   seeded = true;
 }
 
@@ -202,18 +209,67 @@ export async function listCommunityTemplates(): Promise<CommunityTemplate[]> {
   return db.communityTemplates.orderBy("createdAt").reverse().toArray();
 }
 
+/**
+ * Enregistre une proposition de modèle communautaire ET la rend
+ * immédiatement jouable en local (nouveau Game + GameRuleSet + catégories).
+ * Sans ça, la boucle du concept serait cassée : créer un modèle pour un jeu
+ * non reconnu ne servirait à rien tant qu'une validation communautaire
+ * distante n'aurait pas eu lieu. La validation (statut "approved") ne
+ * concerne que le partage vers la base commune, pas l'usage local.
+ */
 export async function submitCommunityTemplate(
   input: Omit<CommunityTemplate, "id" | "createdAt" | "status" | "votes">
-): Promise<CommunityTemplate> {
+): Promise<{ template: CommunityTemplate; game: Game }> {
+  const gameId = input.gameId ?? crypto.randomUUID();
+  const ruleId = crypto.randomUUID();
+
+  const game: Game = {
+    id: gameId,
+    name: input.gameNameGuess,
+    publisher: "Communauté BoardScore AI",
+    year: new Date().getFullYear(),
+    aliases: [input.gameNameGuess.toLowerCase()],
+    description: input.sourceNote,
+  };
+  const ruleSet: RuleSetRow = {
+    id: ruleId,
+    gameId,
+    versionLabel: "Proposé par la communauté",
+    isOfficial: false,
+  };
+  const categories: ScoreCategory[] = input.proposedCategories.map((c, i) => ({
+    ...c,
+    id: crypto.randomUUID(),
+    ruleId,
+    order: c.order ?? i,
+  }));
+
   const template: CommunityTemplate = {
     ...input,
+    gameId,
     id: crypto.randomUUID(),
     status: "pending",
     votes: 0,
     createdAt: new Date().toISOString(),
   };
-  await db.communityTemplates.put(template);
-  return template;
+
+  await db.transaction(
+    "rw",
+    db.games,
+    db.ruleSets,
+    db.categories,
+    db.communityTemplates,
+    async () => {
+      if (!input.gameId) {
+        await db.games.put(game);
+        await db.ruleSets.put(ruleSet);
+        await db.categories.bulkPut(categories);
+      }
+      await db.communityTemplates.put(template);
+    }
+  );
+
+  return { template, game };
 }
 
 export async function voteTemplate(id: string, delta: 1 | -1): Promise<void> {

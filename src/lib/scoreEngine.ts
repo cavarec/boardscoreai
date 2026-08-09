@@ -76,6 +76,8 @@ export function computeRanking(
   scores: Score[],
   players: Player[]
 ): PlayerResult[] {
+  const direction = ruleSet.sortDirection === "asc" ? -1 : 1;
+
   const withTotals = players.map((player) => {
     const { total, breakdown } = computePlayerBreakdown(ruleSet, scores, player);
     const tieBreakValue = ruleSet.tieBreakCategoryId
@@ -84,7 +86,9 @@ export function computeRanking(
     return { player, total, breakdown, tieBreakValue };
   });
 
-  withTotals.sort((a, b) => b.total - a.total || b.tieBreakValue - a.tieBreakValue);
+  withTotals.sort(
+    (a, b) => direction * (b.total - a.total) || direction * (b.tieBreakValue - a.tieBreakValue)
+  );
 
   const results: PlayerResult[] = [];
   let lastTotal: number | null = null;

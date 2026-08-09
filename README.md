@@ -29,7 +29,7 @@ npm run dev
 ```
 
 L'app tourne en local à `http://localhost:5173`, entièrement fonctionnelle
-**sans aucune configuration** : le catalogue de 12 jeux embarqué (voir
+**sans aucune configuration** : le catalogue de 43 jeux embarqué (voir
 `src/data/games.seed.ts`) se charge dans IndexedDB au premier lancement.
 
 ```bash
@@ -72,7 +72,7 @@ src/
     ocr.ts          Reconnaissance de texte (Tesseract.js)
     assistant.ts    Assistant conversationnel simulé
   data/
-    games.seed.ts   Catalogue embarqué (12 jeux avec modèle de score réaliste)
+    games.seed.ts   Catalogue embarqué (43 jeux avec modèle de score réaliste)
   hooks/            useGames, useTheme (ThemeProvider)
   components/       UI (Button, Card, Stepper) + layout (AppShell, TopBar, BottomNav)
   pages/            Un composant par écran (voir le dossier de conception, §07)

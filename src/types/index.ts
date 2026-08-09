@@ -53,6 +53,10 @@ export interface GameRuleSet {
   versionLabel: string;
   isOfficial: boolean;
   tieBreakCategoryId?: string;
+  /** La plupart des jeux se gagnent au score le plus haut ("desc", par
+   * défaut). Quelques-uns (Skyjo, 6 qui prend…) se gagnent au score le plus
+   * bas : "asc" inverse le sens du classement sans toucher au calcul des points. */
+  sortDirection?: "asc" | "desc";
   categories: ScoreCategory[];
 }
 

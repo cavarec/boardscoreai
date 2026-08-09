@@ -67,6 +67,10 @@ create table if not exists game_rules (
   version_label text not null default 'Édition de base',
   is_official boolean not null default false,
   tie_break_category_id uuid,
+  -- La plupart des jeux se gagnent au score le plus haut. Quelques-uns
+  -- (Skyjo, 6 qui prend…) se gagnent au score le plus bas : 'asc' inverse
+  -- le sens du classement côté moteur sans changer le calcul des points.
+  sort_direction text not null default 'desc' check (sort_direction in ('asc', 'desc')),
   created_at timestamptz not null default now()
 );
 create index if not exists game_rules_game_id_idx on game_rules (game_id);
