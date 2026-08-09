@@ -245,7 +245,7 @@ function RoundEntry({
           type="button"
           onClick={() => setNegative((n) => !n)}
           aria-label={negative ? "Score négatif (appuyer pour positif)" : "Score positif (appuyer pour négatif)"}
-          className={`w-11 shrink-0 rounded-lg border text-lg font-bold ${
+          className={`inline-flex h-11 w-11 shrink-0 appearance-none items-center justify-center rounded-lg border text-lg font-bold leading-none ${
             negative
               ? "border-brick bg-brick-tint text-brick"
               : "border-line-strong text-ink-soft"
@@ -259,9 +259,9 @@ function RoundEntry({
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
           placeholder="Score de cette manche"
-          className="flex-1 rounded-lg border border-line-strong bg-paper px-3 py-2 text-base outline-none focus:border-felt"
+          className="h-11 min-w-0 flex-1 rounded-lg border border-line-strong bg-paper px-3 text-base outline-none focus:border-felt"
         />
-        <Button type="submit" size="md">
+        <Button type="submit" size="md" className="h-11">
           Ajouter
         </Button>
       </form>
