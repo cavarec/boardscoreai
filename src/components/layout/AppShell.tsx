@@ -4,7 +4,7 @@ import { BottomNav } from "@/components/layout/BottomNav";
 /** Layout des écrans principaux (accessibles via la navigation basse). */
 export function AppShell() {
   return (
-    <div className="mx-auto flex h-screen max-w-xl flex-col bg-paper">
+    <div className="mx-auto flex h-dvh max-w-xl flex-col bg-paper">
       <div className="min-h-0 flex-1 overflow-y-auto pb-4">
         <Outlet />
       </div>
@@ -17,7 +17,7 @@ export function AppShell() {
  * chaque page pose sa propre TopBar avec bouton retour. */
 export function FlowShell() {
   return (
-    <div className="mx-auto flex min-h-screen max-w-xl flex-col bg-paper">
+    <div className="mx-auto flex min-h-dvh max-w-xl flex-col bg-paper">
       <Outlet />
     </div>
   );

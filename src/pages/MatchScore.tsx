@@ -61,11 +61,11 @@ export default function MatchScore() {
   }
 
   return (
-    // h-screen + le seul bloc du milieu qui défile : sur un petit écran (ex.
-    // iPhone 13, barre Safari qui grignote la hauteur), les onglets joueurs
-    // et le bouton classement restaient auparavant dans le flux normal de la
-    // page et pouvaient sortir de l'écran l'un ou l'autre selon le scroll.
-    <div className="flex h-screen flex-col">
+    // h-dvh (pas h-screen) : sur Safari iOS, 100vh ignore la barre d'adresse
+    // dynamique et déborde de la zone réellement visible, ce qui rendait
+    // toute la page scrollable et faisait sortir les onglets joueurs de
+    // l'écran à chaque saisie. 100dvh suit la hauteur visible réelle.
+    <div className="flex h-dvh flex-col">
       <TopBar title={full.game.name} />
 
       <div className="flex shrink-0 gap-1 overflow-x-auto border-b border-line px-3 py-2">

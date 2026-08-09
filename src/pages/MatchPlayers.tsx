@@ -40,7 +40,7 @@ export default function MatchPlayers() {
     // joueurs défile, le formulaire d'ajout (en haut) et le bouton
     // "Continuer" (en bas) restent toujours visibles, y compris sur un
     // petit écran où la barre Safari réduit la hauteur utile.
-    <div className="flex h-screen flex-col">
+    <div className="flex h-dvh flex-col">
       <TopBar title={full.game.name} />
 
       <div className="shrink-0 px-5 pb-4 pt-5">

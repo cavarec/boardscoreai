@@ -33,7 +33,7 @@ export default function GameSearch() {
   return (
     // Champ de recherche (haut) et CTA (bas) toujours visibles ; seule la
     // liste de résultats défile — même principe que la saisie de score.
-    <div className="flex h-screen flex-col">
+    <div className="flex h-dvh flex-col">
       <TopBar title="Rechercher un jeu" />
 
       <div className="shrink-0 px-5 pb-4 pt-5">
