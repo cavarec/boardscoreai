@@ -17,7 +17,8 @@ const PODIUM_COLOR: Record<number, string> = {
 export default function MatchRanking() {
   const { matchId } = useParams<{ matchId: string }>();
   const navigate = useNavigate();
-  const [full, setFull] = useState<FullMatch | null>(null);
+  // undefined = en cours de chargement, null = partie introuvable (lien mort).
+  const [full, setFull] = useState<FullMatch | null | undefined>(undefined);
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -27,6 +28,10 @@ export default function MatchRanking() {
       if (data?.match.status === "completed") void pushCompletedMatch(matchId);
     });
   }, [matchId]);
+
+  useEffect(() => {
+    if (full === null) navigate("/", { replace: true });
+  }, [full, navigate]);
 
   if (!full) return null;
 

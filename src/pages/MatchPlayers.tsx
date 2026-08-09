@@ -7,7 +7,8 @@ import { addPlayer, getFullMatch, removePlayer, type FullMatch } from "@/lib/db"
 export default function MatchPlayers() {
   const { matchId } = useParams<{ matchId: string }>();
   const navigate = useNavigate();
-  const [full, setFull] = useState<FullMatch | null>(null);
+  // undefined = en cours de chargement, null = partie introuvable (lien mort).
+  const [full, setFull] = useState<FullMatch | null | undefined>(undefined);
   const [name, setName] = useState("");
 
   async function refresh() {
@@ -19,6 +20,10 @@ export default function MatchPlayers() {
     refresh();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [matchId]);
+
+  useEffect(() => {
+    if (full === null) navigate("/", { replace: true });
+  }, [full, navigate]);
 
   if (!full) return null;
 

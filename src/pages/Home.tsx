@@ -16,12 +16,29 @@ export default function Home() {
   const [resumable, setResumable] = useState<FullMatch | null>(null);
 
   useEffect(() => {
-    db.matches
-      .where("status")
-      .equals("in_progress")
-      .last()
-      .then((m) => (m ? getFullMatch(m.id) : undefined))
-      .then((full) => setResumable(full ?? null));
+    let cancelled = false;
+    (async () => {
+      // `.where("status").equals(...)` trie par la clé de l'index status, pas
+      // par date : toutes les entrées "in_progress" ont la même clé, donc
+      // `.last()` renvoyait un match arbitraire (le plus grand id, pas le plus
+      // récent). On trie explicitement par createdAt une fois les lignes en main.
+      const inProgress = await db.matches.where("status").equals("in_progress").toArray();
+      inProgress.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+
+      for (const match of inProgress) {
+        const full = await getFullMatch(match.id);
+        // Un match "orphelin" (jeu/modèle supprimé depuis) est ignoré au
+        // profit du suivant plutôt que de proposer un lien mort.
+        if (full) {
+          if (!cancelled) setResumable(full);
+          return;
+        }
+      }
+      if (!cancelled) setResumable(null);
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   return (

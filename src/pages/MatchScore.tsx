@@ -11,7 +11,8 @@ import type { ScoreCategory } from "@/types";
 export default function MatchScore() {
   const { matchId } = useParams<{ matchId: string }>();
   const navigate = useNavigate();
-  const [full, setFull] = useState<FullMatch | null>(null);
+  // undefined = en cours de chargement, null = partie introuvable (lien mort).
+  const [full, setFull] = useState<FullMatch | null | undefined>(undefined);
   const [activePlayerId, setActivePlayerId] = useState<string | null>(null);
   const [finishing, setFinishing] = useState(false);
 
@@ -27,7 +28,12 @@ export default function MatchScore() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [matchId]);
 
-  if (!full || !activePlayerId) return null;
+  useEffect(() => {
+    if (full === null) navigate("/", { replace: true });
+    else if (full && full.players.length === 0) navigate(`/match/${matchId}/players`, { replace: true });
+  }, [full, matchId, navigate]);
+
+  if (!full || full.players.length === 0 || !activePlayerId) return null;
 
   const activePlayer = full.players.find((p) => p.id === activePlayerId);
   if (!activePlayer) return null;
