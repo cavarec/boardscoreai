@@ -6,10 +6,7 @@ import { db, getFullMatch, type FullMatch } from "@/lib/db";
 
 function greeting(): string {
   const h = new Date().getHours();
-  if (h < 5) return "Encore debout ?";
-  if (h < 12) return "Bonjour";
-  if (h < 18) return "Bon après-midi";
-  return "Bonsoir";
+  return h >= 5 && h < 18 ? "Bonjour !" : "Bonsoir !";
 }
 
 export default function Home() {
@@ -45,8 +42,8 @@ export default function Home() {
     <div className="flex flex-col gap-6 px-5 pt-8">
       <div>
         <p className="font-mono text-xs uppercase tracking-widest text-felt-strong">BoardScore AI</p>
-        <h1 className="mt-1 font-display text-3xl font-bold">{greeting()} 👋</h1>
-        <p className="mt-1 text-ink-soft">Que jouez-vous ce soir ?</p>
+        <h1 className="mt-1 font-display text-3xl font-bold">{greeting()}</h1>
+        <p className="mt-1 text-ink-soft">À quoi tu joues ?</p>
       </div>
 
       <div className="flex flex-col gap-3">
