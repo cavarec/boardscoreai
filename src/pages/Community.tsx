@@ -30,9 +30,9 @@ export default function Community() {
 
   return (
     <div className="flex flex-col gap-4 px-5 pt-8">
-      <div className="flex items-center justify-between">
-        <h1 className="font-display text-2xl font-bold">Communauté</h1>
-        <Link to="/community/new">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h1 className="min-w-0 font-display text-2xl font-bold">Communauté</h1>
+        <Link to="/community/new" className="shrink-0">
           <Button size="md">+ Proposer</Button>
         </Link>
       </div>
