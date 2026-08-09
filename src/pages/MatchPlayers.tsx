@@ -36,11 +36,15 @@ export default function MatchPlayers() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col">
+    // Même principe que l'écran de saisie des scores : seule la liste des
+    // joueurs défile, le formulaire d'ajout (en haut) et le bouton
+    // "Continuer" (en bas) restent toujours visibles, y compris sur un
+    // petit écran où la barre Safari réduit la hauteur utile.
+    <div className="flex h-screen flex-col">
       <TopBar title={full.game.name} />
-      <div className="flex flex-1 flex-col gap-4 px-5 py-6">
-        <p className="text-ink-soft">Ajoutez les joueurs présents autour de la table.</p>
 
+      <div className="shrink-0 px-5 pb-4 pt-5">
+        <p className="mb-3 text-ink-soft">Ajoutez les joueurs présents autour de la table.</p>
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -53,13 +57,15 @@ export default function MatchPlayers() {
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Prénom du joueur"
-            className="flex-1 rounded-xl border border-line-strong bg-paper-raised px-4 py-3 text-base outline-none focus:border-felt"
+            className="h-11 min-w-0 flex-1 rounded-xl border border-line-strong bg-paper-raised px-4 text-base outline-none focus:border-felt"
           />
-          <Button type="submit" size="md">
+          <Button type="submit" size="md" className="h-11">
             Ajouter
           </Button>
         </form>
+      </div>
 
+      <div className="min-h-0 flex-1 overflow-y-auto px-5 pb-4">
         <div className="flex flex-col gap-2">
           {full.players.map((p, i) => (
             <div
@@ -87,18 +93,18 @@ export default function MatchPlayers() {
             <p className="text-ink-faint">Aucun joueur pour l'instant.</p>
           )}
         </div>
+      </div>
 
-        <div className="mt-auto pt-4">
-          <Button
-            disabled={full.players.length < 1}
-            className="w-full"
-            onClick={() => navigate(`/match/${matchId}/score`)}
-          >
-            {full.players.length < 2
-              ? "Continuer (ajoutez un 2ᵉ joueur pour un vrai classement)"
-              : "Commencer la saisie des scores"}
-          </Button>
-        </div>
+      <div className="safe-bottom shrink-0 border-t border-line px-5 py-3">
+        <Button
+          disabled={full.players.length < 1}
+          className="w-full"
+          onClick={() => navigate(`/match/${matchId}/score`)}
+        >
+          {full.players.length < 2
+            ? "Continuer (ajoutez un 2ᵉ joueur pour un vrai classement)"
+            : "Commencer la saisie des scores"}
+        </Button>
       </div>
     </div>
   );

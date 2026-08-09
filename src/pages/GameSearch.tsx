@@ -31,19 +31,23 @@ export default function GameSearch() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col">
+    // Champ de recherche (haut) et CTA (bas) toujours visibles ; seule la
+    // liste de résultats défile — même principe que la saisie de score.
+    <div className="flex h-screen flex-col">
       <TopBar title="Rechercher un jeu" />
-      <div className="flex flex-1 flex-col gap-4 px-5 py-6">
+
+      <div className="shrink-0 px-5 pb-4 pt-5">
         <input
           autoFocus
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Nom du jeu…"
-          className="w-full rounded-xl border border-line-strong bg-paper-raised px-4 py-3 text-base outline-none focus:border-felt"
+          className="h-11 w-full rounded-xl border border-line-strong bg-paper-raised px-4 text-base outline-none focus:border-felt"
         />
+      </div>
 
+      <div className="min-h-0 flex-1 overflow-y-auto px-5 pb-4">
         {loading && <p className="text-ink-faint">Chargement du catalogue…</p>}
-
         <div className="flex flex-col gap-2">
           {results.map((game) => (
             <button
@@ -63,9 +67,12 @@ export default function GameSearch() {
             <p className="text-ink-faint">Aucun résultat pour « {query} ».</p>
           )}
         </div>
+      </div>
 
+      <div className="safe-bottom shrink-0 border-t border-line px-5 py-3">
         <Button
           variant="secondary"
+          className="w-full"
           onClick={() =>
             navigate("/community/new", { state: { gameNameGuess: query, scannedBarcode } })
           }
