@@ -1,0 +1,146 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #ece8dc;
+  --bg-raised: #f6f3e9;
+  --bg-sunken: #e1dccb;
+  --ink: #1b1f1d;
+  --ink-soft: #4b534c;
+  --ink-faint: #7a8078;
+  --line: rgba(27, 31, 29, 0.16);
+  --line-strong: rgba(27, 31, 29, 0.32);
+  --felt: #1f4b43;
+  --felt-strong: #123832;
+  --felt-tint: rgba(31, 75, 67, 0.1);
+  --amber: #a8681f;
+  --amber-strong: #7e4e17;
+  --amber-tint: rgba(168, 104, 31, 0.14);
+  --brick: #8c3f2e;
+  --brick-tint: rgba(140, 63, 46, 0.12);
+  --shadow: 0 1px 2px rgba(20, 22, 20, 0.06), 0 8px 24px rgba(20, 22, 20, 0.07);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #131e1a;
+    --bg-raised: #1a2621;
+    --bg-sunken: #0e1613;
+    --ink: #ece7d8;
+    --ink-soft: #b7bfb4;
+    --ink-faint: #7e8880;
+    --line: rgba(236, 231, 216, 0.14);
+    --line-strong: rgba(236, 231, 216, 0.28);
+    --felt: #6bb49b;
+    --felt-strong: #8fcbb4;
+    --felt-tint: rgba(107, 180, 155, 0.14);
+    --amber: #e3a857;
+    --amber-strong: #f0c079;
+    --amber-tint: rgba(227, 168, 87, 0.16);
+    --brick: #de8064;
+    --brick-tint: rgba(222, 128, 100, 0.16);
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 12px 28px rgba(0, 0, 0, 0.35);
+  }
+}
+
+:root[data-theme="dark"] {
+  --bg: #131e1a;
+  --bg-raised: #1a2621;
+  --bg-sunken: #0e1613;
+  --ink: #ece7d8;
+  --ink-soft: #b7bfb4;
+  --ink-faint: #7e8880;
+  --line: rgba(236, 231, 216, 0.14);
+  --line-strong: rgba(236, 231, 216, 0.28);
+  --felt: #6bb49b;
+  --felt-strong: #8fcbb4;
+  --felt-tint: rgba(107, 180, 155, 0.14);
+  --amber: #e3a857;
+  --amber-strong: #f0c079;
+  --amber-tint: rgba(227, 168, 87, 0.16);
+  --brick: #de8064;
+  --brick-tint: rgba(222, 128, 100, 0.16);
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 12px 28px rgba(0, 0, 0, 0.35);
+}
+
+:root[data-theme="light"] {
+  --bg: #ece8dc;
+  --bg-raised: #f6f3e9;
+  --bg-sunken: #e1dccb;
+  --ink: #1b1f1d;
+  --ink-soft: #4b534c;
+  --ink-faint: #7a8078;
+  --line: rgba(27, 31, 29, 0.16);
+  --line-strong: rgba(27, 31, 29, 0.32);
+  --felt: #1f4b43;
+  --felt-strong: #123832;
+  --felt-tint: rgba(31, 75, 67, 0.1);
+  --amber: #a8681f;
+  --amber-strong: #7e4e17;
+  --amber-tint: rgba(168, 104, 31, 0.14);
+  --brick: #8c3f2e;
+  --brick-tint: rgba(140, 63, 46, 0.12);
+  --shadow: 0 1px 2px rgba(20, 22, 20, 0.06), 0 8px 24px rgba(20, 22, 20, 0.07);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: theme("fontFamily.body");
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior-y: none;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: theme("fontFamily.display");
+  text-wrap: balance;
+}
+
+::selection {
+  background: var(--amber-tint);
+}
+
+button {
+  font-family: inherit;
+}
+
+/* Big tap targets everywhere: this app is used standing around a table, not held close. */
+button,
+[role="button"],
+input,
+select {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
+.safe-top {
+  padding-top: env(safe-area-inset-top, 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
