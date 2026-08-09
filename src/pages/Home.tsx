@@ -47,17 +47,17 @@ export default function Home() {
       </div>
 
       <div className="flex flex-col gap-3">
+        <Link to="/games/search">
+          <Button className="w-full">Rechercher un jeu</Button>
+        </Link>
         <Link to="/scan?mode=box">
-          <Button className="w-full">Scanner la boîte du jeu</Button>
+          <Button variant="secondary" className="w-full">
+            Scanner la boîte du jeu
+          </Button>
         </Link>
         <Link to="/scan?mode=sheet">
           <Button variant="secondary" className="w-full">
             Scanner la fiche de score
-          </Button>
-        </Link>
-        <Link to="/games/search">
-          <Button variant="secondary" className="w-full">
-            Rechercher un jeu manuellement
           </Button>
         </Link>
       </div>
