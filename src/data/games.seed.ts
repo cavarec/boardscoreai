@@ -14,7 +14,7 @@ import type { GameWithRules, ScoreCategory } from "@/types";
  * réappliquer le catalogue après une mise à jour de l'app — sans ça, les
  * utilisateurs déjà installés ne verraient jamais les nouveaux jeux.
  */
-export const SEED_VERSION = 3;
+export const SEED_VERSION = 4;
 
 let order = 0;
 function cat(
@@ -50,9 +50,9 @@ const sevenWonders = game({
       cat("rule-7-wonders-base", "cat-7w-coins", "Pièces d'or (3 pièces = 1 pt)", "sum", { helper: "Total de vos pièces divisé par 3, arrondi", step: 1 }),
       cat("rule-7-wonders-base", "cat-7w-military", "Points militaires", "sum", { helper: "Peut être négatif", step: 1 }),
       cat("rule-7-wonders-base", "cat-7w-wonders", "Merveille construite", "sum", { step: 1 }),
-      cat("rule-7-wonders-base", "cat-7w-civil", "Bâtiments civils (bleu)", "sum", { step: 1 }),
-      cat("rule-7-wonders-base", "cat-7w-commerce", "Bâtiments commerciaux (jaune)", "sum", { step: 1 }),
-      cat("rule-7-wonders-base", "cat-7w-guilds", "Guildes (violet)", "sum", { step: 1 }),
+      cat("rule-7-wonders-base", "cat-7w-civil", "Bâtiments civils (bleu)", "sum", { roundBased: true, helper: "Additionnez la valeur de chaque carte bleue" }),
+      cat("rule-7-wonders-base", "cat-7w-commerce", "Bâtiments commerciaux (jaune)", "sum", { roundBased: true, helper: "Additionnez la valeur de chaque carte jaune" }),
+      cat("rule-7-wonders-base", "cat-7w-guilds", "Guildes (violet)", "sum", { roundBased: true, helper: "Additionnez la valeur de chaque carte guilde" }),
       cat("rule-7-wonders-base", "cat-7w-science", "Sciences (vert)", "sum", { helper: "Total déjà calculé des symboles", step: 1 }),
     ],
   },
@@ -74,8 +74,8 @@ const wingspan = game({
     versionLabel: "Édition de base",
     isOfficial: true,
     categories: [
-      cat("rule-wingspan-base", "cat-wb-birds", "Points des oiseaux", "sum", { step: 1 }),
-      cat("rule-wingspan-base", "cat-wb-bonus-cards", "Cartes bonus", "bonus", { step: 1 }),
+      cat("rule-wingspan-base", "cat-wb-birds", "Points des oiseaux", "sum", { roundBased: true, helper: "Additionnez la valeur de chaque oiseau" }),
+      cat("rule-wingspan-base", "cat-wb-bonus-cards", "Cartes bonus", "bonus", { roundBased: true, helper: "Additionnez la valeur de chaque carte bonus" }),
       cat("rule-wingspan-base", "cat-wb-goals", "Objectifs de fin de manche", "bonus", { step: 1 }),
       cat("rule-wingspan-base", "cat-wb-eggs", "Œufs sur le plateau", "sum", { perUnit: 1, helper: "1 pt par œuf", step: 1 }),
       cat("rule-wingspan-base", "cat-wb-food", "Nourriture stockée sur cartes", "sum", { perUnit: 1, step: 1 }),
@@ -101,7 +101,7 @@ const terraformingMars = game({
     isOfficial: true,
     categories: [
       cat("rule-tm-base", "cat-tm-tr", "Niveau de terraformation (TR)", "sum", { step: 1 }),
-      cat("rule-tm-base", "cat-tm-cards", "Points sur les cartes jouées", "sum", { step: 1 }),
+      cat("rule-tm-base", "cat-tm-cards", "Points sur les cartes jouées", "sum", { roundBased: true, helper: "Additionnez la valeur de chaque carte" }),
       cat("rule-tm-base", "cat-tm-milestones", "Étapes réclamées", "bonus", { perUnit: 5, helper: "5 pts par étape", step: 1 }),
       cat("rule-tm-base", "cat-tm-awards", "Récompenses remportées", "bonus", { perUnit: 5, helper: "5 pts par récompense", step: 1 }),
       cat("rule-tm-base", "cat-tm-forests", "Forêts posées", "multiplier", { factor: 1, helper: "1 pt par forêt", step: 1 }),
@@ -316,7 +316,7 @@ const dominion = game({
     versionLabel: "Édition de base",
     isOfficial: true,
     categories: [
-      cat("rule-dominion-base", "cat-dom-victory", "Points des cartes Victoire", "sum", { step: 1 }),
+      cat("rule-dominion-base", "cat-dom-victory", "Points des cartes Victoire", "sum", { roundBased: true, helper: "Additionnez la valeur de chaque carte Victoire" }),
       cat("rule-dominion-base", "cat-dom-curse", "Cartes Malédiction", "malus", { step: 1 }),
     ],
   },
@@ -338,7 +338,7 @@ const puertoRico = game({
     versionLabel: "Édition de base",
     isOfficial: true,
     categories: [
-      cat("rule-pr-base", "cat-pr-buildings", "Points de bâtiments", "sum", { step: 1 }),
+      cat("rule-pr-base", "cat-pr-buildings", "Points de bâtiments", "sum", { roundBased: true, helper: "Additionnez la valeur de chaque bâtiment" }),
       cat("rule-pr-base", "cat-pr-goods", "Marchandises exportées", "sum", { step: 1 }),
       cat("rule-pr-base", "cat-pr-great-building", "Bonus grand bâtiment", "bonus", { step: 1 }),
     ],
@@ -387,7 +387,7 @@ const concordia = game({
     versionLabel: "Édition de base",
     isOfficial: true,
     categories: [
-      cat("rule-concordia-base", "cat-cnc-colonists", "Points des colons (Vesta)", "sum", { step: 1 }),
+      cat("rule-concordia-base", "cat-cnc-colonists", "Points des colons (Vesta)", "sum", { roundBased: true, helper: "Additionnez la valeur de chaque marchandise" }),
       cat("rule-concordia-base", "cat-cnc-final-card", "Carte finale (Jupiter/Mercure…)", "sum", { step: 1 }),
       cat("rule-concordia-base", "cat-cnc-money", "Pièces restantes (÷10)", "sum", { step: 1 }),
     ],
@@ -616,7 +616,7 @@ const scrabble = game({
     versionLabel: "Édition de base",
     isOfficial: true,
     categories: [
-      cat("rule-scr-base", "cat-scr-words", "Points des mots posés", "sum", { step: 1 }),
+      cat("rule-scr-base", "cat-scr-words", "Points des mots posés", "sum", { roundBased: true, helper: "Additionnez le score de chaque mot" }),
       cat("rule-scr-base", "cat-scr-bingo", "Scrabble (toutes les lettres posées)", "conditional", { mode: "boolean", pointsIfMet: 50, pointsIfNot: 0 }),
     ],
   },
@@ -754,7 +754,7 @@ const raceForTheGalaxy = game({
     versionLabel: "Édition de base",
     isOfficial: true,
     categories: [
-      cat("rule-rftg-base", "cat-rftg-cards", "Points des cartes", "sum", { step: 1 }),
+      cat("rule-rftg-base", "cat-rftg-cards", "Points des cartes", "sum", { roundBased: true, helper: "Additionnez la valeur de chaque carte" }),
       cat("rule-rftg-base", "cat-rftg-bonus", "Bonus d'objectifs", "bonus", { step: 1 }),
     ],
   },
@@ -776,7 +776,7 @@ const viticulture = game({
     versionLabel: "Édition de base",
     isOfficial: true,
     categories: [
-      cat("rule-vit-base", "cat-vit-cards", "Points des cartes", "sum", { step: 1 }),
+      cat("rule-vit-base", "cat-vit-cards", "Points des cartes", "sum", { roundBased: true, helper: "Additionnez la valeur de chaque carte" }),
       cat("rule-vit-base", "cat-vit-structures", "Structures construites", "bonus", { step: 1 }),
       cat("rule-vit-base", "cat-vit-residual", "Résiduel (pièces, raisins, vin)", "sum", { step: 1 }),
     ],
@@ -822,8 +822,8 @@ const brassBirmingham = game({
     versionLabel: "Édition de base",
     isOfficial: true,
     categories: [
-      cat("rule-brass-base", "cat-brass-industries", "Points d'industries", "sum", { step: 1 }),
-      cat("rule-brass-base", "cat-brass-links", "Points de liens", "sum", { step: 1 }),
+      cat("rule-brass-base", "cat-brass-industries", "Points d'industries", "sum", { roundBased: true, helper: "Additionnez la valeur de chaque tuile industrie" }),
+      cat("rule-brass-base", "cat-brass-links", "Points de liens", "sum", { roundBased: true, helper: "Additionnez la valeur de chaque lien" }),
       cat("rule-brass-base", "cat-brass-income", "Bonus de revenu final", "bonus", { step: 1 }),
     ],
   },
@@ -951,7 +951,7 @@ const coltExpress = game({
     versionLabel: "Édition de base",
     isOfficial: true,
     categories: [
-      cat("rule-ce-base", "cat-ce-loot", "Butin collecté", "sum", { step: 1 }),
+      cat("rule-ce-base", "cat-ce-loot", "Butin collecté", "sum", { roundBased: true, helper: "Additionnez la valeur de chaque butin" }),
       cat("rule-ce-base", "cat-ce-bullets", "Balles et blessures", "malus", { step: 1 }),
     ],
   },

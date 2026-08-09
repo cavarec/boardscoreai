@@ -184,9 +184,11 @@ function CategoryRow({
 }
 
 /**
- * Saisie manche par manche pour les jeux cumulatifs (Skyjo, 6 qui prend…) :
- * on entre le score qu'on vient de faire, pas le total qu'il faudrait
- * recalculer de tête à chaque manche. Chaque manche reste annulable.
+ * Saisie additive : on entre chaque valeur au fur et à mesure (le score
+ * d'une manche, la valeur d'une carte, les points d'un mot…) plutôt que de
+ * recalculer un total de tête. Utile aussi bien pour les jeux en manches
+ * (Skyjo, 6 qui prend) que pour additionner plusieurs cartes en une fois
+ * (Scrabble, les bâtiments de 7 Wonders…). Chaque entrée reste annulable.
  */
 function RoundEntry({
   playerId,
@@ -232,9 +234,7 @@ function RoundEntry({
   return (
     <div className="mt-3 flex flex-col gap-2 border-t border-line pt-3">
       <div className="flex items-center justify-between">
-        <p className="text-sm text-ink-soft">
-          {category.config.helper ?? "Score cumulé sur toutes les manches"}
-        </p>
+        <p className="text-sm text-ink-soft">{category.config.helper ?? "Total cumulé"}</p>
         <p className="font-mono text-lg font-bold tabular-nums text-felt-strong">{total}</p>
       </div>
 
@@ -262,7 +262,7 @@ function RoundEntry({
           inputMode="numeric"
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
-          placeholder="Score de cette manche"
+          placeholder="Valeur à ajouter"
           className="h-11 min-w-0 flex-1 rounded-lg border border-line-strong bg-paper px-3 text-base outline-none focus:border-felt"
         />
         <Button type="submit" size="md" className="h-11">
@@ -276,10 +276,10 @@ function RoundEntry({
             <button
               key={r.id}
               onClick={() => undoRound(r.id)}
-              title="Retirer cette manche"
+              title="Retirer cette entrée"
               className="flex items-center gap-1 rounded-full border border-line-strong px-2.5 py-0.5 text-xs text-ink-soft active:bg-paper-sunken"
             >
-              M{i + 1} : {r.value} ✕
+              #{i + 1} : {r.value} ✕
             </button>
           ))}
         </div>
