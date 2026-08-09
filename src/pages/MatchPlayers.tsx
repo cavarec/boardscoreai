@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { TopBar } from "@/components/layout/TopBar";
 import { Button } from "@/components/ui/Button";
-import { addPlayer, getFullMatch, removePlayer, type FullMatch } from "@/lib/db";
+import { addPlayer, getFullMatch, removePlayer, updateMatchTargets, type FullMatch } from "@/lib/db";
+import { QUICK_PLAY_GAME_ID } from "@/data/games.seed";
 
 export default function MatchPlayers() {
   const { matchId } = useParams<{ matchId: string }>();
@@ -10,6 +11,8 @@ export default function MatchPlayers() {
   // undefined = en cours de chargement, null = partie introuvable (lien mort).
   const [full, setFull] = useState<FullMatch | null | undefined>(undefined);
   const [name, setName] = useState("");
+  const [targetRounds, setTargetRounds] = useState("");
+  const [targetScore, setTargetScore] = useState("");
 
   async function refresh() {
     if (!matchId) return;
@@ -24,6 +27,30 @@ export default function MatchPlayers() {
   useEffect(() => {
     if (full === null) navigate("/", { replace: true });
   }, [full, navigate]);
+
+  useEffect(() => {
+    if (full) {
+      setTargetRounds(full.match.targetRounds ? String(full.match.targetRounds) : "");
+      setTargetScore(full.match.targetScore ? String(full.match.targetScore) : "");
+    }
+    // Ne resynchroniser qu'au chargement initial du match, pas à chaque
+    // refresh() (sinon on écraserait la saisie en cours de l'utilisateur).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [full?.match.id]);
+
+  // Sauvegarde à chaque frappe avec les valeurs passées explicitement
+  // (plutôt qu'un commit au blur qui lirait l'état React) : un blur peut se
+  // déclencher avant que le state n'ait fini de se mettre à jour, ce qui
+  // aurait perdu la dernière frappe.
+  async function saveTargets(roundsStr: string, scoreStr: string) {
+    if (!matchId) return;
+    const rounds = Number(roundsStr);
+    const score = Number(scoreStr);
+    await updateMatchTargets(matchId, {
+      targetRounds: roundsStr.trim() && !Number.isNaN(rounds) ? rounds : undefined,
+      targetScore: scoreStr.trim() && !Number.isNaN(score) ? score : undefined,
+    });
+  }
 
   if (!full) return null;
 
@@ -66,6 +93,41 @@ export default function MatchPlayers() {
       </div>
 
       <div className="min-h-0 flex-1 overflow-y-auto px-5 pb-4">
+        {full.game.id === QUICK_PLAY_GAME_ID && (
+          <div className="mb-4 flex flex-col gap-3 rounded-xl border border-line bg-paper-raised p-4">
+            <p className="text-sm font-medium text-ink-soft">Objectif (optionnel)</p>
+            <div className="flex gap-3">
+              <label className="flex-1 text-xs text-ink-faint">
+                Nombre de manches
+                <input
+                  type="number"
+                  inputMode="numeric"
+                  value={targetRounds}
+                  onChange={(e) => {
+                    setTargetRounds(e.target.value);
+                    saveTargets(e.target.value, targetScore);
+                  }}
+                  placeholder="Ex. 10"
+                  className="mt-1 h-11 w-full rounded-lg border border-line-strong bg-paper px-3 text-base text-ink outline-none focus:border-felt"
+                />
+              </label>
+              <label className="flex-1 text-xs text-ink-faint">
+                Score à atteindre
+                <input
+                  type="number"
+                  inputMode="numeric"
+                  value={targetScore}
+                  onChange={(e) => {
+                    setTargetScore(e.target.value);
+                    saveTargets(targetRounds, e.target.value);
+                  }}
+                  placeholder="Ex. 100"
+                  className="mt-1 h-11 w-full rounded-lg border border-line-strong bg-paper px-3 text-base text-ink outline-none focus:border-felt"
+                />
+              </label>
+            </div>
+          </div>
+        )}
         <div className="flex flex-col gap-2">
           {full.players.map((p, i) => (
             <div

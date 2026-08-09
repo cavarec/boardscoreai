@@ -14,6 +14,7 @@ import {
   type FullMatch,
 } from "@/lib/db";
 import { computePlayerBreakdown, getRawValue } from "@/lib/scoreEngine";
+import { QUICK_PLAY_GAME_ID } from "@/data/games.seed";
 import type { ScoreCategory, ScoreRound } from "@/types";
 
 export default function MatchScore() {
@@ -40,6 +41,28 @@ export default function MatchScore() {
     if (full === null) navigate("/", { replace: true });
     else if (full && full.players.length === 0) navigate(`/match/${matchId}/players`, { replace: true });
   }, [full, matchId, navigate]);
+
+  // "Jeu rapide" a une seule catégorie cumulative : son nombre de manches
+  // saisies sert d'indicateur de progression face à l'objectif optionnel.
+  const quickCategory =
+    full && full.game.id === QUICK_PLAY_GAME_ID
+      ? full.ruleSet.categories.find((c) => c.config.roundBased)
+      : undefined;
+  const [roundsPlayed, setRoundsPlayed] = useState(0);
+
+  useEffect(() => {
+    if (!quickCategory || !activePlayerId) {
+      setRoundsPlayed(0);
+      return;
+    }
+    let cancelled = false;
+    getRounds(activePlayerId, quickCategory.id).then((rounds) => {
+      if (!cancelled) setRoundsPlayed(rounds.length);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [activePlayerId, quickCategory, full]);
 
   if (!full || full.players.length === 0 || !activePlayerId) return null;
 
@@ -85,10 +108,33 @@ export default function MatchScore() {
       </div>
 
       <div className="min-h-0 flex-1 overflow-y-auto px-5 py-5">
-        <div className="mb-3 flex items-center justify-between">
+        <div className="mb-1 flex items-center justify-between">
           <p className="text-ink-soft">Total actuel</p>
-          <p className="font-mono text-2xl font-bold tabular-nums text-felt-strong">{total} pts</p>
+          <p
+            className={`font-mono text-2xl font-bold tabular-nums ${
+              full.match.targetScore && total >= full.match.targetScore
+                ? "text-amber-strong"
+                : "text-felt-strong"
+            }`}
+          >
+            {total} pts
+          </p>
         </div>
+
+        {quickCategory && (full.match.targetRounds || full.match.targetScore) && (
+          <div className="mb-3 flex flex-wrap items-center gap-2">
+            {full.match.targetRounds && (
+              <Pill tone={roundsPlayed >= full.match.targetRounds ? "good" : "neutral"}>
+                Manche {roundsPlayed} / {full.match.targetRounds}
+              </Pill>
+            )}
+            {full.match.targetScore && (
+              <Pill tone={total >= full.match.targetScore ? "good" : "neutral"}>
+                {total >= full.match.targetScore ? "Objectif atteint" : `Objectif : ${full.match.targetScore} pts`}
+              </Pill>
+            )}
+          </div>
+        )}
 
         <div className="flex flex-col gap-2">
           {breakdown.map(({ category }) => (

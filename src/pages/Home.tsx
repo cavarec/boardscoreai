@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
-import { db, getFullMatch, type FullMatch } from "@/lib/db";
+import { createMatch, db, getFullMatch, type FullMatch } from "@/lib/db";
+import { QUICK_PLAY_GAME_ID } from "@/data/games.seed";
 
 function greeting(): string {
   const h = new Date().getHours();
@@ -10,7 +11,15 @@ function greeting(): string {
 }
 
 export default function Home() {
+  const navigate = useNavigate();
   const [resumable, setResumable] = useState<FullMatch | null>(null);
+  const [startingQuick, setStartingQuick] = useState(false);
+
+  async function startQuickPlay() {
+    setStartingQuick(true);
+    const match = await createMatch(QUICK_PLAY_GAME_ID);
+    navigate(`/match/${match.id}/players`);
+  }
 
   useEffect(() => {
     let cancelled = false;
@@ -60,6 +69,9 @@ export default function Home() {
             Scanner la fiche de score
           </Button>
         </Link>
+        <Button variant="secondary" className="w-full" disabled={startingQuick} onClick={startQuickPlay}>
+          Jeu rapide (n'importe quel jeu)
+        </Button>
       </div>
 
       {resumable && (

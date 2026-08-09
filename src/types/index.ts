@@ -105,6 +105,11 @@ export interface Match {
   createdAt: string;
   playedAt?: string;
   status: MatchStatus;
+  /** Utilisés par "Jeu rapide" (voir games.seed.ts) : objectif optionnel
+   * affiché pendant la saisie, purement indicatif (ne termine pas la partie
+   * automatiquement). */
+  targetRounds?: number;
+  targetScore?: number;
 }
 
 export interface Player {

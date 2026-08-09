@@ -134,7 +134,10 @@ export async function linkBarcodeToGame(code: string, gameId: string): Promise<v
   await db.barcodes.put({ code, gameId });
 }
 
-export async function createMatch(gameId: string): Promise<Match> {
+export async function createMatch(
+  gameId: string,
+  targets?: { targetRounds?: number; targetScore?: number }
+): Promise<Match> {
   const ruleSet = await getRuleSetForGame(gameId);
   if (!ruleSet) throw new Error(`Aucun modèle de score pour le jeu ${gameId}`);
   const match: Match = {
@@ -143,9 +146,19 @@ export async function createMatch(gameId: string): Promise<Match> {
     ruleId: ruleSet.id,
     createdAt: new Date().toISOString(),
     status: "in_progress",
+    ...targets,
   };
   await db.matches.put(match);
   return match;
+}
+
+/** Utilisé par "Jeu rapide" : ajuste l'objectif indicatif après coup
+ * (nombre de manches et/ou score à atteindre, tous deux optionnels). */
+export async function updateMatchTargets(
+  matchId: string,
+  targets: { targetRounds?: number; targetScore?: number }
+): Promise<void> {
+  await db.matches.update(matchId, targets);
 }
 
 export async function addPlayer(matchId: string, name: string): Promise<Player> {

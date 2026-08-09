@@ -14,7 +14,7 @@ import type { GameWithRules, ScoreCategory } from "@/types";
  * réappliquer le catalogue après une mise à jour de l'app — sans ça, les
  * utilisateurs déjà installés ne verraient jamais les nouveaux jeux.
  */
-export const SEED_VERSION = 4;
+export const SEED_VERSION = 5;
 
 let order = 0;
 function cat(
@@ -983,6 +983,29 @@ const welcomeTo = game({
 });
 
 order = 0;
+const quickPlay = game({
+  id: "game-quick-play",
+  name: "Jeu rapide",
+  publisher: "BoardScore AI",
+  year: new Date().getFullYear(),
+  aliases: ["jeu rapide", "partie libre", "quick play", "libre"],
+  description:
+    "Suivez le score de n'importe quel jeu sans le reconnaître : ajoutez les joueurs, cumulez les points manche après manche, avec un objectif optionnel (nombre de manches ou score à atteindre).",
+  ruleSet: {
+    id: "rule-quick-play-base",
+    gameId: "game-quick-play",
+    versionLabel: "Suivi libre",
+    isOfficial: false,
+    categories: [
+      cat("rule-quick-play-base", "cat-qp-score", "Score", "sum", {
+        roundBased: true,
+        helper: "Additionnez le score de chaque manche",
+      }),
+    ],
+  },
+});
+
+order = 0;
 const genericTemplate = game({
   id: "game-generic",
   name: "Autre jeu (modèle générique)",
@@ -1046,7 +1069,9 @@ export const GAMES_SEED: GameWithRules[] = [
   camelUp,
   coltExpress,
   welcomeTo,
+  quickPlay,
   genericTemplate,
 ];
 
 export const GENERIC_GAME_ID = genericTemplate.id;
+export const QUICK_PLAY_GAME_ID = quickPlay.id;
