@@ -39,7 +39,10 @@ export async function startBarcodeScan(
 
   try {
     const controls = await reader.decodeFromConstraints(
-      { video: { facingMode: "environment" } },
+      // "ideal" plutôt qu'une contrainte stricte : certains appareils/navigateurs
+      // lèvent une OverconstrainedError sur `facingMode: "environment"` exact
+      // (notamment un seul objectif exposé, ou un mappage caméra inhabituel).
+      { video: { facingMode: { ideal: "environment" } } },
       videoElement,
       (result, error) => {
         if (stopped) return;
@@ -56,6 +59,9 @@ export async function startBarcodeScan(
         }
       }
     );
+    // iOS Safari démarre parfois le flux sans lancer réellement la lecture
+    // vidéo tant qu'un .play() explicite n'est pas rappelé.
+    videoElement.play?.().catch(() => {});
     return { stop: () => controls.stop() };
   } catch (err) {
     onError(err);

@@ -14,7 +14,7 @@ import type { GameWithRules, ScoreCategory } from "@/types";
  * réappliquer le catalogue après une mise à jour de l'app — sans ça, les
  * utilisateurs déjà installés ne verraient jamais les nouveaux jeux.
  */
-export const SEED_VERSION = 2;
+export const SEED_VERSION = 3;
 
 let order = 0;
 function cat(
@@ -676,7 +676,7 @@ const sixQuiPrend = game({
     versionLabel: "Édition de base",
     isOfficial: true,
     sortDirection: "asc",
-    categories: [cat("rule-6qp-base", "cat-6qp-heads", "Têtes de bœuf récoltées", "sum", { step: 1, helper: "Le score le plus bas gagne" })],
+    categories: [cat("rule-6qp-base", "cat-6qp-heads", "Têtes de bœuf récoltées", "sum", { roundBased: true, helper: "Le score le plus bas gagne — une entrée par manche" })],
   },
 });
 
@@ -696,7 +696,7 @@ const skyjo = game({
     versionLabel: "Édition de base",
     isOfficial: true,
     sortDirection: "asc",
-    categories: [cat("rule-skyjo-base", "cat-skyjo-cards", "Valeur des cartes restantes", "sum", { step: 1, helper: "Le score le plus bas gagne" })],
+    categories: [cat("rule-skyjo-base", "cat-skyjo-cards", "Valeur des cartes restantes", "sum", { roundBased: true, helper: "Le score le plus bas gagne — une entrée par manche" })],
   },
 });
 
@@ -715,7 +715,7 @@ const uno = game({
     gameId: "game-uno",
     versionLabel: "Édition de base",
     isOfficial: true,
-    categories: [cat("rule-uno-base", "cat-uno-points", "Points des cartes adverses (manche gagnée)", "sum", { step: 1 })],
+    categories: [cat("rule-uno-base", "cat-uno-points", "Points des cartes adverses (manche gagnée)", "sum", { roundBased: true, helper: "Une entrée par manche gagnée" })],
   },
 });
 

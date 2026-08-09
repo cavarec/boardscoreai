@@ -100,8 +100,9 @@ function BarcodeCapture({
         (err) => {
           if (cancelled) return;
           console.error(err);
+          const detail = err instanceof Error ? `${err.name} — ${err.message}` : String(err);
           setError(
-            "Caméra inaccessible (permission refusée ou aucune caméra détectée). Essayez le scan du nom ou la recherche manuelle."
+            `Caméra inaccessible (${detail}). Si vous utilisez l'app installée depuis l'écran d'accueil, essayez d'abord directement dans Safari/Chrome.`
           );
         }
       ).then((handle) => {

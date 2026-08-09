@@ -36,6 +36,22 @@ export interface FormulaConfig {
   /** Borne basse/haute optionnelles pour la saisie. */
   min?: number;
   max?: number;
+  /** Remplace le stepper +/-1 par une saisie "score de cette manche" qui
+   * s'ajoute au total cumulé — pour les jeux joués en plusieurs manches
+   * (Skyjo, 6 qui prend…) où le score de fin de partie n'existe pas en une
+   * seule fois. Voir ScoreRound dans lib/db.ts. */
+  roundBased?: boolean;
+}
+
+/** Une entrée de manche pour une catégorie "roundBased" : le détail derrière
+ * le total cumulé d'un Score, conservé pour l'afficher et permettre l'annulation. */
+export interface ScoreRound {
+  id: string;
+  playerId: string;
+  categoryId: string;
+  value: number;
+  order: number;
+  createdAt: string;
 }
 
 export interface ScoreCategory {

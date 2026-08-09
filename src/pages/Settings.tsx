@@ -29,15 +29,12 @@ export default function Settings() {
     if (!confirm("Supprimer toutes les parties, joueurs et modèles communautaires locaux ?")) return;
     await db.transaction(
       "rw",
-      db.matches,
-      db.players,
-      db.scores,
-      db.rankings,
-      db.communityTemplates,
+      [db.matches, db.players, db.scores, db.scoreRounds, db.rankings, db.communityTemplates],
       async () => {
         await db.matches.clear();
         await db.players.clear();
         await db.scores.clear();
+        await db.scoreRounds.clear();
         await db.rankings.clear();
         await db.communityTemplates.clear();
       }

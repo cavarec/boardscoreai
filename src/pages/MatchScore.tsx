@@ -4,9 +4,17 @@ import { TopBar } from "@/components/layout/TopBar";
 import { Button } from "@/components/ui/Button";
 import { Pill } from "@/components/ui/Card";
 import { Stepper } from "@/components/ui/Stepper";
-import { completeMatch, getFullMatch, setScore, type FullMatch } from "@/lib/db";
+import {
+  addRoundScore,
+  completeMatch,
+  getFullMatch,
+  getRounds,
+  removeRound,
+  setScore,
+  type FullMatch,
+} from "@/lib/db";
 import { computePlayerBreakdown, getRawValue } from "@/lib/scoreEngine";
-import type { ScoreCategory } from "@/types";
+import type { ScoreCategory, ScoreRound } from "@/types";
 
 export default function MatchScore() {
   const { matchId } = useParams<{ matchId: string }>();
@@ -83,8 +91,10 @@ export default function MatchScore() {
             <CategoryRow
               key={category.id}
               category={category}
+              playerId={activePlayerId}
               value={getRawValue(full.scores, activePlayerId, category.id)}
               onChange={(v) => updateValue(category, v)}
+              onRoundsChanged={refresh}
             />
           ))}
         </div>
@@ -101,53 +111,159 @@ export default function MatchScore() {
 
 function CategoryRow({
   category,
+  playerId,
   value,
   onChange,
+  onRoundsChanged,
 }: {
   category: ScoreCategory;
+  playerId: string;
   value: number;
   onChange: (v: number) => void;
+  onRoundsChanged: () => void;
 }) {
   const isBooleanCondition =
     (category.formulaType === "conditional" || category.formulaType === "hidden_objective") &&
     category.config.mode !== "threshold";
 
   return (
-    <div className="flex items-center justify-between gap-3 rounded-xl border border-line bg-paper-raised px-4 py-3">
-      <div className="min-w-0">
-        <p className="truncate font-medium">{category.label}</p>
-        <div className="flex items-center gap-2">
-          {category.formulaType === "hidden_objective" && <Pill tone="pick">objectif caché</Pill>}
-          {category.formulaType === "malus" && <Pill tone="warn">malus</Pill>}
-          {category.config.helper && (
-            <p className="truncate text-xs text-ink-faint">{category.config.helper}</p>
-          )}
+    <div className="rounded-xl border border-line bg-paper-raised px-4 py-3">
+      <div className="flex items-center justify-between gap-3">
+        <div className="min-w-0">
+          <p className="truncate font-medium">{category.label}</p>
+          <div className="flex items-center gap-2">
+            {category.formulaType === "hidden_objective" && <Pill tone="pick">objectif caché</Pill>}
+            {category.formulaType === "malus" && <Pill tone="warn">malus</Pill>}
+            {category.config.helper && !category.config.roundBased && (
+              <p className="truncate text-xs text-ink-faint">{category.config.helper}</p>
+            )}
+          </div>
         </div>
+
+        {!category.config.roundBased &&
+          (isBooleanCondition ? (
+            <button
+              role="switch"
+              aria-checked={value > 0}
+              onClick={() => onChange(value > 0 ? 0 : 1)}
+              className={`relative h-7 w-12 shrink-0 rounded-full transition-colors ${
+                value > 0 ? "bg-felt" : "bg-paper-sunken"
+              }`}
+            >
+              <span
+                className={`absolute top-0.5 h-6 w-6 rounded-full bg-paper-raised shadow transition-transform ${
+                  value > 0 ? "translate-x-5" : "translate-x-0.5"
+                }`}
+              />
+            </button>
+          ) : (
+            <Stepper
+              value={value}
+              onChange={onChange}
+              step={category.config.step ?? 1}
+              min={category.config.min}
+              max={category.config.max}
+            />
+          ))}
       </div>
 
-      {isBooleanCondition ? (
-        <button
-          role="switch"
-          aria-checked={value > 0}
-          onClick={() => onChange(value > 0 ? 0 : 1)}
-          className={`relative h-7 w-12 shrink-0 rounded-full transition-colors ${
-            value > 0 ? "bg-felt" : "bg-paper-sunken"
-          }`}
-        >
-          <span
-            className={`absolute top-0.5 h-6 w-6 rounded-full bg-paper-raised shadow transition-transform ${
-              value > 0 ? "translate-x-5" : "translate-x-0.5"
-            }`}
-          />
-        </button>
-      ) : (
-        <Stepper
-          value={value}
-          onChange={onChange}
-          step={category.config.step ?? 1}
-          min={category.config.min}
-          max={category.config.max}
+      {category.config.roundBased && (
+        <RoundEntry
+          playerId={playerId}
+          category={category}
+          total={value}
+          onChanged={onRoundsChanged}
         />
+      )}
+    </div>
+  );
+}
+
+/**
+ * Saisie manche par manche pour les jeux cumulatifs (Skyjo, 6 qui prend…) :
+ * on entre le score qu'on vient de faire, pas le total qu'il faudrait
+ * recalculer de tête à chaque manche. Chaque manche reste annulable.
+ */
+function RoundEntry({
+  playerId,
+  category,
+  total,
+  onChanged,
+}: {
+  playerId: string;
+  category: ScoreCategory;
+  total: number;
+  onChanged: () => void;
+}) {
+  const [rounds, setRounds] = useState<ScoreRound[]>([]);
+  const [draft, setDraft] = useState("");
+
+  async function refreshRounds() {
+    setRounds(await getRounds(playerId, category.id));
+  }
+
+  useEffect(() => {
+    refreshRounds();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [playerId, category.id]);
+
+  async function addRound() {
+    const parsed = Number(draft);
+    if (!draft.trim() || Number.isNaN(parsed)) return;
+    await addRoundScore(playerId, category.id, parsed);
+    setDraft("");
+    await refreshRounds();
+    onChanged();
+  }
+
+  async function undoRound(roundId: string) {
+    await removeRound(roundId);
+    await refreshRounds();
+    onChanged();
+  }
+
+  return (
+    <div className="mt-3 flex flex-col gap-2 border-t border-line pt-3">
+      <div className="flex items-center justify-between">
+        <p className="text-sm text-ink-soft">
+          {category.config.helper ?? "Score cumulé sur toutes les manches"}
+        </p>
+        <p className="font-mono text-lg font-bold tabular-nums text-felt-strong">{total}</p>
+      </div>
+
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          addRound();
+        }}
+        className="flex gap-2"
+      >
+        <input
+          type="number"
+          inputMode="numeric"
+          value={draft}
+          onChange={(e) => setDraft(e.target.value)}
+          placeholder="Score de cette manche"
+          className="flex-1 rounded-lg border border-line-strong bg-paper px-3 py-2 text-base outline-none focus:border-felt"
+        />
+        <Button type="submit" size="md">
+          Ajouter
+        </Button>
+      </form>
+
+      {rounds.length > 0 && (
+        <div className="flex flex-wrap gap-1.5">
+          {rounds.map((r, i) => (
+            <button
+              key={r.id}
+              onClick={() => undoRound(r.id)}
+              title="Retirer cette manche"
+              className="flex items-center gap-1 rounded-full border border-line-strong px-2.5 py-0.5 text-xs text-ink-soft active:bg-paper-sunken"
+            >
+              M{i + 1} : {r.value} ✕
+            </button>
+          ))}
+        </div>
       )}
     </div>
   );

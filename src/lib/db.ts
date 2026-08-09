@@ -10,6 +10,7 @@ import type {
   RankingRow,
   Score,
   ScoreCategory,
+  ScoreRound,
 } from "@/types";
 
 /**
@@ -36,6 +37,7 @@ class BoardScoreDB extends Dexie {
   communityTemplates!: EntityTable<CommunityTemplate, "id">;
   meta!: EntityTable<{ key: string; value: unknown }, "key">;
   barcodes!: EntityTable<BarcodeLink, "code">;
+  scoreRounds!: EntityTable<ScoreRound, "id">;
 
   constructor() {
     super("boardscore-ai");
@@ -55,6 +57,11 @@ class BoardScoreDB extends Dexie {
     // (déjà en v1) reçoivent le nouveau store sans perdre leurs données.
     this.version(2).stores({
       barcodes: "code, gameId",
+    });
+    // v3 : détail des manches derrière un Score cumulé (voir addRoundScore) —
+    // n'affecte pas le moteur de calcul, qui continue à ne lire que scores.value.
+    this.version(3).stores({
+      scoreRounds: "id, playerId, categoryId, [playerId+categoryId]",
     });
   }
 }
@@ -155,8 +162,9 @@ export async function addPlayer(matchId: string, name: string): Promise<Player> 
 }
 
 export async function removePlayer(playerId: string): Promise<void> {
-  await db.transaction("rw", db.players, db.scores, async () => {
+  await db.transaction("rw", db.players, db.scores, db.scoreRounds, async () => {
     await db.scores.where("playerId").equals(playerId).delete();
+    await db.scoreRounds.where("playerId").equals(playerId).delete();
     await db.players.delete(playerId);
   });
 }
@@ -171,6 +179,64 @@ export async function setScore(playerId: string, categoryId: string, value: numb
   } else {
     await db.scores.put({ id: crypto.randomUUID(), playerId, categoryId, value });
   }
+}
+
+/**
+ * Ajoute le score d'UNE manche pour les catégories "roundBased" (Skyjo, 6 qui
+ * prend…) et l'ajoute au total cumulé — l'utilisateur saisit ce qu'il vient
+ * de faire, pas le total qu'il devrait recalculer de tête à chaque manche.
+ */
+export async function addRoundScore(
+  playerId: string,
+  categoryId: string,
+  value: number
+): Promise<void> {
+  await db.transaction("rw", db.scores, db.scoreRounds, async () => {
+    const existingRounds = await db.scoreRounds
+      .where("[playerId+categoryId]")
+      .equals([playerId, categoryId])
+      .count();
+    await db.scoreRounds.put({
+      id: crypto.randomUUID(),
+      playerId,
+      categoryId,
+      value,
+      order: existingRounds,
+      createdAt: new Date().toISOString(),
+    });
+    const existingScore = await db.scores
+      .where("[playerId+categoryId]")
+      .equals([playerId, categoryId])
+      .first();
+    if (existingScore) {
+      await db.scores.update(existingScore.id, { value: existingScore.value + value });
+    } else {
+      await db.scores.put({ id: crypto.randomUUID(), playerId, categoryId, value });
+    }
+  });
+}
+
+export async function getRounds(playerId: string, categoryId: string) {
+  return db.scoreRounds
+    .where("[playerId+categoryId]")
+    .equals([playerId, categoryId])
+    .sortBy("order");
+}
+
+/** Annule une manche : retire son entrée et son montant du total cumulé. */
+export async function removeRound(roundId: string): Promise<void> {
+  await db.transaction("rw", db.scores, db.scoreRounds, async () => {
+    const round = await db.scoreRounds.get(roundId);
+    if (!round) return;
+    await db.scoreRounds.delete(roundId);
+    const score = await db.scores
+      .where("[playerId+categoryId]")
+      .equals([round.playerId, round.categoryId])
+      .first();
+    if (score) {
+      await db.scores.update(score.id, { value: score.value - round.value });
+    }
+  });
 }
 
 export interface FullMatch {
@@ -222,15 +288,24 @@ export async function listMatches(): Promise<Match[]> {
 }
 
 export async function deleteMatch(matchId: string): Promise<void> {
-  await db.transaction("rw", db.matches, db.players, db.scores, db.rankings, async () => {
-    const players = await db.players.where("matchId").equals(matchId).toArray();
-    for (const p of players) {
-      await db.scores.where("playerId").equals(p.id).delete();
+  await db.transaction(
+    "rw",
+    db.matches,
+    db.players,
+    db.scores,
+    db.scoreRounds,
+    db.rankings,
+    async () => {
+      const players = await db.players.where("matchId").equals(matchId).toArray();
+      for (const p of players) {
+        await db.scores.where("playerId").equals(p.id).delete();
+        await db.scoreRounds.where("playerId").equals(p.id).delete();
+      }
+      await db.players.where("matchId").equals(matchId).delete();
+      await db.rankings.where("matchId").equals(matchId).delete();
+      await db.matches.delete(matchId);
     }
-    await db.players.where("matchId").equals(matchId).delete();
-    await db.rankings.where("matchId").equals(matchId).delete();
-    await db.matches.delete(matchId);
-  });
+  );
 }
 
 export async function listCommunityTemplates(): Promise<CommunityTemplate[]> {
