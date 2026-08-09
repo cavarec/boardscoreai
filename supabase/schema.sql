@@ -138,6 +138,19 @@ create table if not exists rankings (
 create index if not exists rankings_match_id_idx on rankings (match_id);
 
 -- ----------------------------------------------------------------------------
+-- GameBarcodes — correspondance code-barres -> jeu, construite par la
+-- communauté au fil des scans (voir src/lib/barcode.ts). Un code-barres
+-- inconnu ne bloque rien : l'app retombe sur l'OCR ou la recherche, puis
+-- mémorise l'association dès que l'utilisateur confirme le jeu.
+-- ----------------------------------------------------------------------------
+create table if not exists game_barcodes (
+  barcode text primary key,
+  game_id uuid not null references games (id) on delete cascade,
+  contributed_by uuid references profiles (id) on delete set null,
+  created_at timestamptz not null default now()
+);
+
+-- ----------------------------------------------------------------------------
 -- CommunityTemplates — propositions de nouveaux modèles de score
 -- ----------------------------------------------------------------------------
 create table if not exists community_templates (
@@ -172,6 +185,7 @@ alter table players enable row level security;
 alter table scores enable row level security;
 alter table rankings enable row level security;
 alter table community_templates enable row level security;
+alter table game_barcodes enable row level security;
 
 create policy "profiles: lecture de son propre profil" on profiles
   for select using (auth.uid() = id);
@@ -218,6 +232,11 @@ create policy "modèles communautaires: proposition par un utilisateur connecté
   for insert with check (auth.uid() = author_id);
 create policy "modèles communautaires: vote (mise à jour limitée)" on community_templates
   for update using (auth.role() = 'authenticated') with check (status = 'pending');
+
+create policy "codes-barres: lecture publique" on game_barcodes
+  for select using (true);
+create policy "codes-barres: contribution par un utilisateur connecté" on game_barcodes
+  for insert with check (auth.role() = 'authenticated');
 
 -- ============================================================================
 -- Amorce du catalogue : décommentez et adaptez pour importer les jeux du

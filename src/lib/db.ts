@@ -20,6 +20,11 @@ import type {
  */
 type RuleSetRow = Omit<GameRuleSet, "categories">;
 
+interface BarcodeLink {
+  code: string;
+  gameId: string;
+}
+
 class BoardScoreDB extends Dexie {
   games!: EntityTable<Game, "id">;
   ruleSets!: EntityTable<RuleSetRow, "id">;
@@ -30,6 +35,7 @@ class BoardScoreDB extends Dexie {
   rankings!: EntityTable<RankingRow, "id">;
   communityTemplates!: EntityTable<CommunityTemplate, "id">;
   meta!: EntityTable<{ key: string; value: unknown }, "key">;
+  barcodes!: EntityTable<BarcodeLink, "code">;
 
   constructor() {
     super("boardscore-ai");
@@ -43,6 +49,12 @@ class BoardScoreDB extends Dexie {
       rankings: "id, matchId, playerId",
       communityTemplates: "id, status, gameId, createdAt",
       meta: "key",
+    });
+    // v2 : table de correspondance code-barres -> jeu (voir lib/barcode.ts).
+    // Nouvelle version Dexie requise pour que les installations existantes
+    // (déjà en v1) reçoivent le nouveau store sans perdre leurs données.
+    this.version(2).stores({
+      barcodes: "code, gameId",
     });
   }
 }
@@ -97,6 +109,22 @@ export async function getGameWithRules(gameId: string) {
   const ruleSet = await getRuleSetForGame(gameId);
   if (!ruleSet) return undefined;
   return { ...game, ruleSet };
+}
+
+/** Correspondance rapide code-barres -> jeu, alimentée par la communauté
+ * (voir linkBarcodeToGame) : ne contient au départ aucune donnée, un scan
+ * de code-barres inconnu retombe donc sur l'OCR ou la recherche manuelle. */
+export async function lookupBarcode(code: string): Promise<Game | undefined> {
+  const link = await db.barcodes.get(code);
+  if (!link) return undefined;
+  return db.games.get(link.gameId);
+}
+
+/** Mémorise l'association pour que le prochain scan de ce code-barres soit
+ * instantané. Appelé dès qu'un jeu est confirmé après un scan de
+ * code-barres resté sans correspondance locale. */
+export async function linkBarcodeToGame(code: string, gameId: string): Promise<void> {
+  await db.barcodes.put({ code, gameId });
 }
 
 export async function createMatch(gameId: string): Promise<Match> {

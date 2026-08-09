@@ -97,6 +97,18 @@ Ajouter un jeu — ou une variante communautaire — ne touche jamais
 `scoreEngine.ts` : tout passe par la configuration en base
 (`src/data/games.seed.ts` en local, table `score_categories` sur Supabase).
 
+## Scan de code-barres
+
+En complément de l'OCR, `/scan?mode=box` démarre par une lecture de
+code-barres en direct (ZXing, chargé à la demande pour ne pas alourdir le
+chargement initial). Aucune base de données de codes-barres de jeux de
+société n'étant disponible gratuitement, la correspondance est **construite
+par l'usage** : un code-barres inconnu retombe sur l'OCR ou la recherche
+manuelle, et dès que l'utilisateur confirme le jeu, l'association est
+mémorisée localement (table Dexie `barcodes`) puis partagée si Supabase est
+connecté (table `game_barcodes`) — le scan suivant de la même boîte, par
+n'importe qui, devient alors instantané.
+
 ## Limites connues de cette première génération
 
 - **OCR** : Tesseract.js télécharge ses données de langue depuis un CDN au

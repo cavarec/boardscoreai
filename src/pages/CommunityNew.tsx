@@ -2,8 +2,8 @@ import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { TopBar } from "@/components/layout/TopBar";
 import { Button } from "@/components/ui/Button";
-import { createMatch, submitCommunityTemplate } from "@/lib/db";
-import { pushCommunityTemplate } from "@/lib/sync";
+import { createMatch, linkBarcodeToGame, submitCommunityTemplate } from "@/lib/db";
+import { pushBarcodeLink, pushCommunityTemplate } from "@/lib/sync";
 import { FORMULA_LABELS } from "@/lib/scoreEngine";
 import type { FormulaType, ScoreCategory } from "@/types";
 
@@ -36,7 +36,9 @@ const FORMULA_TYPES = Object.keys(FORMULA_LABELS) as FormulaType[];
 export default function CommunityNew() {
   const location = useLocation();
   const navigate = useNavigate();
-  const prefill = (location.state as { gameNameGuess?: string } | null)?.gameNameGuess ?? "";
+  const navState = location.state as { gameNameGuess?: string; scannedBarcode?: string } | null;
+  const prefill = navState?.gameNameGuess ?? "";
+  const scannedBarcode = navState?.scannedBarcode;
 
   const [gameName, setGameName] = useState(prefill);
   const [categories, setCategories] = useState<Draft[]>([emptyDraft("Points bruts")]);
@@ -73,6 +75,10 @@ export default function CommunityNew() {
       sourceNote: sourceNote.trim() || undefined,
     });
     void pushCommunityTemplate(template);
+    if (scannedBarcode) {
+      await linkBarcodeToGame(scannedBarcode, game.id);
+      void pushBarcodeLink(scannedBarcode, game.id);
+    }
     // Le modèle est déjà jouable localement (voir submitCommunityTemplate) :
     // on enchaîne directement sur une partie plutôt que de renvoyer vers la
     // liste communautaire, pour fermer la boucle "jeu inconnu -> jouable".
