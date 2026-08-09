@@ -50,7 +50,7 @@ export default function MatchPlayers() {
             placeholder="Prénom du joueur"
             className="flex-1 rounded-xl border border-line-strong bg-paper-raised px-4 py-3 text-base outline-none focus:border-felt"
           />
-          <Button type="submit" size="md" className="px-5">
+          <Button type="submit" size="md">
             Ajouter
           </Button>
         </form>
