@@ -3,7 +3,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { createMatch, db, getFullMatch, type FullMatch } from "@/lib/db";
-import { QUICK_PLAY_GAME_ID } from "@/data/games.seed";
+import { useGames } from "@/hooks/useGames";
+import { GENERIC_GAME_ID, QUICK_PLAY_GAME_ID } from "@/data/games.seed";
 
 function greeting(): string {
   const h = new Date().getHours();
@@ -14,6 +15,12 @@ export default function Home() {
   const navigate = useNavigate();
   const [resumable, setResumable] = useState<FullMatch | null>(null);
   const [startingQuick, setStartingQuick] = useState(false);
+  // Compté depuis le catalogue local réel (pas une constante codée en dur,
+  // qui deviendrait vite fausse à chaque ajout de jeu) — exclut les deux
+  // entrées utilitaires ("Jeu rapide", modèle générique) qui ne sont pas de
+  // vrais jeux reconnus.
+  const { games } = useGames();
+  const gameCount = games.filter((g) => g.id !== QUICK_PLAY_GAME_ID && g.id !== GENERIC_GAME_ID).length;
 
   async function startQuickPlay() {
     setStartingQuick(true);
@@ -53,6 +60,11 @@ export default function Home() {
         <p className="font-mono text-xs uppercase tracking-widest text-felt-strong">BoardScore AI</p>
         <h1 className="mt-1 font-display text-3xl font-bold">{greeting()}</h1>
         <p className="mt-1 text-ink-soft">À quoi tu joues ?</p>
+        {gameCount > 0 && (
+          <p className="mt-2 text-sm text-ink-faint">
+            {gameCount} jeux reconnus automatiquement · fait par un joueur, pas une startup
+          </p>
+        )}
       </div>
 
       <div className="flex flex-col gap-3">
