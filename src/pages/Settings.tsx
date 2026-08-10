@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { db, getMeta, setMeta } from "@/lib/db";
 import { isSupabaseConfigured } from "@/lib/supabase";
-import { requestLoginCode, signOut, verifyLoginCode } from "@/lib/auth";
+import { sendLoginLink, signOut } from "@/lib/auth";
 
 const THEME_OPTIONS: { value: ThemeChoice; label: string }[] = [
   { value: "system", label: "Système" },
@@ -91,16 +91,17 @@ export default function Settings() {
 }
 
 /**
- * Connexion par code à usage unique (OTP email) : sans ça, une partie créée
- * ne se synchronise jamais (RLS exige created_by = auth.uid()) — elle reste
+ * Connexion par lien envoyé par email : sans ça, une partie créée ne se
+ * synchronise jamais (RLS exige created_by = auth.uid()) — elle reste
  * locale à l'appareil, ce qui est le comportement par défaut voulu pour un
- * usage invité, mais pas ce qu'on veut pour du multi-appareils.
+ * usage invité, mais pas ce qu'on veut pour du multi-appareils. Pas de
+ * code à saisir : le modèle d'email par défaut de Supabase (sans SMTP
+ * personnalisé) ne contient qu'un lien cliquable.
  */
 function AccountCard() {
   const { session, loading } = useAuth();
-  const [step, setStep] = useState<"email" | "code">("email");
   const [email, setEmail] = useState("");
-  const [code, setCode] = useState("");
+  const [sent, setSent] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -135,25 +136,14 @@ function AccountCard() {
     );
   }
 
-  async function sendCode() {
+  async function sendLink() {
     if (!email.trim()) return;
     setBusy(true);
     setError(null);
-    const { error } = await requestLoginCode(email.trim());
+    const { error } = await sendLoginLink(email.trim());
     setBusy(false);
     if (error) setError(error);
-    else setStep("code");
-  }
-
-  async function confirmCode() {
-    if (!code.trim()) return;
-    setBusy(true);
-    setError(null);
-    const { error } = await verifyLoginCode(email.trim(), code.trim());
-    setBusy(false);
-    if (error) setError(error);
-    // Pas besoin de rien faire de plus au succès : useAuth() se met à jour
-    // tout seul via onAuthStateChange, ce qui re-rend cette carte connectée.
+    else setSent(true);
   }
 
   return (
@@ -163,11 +153,24 @@ function AccountCard() {
         Connectez-vous pour sauvegarder vos parties en ligne et les retrouver sur vos autres appareils.
       </p>
 
-      {step === "email" ? (
+      {sent ? (
+        <div className="flex flex-col gap-2">
+          <p className="text-sm text-ink-soft">
+            Lien envoyé à {email} — ouvrez l'email et touchez "Log In" pour vous connecter.
+          </p>
+          <button
+            type="button"
+            onClick={() => setSent(false)}
+            className="self-start text-sm text-ink-faint underline underline-offset-2"
+          >
+            Changer d'email / renvoyer
+          </button>
+        </div>
+      ) : (
         <form
           onSubmit={(e) => {
             e.preventDefault();
-            sendCode();
+            sendLink();
           }}
           className="flex gap-2"
         >
@@ -180,38 +183,8 @@ function AccountCard() {
             className="h-11 min-w-0 flex-1 rounded-lg border border-line-strong bg-paper px-3 text-base outline-none focus:border-felt"
           />
           <Button type="submit" size="md" className="h-11" disabled={busy}>
-            Envoyer le code
+            Envoyer le lien
           </Button>
-        </form>
-      ) : (
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            confirmCode();
-          }}
-          className="flex flex-col gap-2"
-        >
-          <p className="text-sm text-ink-soft">Code envoyé à {email} — vérifiez vos emails.</p>
-          <div className="flex gap-2">
-            <input
-              inputMode="numeric"
-              autoComplete="one-time-code"
-              value={code}
-              onChange={(e) => setCode(e.target.value)}
-              placeholder="Code à 6 chiffres"
-              className="h-11 min-w-0 flex-1 rounded-lg border border-line-strong bg-paper px-3 text-base outline-none focus:border-felt"
-            />
-            <Button type="submit" size="md" className="h-11" disabled={busy}>
-              Valider
-            </Button>
-          </div>
-          <button
-            type="button"
-            onClick={() => setStep("email")}
-            className="self-start text-sm text-ink-faint underline underline-offset-2"
-          >
-            Changer d'email
-          </button>
         </form>
       )}
 
