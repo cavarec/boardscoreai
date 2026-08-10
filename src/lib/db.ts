@@ -1,6 +1,7 @@
 import Dexie, { type EntityTable } from "dexie";
 import { GAMES_SEED, SEED_VERSION } from "@/data/games.seed";
 import { computeRanking } from "@/lib/scoreEngine";
+import { getCurrentUserId } from "@/lib/auth";
 import type {
   CommunityTemplate,
   Game,
@@ -140,10 +141,15 @@ export async function createMatch(
 ): Promise<Match> {
   const ruleSet = await getRuleSetForGame(gameId);
   if (!ruleSet) throw new Error(`Aucun modèle de score pour le jeu ${gameId}`);
+  // Sans utilisateur connecté, createdBy reste undefined : la partie ne
+  // synchronise jamais vers Supabase (RLS l'exige), elle reste locale — ce
+  // qui est le comportement voulu pour un usage invité/hors-ligne.
+  const createdBy = await getCurrentUserId();
   const match: Match = {
     id: crypto.randomUUID(),
     gameId,
     ruleId: ruleSet.id,
+    createdBy,
     createdAt: new Date().toISOString(),
     status: "in_progress",
     ...targets,

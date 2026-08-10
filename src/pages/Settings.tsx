@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { useTheme, type ThemeChoice } from "@/hooks/useTheme";
+import { useAuth } from "@/hooks/useAuth";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { db, getMeta, setMeta } from "@/lib/db";
 import { isSupabaseConfigured } from "@/lib/supabase";
+import { requestLoginCode, signOut, verifyLoginCode } from "@/lib/auth";
 
 const THEME_OPTIONS: { value: ThemeChoice; label: string }[] = [
   { value: "system", label: "Système" },
@@ -65,23 +67,7 @@ export default function Settings() {
         </div>
       </Card>
 
-      <Card>
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="font-medium">Synchronisation cloud</p>
-            <p className="text-sm text-ink-faint">
-              {isSupabaseConfigured
-                ? "Supabase connecté — vos parties se synchronisent en ligne."
-                : "Non configuré — mode local uniquement (voir .env.example)."}
-            </p>
-          </div>
-          <span
-            className={`h-2.5 w-2.5 shrink-0 rounded-full ${
-              isSupabaseConfigured ? "bg-felt" : "bg-ink-faint"
-            }`}
-          />
-        </div>
-      </Card>
+      <AccountCard />
 
       <Card className="border-amber bg-amber-tint">
         <p className="font-semibold text-amber-strong">Passer Premium</p>
@@ -101,5 +87,135 @@ export default function Settings() {
         Version {__APP_VERSION__}
       </p>
     </div>
+  );
+}
+
+/**
+ * Connexion par code à usage unique (OTP email) : sans ça, une partie créée
+ * ne se synchronise jamais (RLS exige created_by = auth.uid()) — elle reste
+ * locale à l'appareil, ce qui est le comportement par défaut voulu pour un
+ * usage invité, mais pas ce qu'on veut pour du multi-appareils.
+ */
+function AccountCard() {
+  const { session, loading } = useAuth();
+  const [step, setStep] = useState<"email" | "code">("email");
+  const [email, setEmail] = useState("");
+  const [code, setCode] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  if (!isSupabaseConfigured) {
+    return (
+      <Card>
+        <p className="font-medium">Synchronisation cloud</p>
+        <p className="text-sm text-ink-faint">Non configuré — mode local uniquement (voir .env.example).</p>
+      </Card>
+    );
+  }
+
+  if (loading) return <Card><p className="text-sm text-ink-faint">Chargement…</p></Card>;
+
+  if (session) {
+    return (
+      <Card>
+        <div className="flex items-center justify-between gap-3">
+          <div className="min-w-0">
+            <p className="font-medium">Connecté</p>
+            <p className="truncate text-sm text-ink-faint">{session.user.email}</p>
+          </div>
+          <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-felt" />
+        </div>
+        <p className="mt-2 text-sm text-ink-soft">
+          Vos parties se sauvegardent en ligne et se retrouvent sur vos autres appareils.
+        </p>
+        <Button variant="secondary" size="md" className="mt-3" onClick={() => signOut()}>
+          Se déconnecter
+        </Button>
+      </Card>
+    );
+  }
+
+  async function sendCode() {
+    if (!email.trim()) return;
+    setBusy(true);
+    setError(null);
+    const { error } = await requestLoginCode(email.trim());
+    setBusy(false);
+    if (error) setError(error);
+    else setStep("code");
+  }
+
+  async function confirmCode() {
+    if (!code.trim()) return;
+    setBusy(true);
+    setError(null);
+    const { error } = await verifyLoginCode(email.trim(), code.trim());
+    setBusy(false);
+    if (error) setError(error);
+    // Pas besoin de rien faire de plus au succès : useAuth() se met à jour
+    // tout seul via onAuthStateChange, ce qui re-rend cette carte connectée.
+  }
+
+  return (
+    <Card>
+      <p className="font-medium">Synchronisation cloud</p>
+      <p className="mb-3 text-sm text-ink-faint">
+        Connectez-vous pour sauvegarder vos parties en ligne et les retrouver sur vos autres appareils.
+      </p>
+
+      {step === "email" ? (
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            sendCode();
+          }}
+          className="flex gap-2"
+        >
+          <input
+            type="email"
+            autoComplete="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="vous@exemple.com"
+            className="h-11 min-w-0 flex-1 rounded-lg border border-line-strong bg-paper px-3 text-base outline-none focus:border-felt"
+          />
+          <Button type="submit" size="md" className="h-11" disabled={busy}>
+            Envoyer le code
+          </Button>
+        </form>
+      ) : (
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            confirmCode();
+          }}
+          className="flex flex-col gap-2"
+        >
+          <p className="text-sm text-ink-soft">Code envoyé à {email} — vérifiez vos emails.</p>
+          <div className="flex gap-2">
+            <input
+              inputMode="numeric"
+              autoComplete="one-time-code"
+              value={code}
+              onChange={(e) => setCode(e.target.value)}
+              placeholder="Code à 6 chiffres"
+              className="h-11 min-w-0 flex-1 rounded-lg border border-line-strong bg-paper px-3 text-base outline-none focus:border-felt"
+            />
+            <Button type="submit" size="md" className="h-11" disabled={busy}>
+              Valider
+            </Button>
+          </div>
+          <button
+            type="button"
+            onClick={() => setStep("email")}
+            className="self-start text-sm text-ink-faint underline underline-offset-2"
+          >
+            Changer d'email
+          </button>
+        </form>
+      )}
+
+      {error && <p className="mt-2 text-sm text-brick">{error}</p>}
+    </Card>
   );
 }

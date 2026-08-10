@@ -1,6 +1,7 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { AppShell, FlowShell } from "@/components/layout/AppShell";
 import { ThemeProvider } from "@/hooks/useTheme";
+import { AuthProvider } from "@/hooks/useAuth";
 import Home from "@/pages/Home";
 import Scan from "@/pages/Scan";
 import ScanResult from "@/pages/ScanResult";
@@ -17,27 +18,29 @@ import Settings from "@/pages/Settings";
 export default function App() {
   return (
     <ThemeProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route element={<AppShell />}>
-            <Route path="/" element={<Home />} />
-            <Route path="/history" element={<History />} />
-            <Route path="/community" element={<Community />} />
-            <Route path="/assistant" element={<Assistant />} />
-            <Route path="/settings" element={<Settings />} />
-          </Route>
+      <AuthProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route element={<AppShell />}>
+              <Route path="/" element={<Home />} />
+              <Route path="/history" element={<History />} />
+              <Route path="/community" element={<Community />} />
+              <Route path="/assistant" element={<Assistant />} />
+              <Route path="/settings" element={<Settings />} />
+            </Route>
 
-          <Route element={<FlowShell />}>
-            <Route path="/scan" element={<Scan />} />
-            <Route path="/scan/result" element={<ScanResult />} />
-            <Route path="/games/search" element={<GameSearch />} />
-            <Route path="/community/new" element={<CommunityNew />} />
-            <Route path="/match/:matchId/players" element={<MatchPlayers />} />
-            <Route path="/match/:matchId/score" element={<MatchScore />} />
-            <Route path="/match/:matchId/ranking" element={<MatchRanking />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
+            <Route element={<FlowShell />}>
+              <Route path="/scan" element={<Scan />} />
+              <Route path="/scan/result" element={<ScanResult />} />
+              <Route path="/games/search" element={<GameSearch />} />
+              <Route path="/community/new" element={<CommunityNew />} />
+              <Route path="/match/:matchId/players" element={<MatchPlayers />} />
+              <Route path="/match/:matchId/score" element={<MatchScore />} />
+              <Route path="/match/:matchId/ranking" element={<MatchRanking />} />
+            </Route>
+          </Routes>
+        </BrowserRouter>
+      </AuthProvider>
     </ThemeProvider>
   );
 }
