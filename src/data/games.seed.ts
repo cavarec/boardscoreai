@@ -14,7 +14,7 @@ import type { GameWithRules, ScoreCategory } from "@/types";
  * réappliquer le catalogue après une mise à jour de l'app — sans ça, les
  * utilisateurs déjà installés ne verraient jamais les nouveaux jeux.
  */
-export const SEED_VERSION = 5;
+export const SEED_VERSION = 6;
 
 let order = 0;
 function cat(
@@ -983,6 +983,1152 @@ const welcomeTo = game({
 });
 
 order = 0;
+const smallWorld = game({
+  id: "game-small-world",
+  name: "Small World",
+  publisher: "Days of Wonder",
+  year: 2009,
+  minPlayers: 2,
+  maxPlayers: 5,
+  aliases: ["small world", "petit monde"],
+  description: "Conquérez des territoires avec une succession de peuples fantastiques en déclin.",
+  ruleSet: {
+    id: "rule-sw-base",
+    gameId: "game-small-world",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [
+      cat("rule-sw-base", "cat-sw-territories", "Territoires contrôlés (par tour)", "sum", { roundBased: true, helper: "1 pt par territoire, à chaque tour" }),
+      cat("rule-sw-base", "cat-sw-coins", "Pièces restantes en fin de partie", "sum", { step: 1 }),
+    ],
+  },
+});
+
+order = 0;
+const arkNova = game({
+  id: "game-ark-nova",
+  name: "Ark Nova",
+  publisher: "Feuerland Spiele",
+  year: 2021,
+  minPlayers: 1,
+  maxPlayers: 4,
+  aliases: ["ark nova"],
+  description: "Concevez un zoo moderne tourné vers la conservation des espèces.",
+  ruleSet: {
+    id: "rule-an-base",
+    gameId: "game-ark-nova",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [
+      cat("rule-an-base", "cat-an-appeal", "Niveau d'attractivité", "sum", { step: 1 }),
+      cat("rule-an-base", "cat-an-conservation", "Points de conservation", "sum", { step: 1 }),
+    ],
+  },
+});
+
+order = 0;
+const terraMystica = game({
+  id: "game-terra-mystica",
+  name: "Terra Mystica",
+  publisher: "Feuerland Spiele",
+  year: 2012,
+  minPlayers: 2,
+  maxPlayers: 5,
+  aliases: ["terra mystica"],
+  description: "Développez un peuple fantastique sur un plateau de terrains variés.",
+  ruleSet: {
+    id: "rule-tmy-base",
+    gameId: "game-terra-mystica",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [
+      cat("rule-tmy-base", "cat-tmy-buildings", "Constructions et zones", "sum", { roundBased: true, helper: "Additionnez les points de chaque tour" }),
+      cat("rule-tmy-base", "cat-tmy-cults", "Pistes de cultes", "sum", { step: 1 }),
+      cat("rule-tmy-base", "cat-tmy-resources", "Ressources restantes", "sum", { step: 1 }),
+    ],
+  },
+});
+
+order = 0;
+const caverna = game({
+  id: "game-caverna",
+  name: "Caverna",
+  publisher: "Lookout Games",
+  year: 2013,
+  minPlayers: 1,
+  maxPlayers: 7,
+  aliases: ["caverna"],
+  description: "Bâtissez votre caverne naine entre agriculture, élevage et expéditions.",
+  ruleSet: {
+    id: "rule-cav-base",
+    gameId: "game-caverna",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [
+      cat("rule-cav-base", "cat-cav-fields", "Champs et fourrages", "sum", { step: 1 }),
+      cat("rule-cav-base", "cat-cav-animals", "Animaux et pâtures", "sum", { step: 1 }),
+      cat("rule-cav-base", "cat-cav-cards", "Cartes équipement et aventure", "sum", { step: 1 }),
+      cat("rule-cav-base", "cat-cav-empty", "Espaces vides de la caverne", "malus", { step: 1 }),
+    ],
+  },
+});
+
+order = 0;
+const leHavre = game({
+  id: "game-le-havre",
+  name: "Le Havre",
+  publisher: "Lookout Games",
+  year: 2008,
+  minPlayers: 1,
+  maxPlayers: 5,
+  aliases: ["le havre"],
+  description: "Développez le port du Havre entre bâtiments, bateaux et industrie.",
+  ruleSet: {
+    id: "rule-lh-base",
+    gameId: "game-le-havre",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [
+      cat("rule-lh-base", "cat-lh-buildings", "Bâtiments et bateaux", "sum", { step: 1 }),
+      cat("rule-lh-base", "cat-lh-goods", "Marchandises restantes (÷valeur)", "sum", { step: 1 }),
+      cat("rule-lh-base", "cat-lh-debts", "Emprunts restants", "malus", { step: 1 }),
+    ],
+  },
+});
+
+order = 0;
+const elGrande = game({
+  id: "game-el-grande",
+  name: "El Grande",
+  publisher: "Hans im Glück",
+  year: 1995,
+  minPlayers: 2,
+  maxPlayers: 5,
+  aliases: ["el grande"],
+  description: "Placez vos caballeros pour dominer les régions d'Espagne, manche après manche.",
+  ruleSet: {
+    id: "rule-eg-base",
+    gameId: "game-el-grande",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [
+      cat("rule-eg-base", "cat-eg-regions", "Majorités régionales (par manche)", "sum", { roundBased: true, helper: "Additionnez les points de chaque manche" }),
+      cat("rule-eg-base", "cat-eg-castillo", "Points du Château/tour de ronde", "bonus", { step: 1 }),
+    ],
+  },
+});
+
+order = 0;
+const powerGrid = game({
+  id: "game-power-grid",
+  name: "Power Grid",
+  publisher: "2F-Spiele",
+  year: 2004,
+  minPlayers: 2,
+  maxPlayers: 6,
+  aliases: ["power grid", "les aventuriers du rail electrique", "funkenschlag"],
+  description: "Alimentez le plus de villes possible en gérant centrales et ressources.",
+  ruleSet: {
+    id: "rule-pg-base",
+    gameId: "game-power-grid",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [cat("rule-pg-base", "cat-pg-cities", "Villes alimentées en fin de partie", "sum", { step: 1 })],
+  },
+});
+
+order = 0;
+const acquire = game({
+  id: "game-acquire",
+  name: "Acquire",
+  publisher: "Hasbro",
+  year: 1964,
+  minPlayers: 2,
+  maxPlayers: 6,
+  aliases: ["acquire"],
+  description: "Investissez dans des chaînes hôtelières et provoquez des fusions rentables.",
+  ruleSet: {
+    id: "rule-acq-base",
+    gameId: "game-acquire",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [cat("rule-acq-base", "cat-acq-cash", "Argent total en fin de partie", "sum", { step: 1 })],
+  },
+});
+
+order = 0;
+const sushiGo = game({
+  id: "game-sushi-go",
+  name: "Sushi Go!",
+  publisher: "Gamewright",
+  year: 2013,
+  minPlayers: 2,
+  maxPlayers: 5,
+  aliases: ["sushi go", "sushi go party"],
+  description: "Faites tourner les assiettes de sushi et composez le meilleur repas.",
+  ruleSet: {
+    id: "rule-sg-base",
+    gameId: "game-sushi-go",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [
+      cat("rule-sg-base", "cat-sg-cards", "Points des cartes (par manche)", "sum", { roundBased: true, helper: "Additionnez les points de chaque manche" }),
+      cat("rule-sg-base", "cat-sg-pudding", "Puddings (fin de partie)", "bonus", { step: 1 }),
+    ],
+  },
+});
+
+order = 0;
+const pointSalad = game({
+  id: "game-point-salad",
+  name: "Point Salad",
+  publisher: "AEG",
+  year: 2019,
+  minPlayers: 2,
+  maxPlayers: 6,
+  aliases: ["point salad"],
+  description: "Collectionnez des cartes légumes et combinez des critères de score qui s'affrontent.",
+  ruleSet: {
+    id: "rule-psd-base",
+    gameId: "game-point-salad",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [cat("rule-psd-base", "cat-psd-total", "Points totaux (cartes critère + légumes)", "sum", { step: 1 })],
+  },
+});
+
+order = 0;
+const cascadia = game({
+  id: "game-cascadia",
+  name: "Cascadia",
+  publisher: "Flatout Games",
+  year: 2021,
+  minPlayers: 1,
+  maxPlayers: 4,
+  aliases: ["cascadia"],
+  description: "Façonnez un paysage naturel accueillant pour la faune sauvage.",
+  ruleSet: {
+    id: "rule-csc-base",
+    gameId: "game-cascadia",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [
+      cat("rule-csc-base", "cat-csc-wildlife", "Score de la faune (par espèce)", "sum", { step: 1 }),
+      cat("rule-csc-base", "cat-csc-habitat", "Plus grande zone d'habitat", "sum", { step: 1 }),
+    ],
+  },
+});
+
+order = 0;
+const calico = game({
+  id: "game-calico",
+  name: "Calico",
+  publisher: "Flatout Games",
+  year: 2020,
+  minPlayers: 1,
+  maxPlayers: 4,
+  aliases: ["calico"],
+  description: "Cousez la plus belle couverture en associant motifs et boutons.",
+  ruleSet: {
+    id: "rule-cal-base",
+    gameId: "game-calico",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [
+      cat("rule-cal-base", "cat-cal-patterns", "Objectifs de motifs", "sum", { step: 1 }),
+      cat("rule-cal-base", "cat-cal-cats", "Objectifs de chats", "sum", { step: 1 }),
+      cat("rule-cal-base", "cat-cal-buttons", "Ensembles de boutons", "bonus", { step: 1 }),
+    ],
+  },
+});
+
+order = 0;
+const parks = game({
+  id: "game-parks",
+  name: "Parks",
+  publisher: "Keymaster Games",
+  year: 2019,
+  minPlayers: 1,
+  maxPlayers: 5,
+  aliases: ["parks"],
+  description: "Randonnez à travers les parcs nationaux au fil des saisons.",
+  ruleSet: {
+    id: "rule-pk-base",
+    gameId: "game-parks",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [
+      cat("rule-pk-base", "cat-pk-cards", "Cartes parc visitées", "sum", { roundBased: true, helper: "Additionnez la valeur de chaque carte" }),
+      cat("rule-pk-base", "cat-pk-photos", "Points de photo", "bonus", { step: 1 }),
+      cat("rule-pk-base", "cat-pk-gear", "Équipement et bonus", "bonus", { step: 1 }),
+    ],
+  },
+});
+
+order = 0;
+const bunnyKingdom = game({
+  id: "game-bunny-kingdom",
+  name: "Bunny Kingdom",
+  publisher: "Iello",
+  year: 2017,
+  minPlayers: 2,
+  maxPlayers: 4,
+  aliases: ["bunny kingdom"],
+  description: "Étendez votre royaume de lapins à travers provinces et ressources.",
+  ruleSet: {
+    id: "rule-bk-base",
+    gameId: "game-bunny-kingdom",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [
+      cat("rule-bk-base", "cat-bk-provinces", "Provinces et couronnes", "sum", { step: 1 }),
+      cat("rule-bk-base", "cat-bk-carrots", "Bonus de carottes", "bonus", { step: 1 }),
+    ],
+  },
+});
+
+order = 0;
+const isleOfCats = game({
+  id: "game-isle-of-cats",
+  name: "The Isle of Cats",
+  publisher: "The City of Games",
+  year: 2019,
+  minPlayers: 1,
+  maxPlayers: 4,
+  aliases: ["isle of cats", "l'ile aux chats"],
+  description: "Sauvez un maximum de chats et rangez-les au mieux dans votre bateau.",
+  ruleSet: {
+    id: "rule-ioc-base",
+    gameId: "game-isle-of-cats",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [
+      cat("rule-ioc-base", "cat-ioc-groups", "Groupes de chats", "sum", { step: 1 }),
+      cat("rule-ioc-base", "cat-ioc-baskets", "Paniers et objectifs", "bonus", { step: 1 }),
+      cat("rule-ioc-base", "cat-ioc-left", "Chats laissés derrière", "malus", { step: 1 }),
+    ],
+  },
+});
+
+order = 0;
+const underwaterCities = game({
+  id: "game-underwater-cities",
+  name: "Underwater Cities",
+  publisher: "Delicious Games",
+  year: 2018,
+  minPlayers: 1,
+  maxPlayers: 4,
+  aliases: ["underwater cities"],
+  description: "Bâtissez des cités sous-marines pour sauver l'humanité de la surface polluée.",
+  ruleSet: {
+    id: "rule-uc-base",
+    gameId: "game-underwater-cities",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [
+      cat("rule-uc-base", "cat-uc-cards", "Points des cartes", "sum", { roundBased: true, helper: "Additionnez la valeur de chaque carte" }),
+      cat("rule-uc-base", "cat-uc-cities", "Cités et tunnels", "sum", { step: 1 }),
+      cat("rule-uc-base", "cat-uc-metro", "Bonus de métropoles", "bonus", { step: 1 }),
+    ],
+  },
+});
+
+order = 0;
+const trajan = game({
+  id: "game-trajan",
+  name: "Trajan",
+  publisher: "Ammonit Spiele",
+  year: 2011,
+  minPlayers: 2,
+  maxPlayers: 4,
+  aliases: ["trajan"],
+  description: "Gérez vos actions via un mancala personnel pour développer Rome.",
+  ruleSet: {
+    id: "rule-tr-base",
+    gameId: "game-trajan",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [cat("rule-tr-base", "cat-tr-vp", "Points de victoire cumulés", "sum", { step: 1 })],
+  },
+});
+
+order = 0;
+const orleans = game({
+  id: "game-orleans",
+  name: "Orléans",
+  publisher: "dlp games",
+  year: 2014,
+  minPlayers: 2,
+  maxPlayers: 4,
+  aliases: ["orleans"],
+  description: "Recrutez des personnages dans votre sac pour développer votre cité médiévale.",
+  ruleSet: {
+    id: "rule-orl-base",
+    gameId: "game-orleans",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [
+      cat("rule-orl-base", "cat-orl-track", "Piste de développement", "sum", { step: 1 }),
+      cat("rule-orl-base", "cat-orl-tokens", "Jetons de points de victoire", "bonus", { step: 1 }),
+    ],
+  },
+});
+
+order = 0;
+const lordsOfWaterdeep = game({
+  id: "game-lords-of-waterdeep",
+  name: "Lords of Waterdeep",
+  publisher: "Wizards of the Coast",
+  year: 2012,
+  minPlayers: 2,
+  maxPlayers: 5,
+  aliases: ["lords of waterdeep"],
+  description: "Accomplissez des quêtes secrètes pour développer votre influence sur la ville.",
+  ruleSet: {
+    id: "rule-low-base",
+    gameId: "game-lords-of-waterdeep",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [
+      cat("rule-low-base", "cat-low-quests", "Quêtes accomplies", "sum", { roundBased: true, helper: "Additionnez la valeur de chaque quête" }),
+      cat("rule-low-base", "cat-low-buildings", "Bâtiments construits", "bonus", { step: 1 }),
+      cat("rule-low-base", "cat-low-resources", "Ressources non utilisées", "sum", { step: 1 }),
+    ],
+  },
+});
+
+order = 0;
+const tapestry = game({
+  id: "game-tapestry",
+  name: "Tapestry",
+  publisher: "Stonemaier Games",
+  year: 2019,
+  minPlayers: 1,
+  maxPlayers: 5,
+  aliases: ["tapestry"],
+  description: "Faites progresser une civilisation à travers les âges sur quatre pistes.",
+  ruleSet: {
+    id: "rule-tap-base",
+    gameId: "game-tapestry",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [
+      cat("rule-tap-base", "cat-tap-track", "Piste de civilisation", "sum", { step: 1 }),
+      cat("rule-tap-base", "cat-tap-landmarks", "Monuments construits", "bonus", { step: 1 }),
+      cat("rule-tap-base", "cat-tap-tapestry", "Carreaux de tapisserie", "bonus", { step: 1 }),
+    ],
+  },
+});
+
+order = 0;
+const architectsWestKingdom = game({
+  id: "game-architects-west-kingdom",
+  name: "Architects of the West Kingdom",
+  publisher: "Renegade Game Studios",
+  year: 2018,
+  minPlayers: 1,
+  maxPlayers: 5,
+  aliases: ["architects of the west kingdom"],
+  description: "Bâtissez la cathédrale tout en gérant votre réputation, honnête ou non.",
+  ruleSet: {
+    id: "rule-awk-base",
+    gameId: "game-architects-west-kingdom",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [
+      cat("rule-awk-base", "cat-awk-vp", "Points de victoire (cartes, cathédrale)", "sum", { step: 1 }),
+      cat("rule-awk-base", "cat-awk-corruption", "Pénalité de corruption", "malus", { step: 1 }),
+    ],
+  },
+});
+
+order = 0;
+const marcoPolo = game({
+  id: "game-marco-polo",
+  name: "Les Voyages de Marco Polo",
+  publisher: "Hurrican",
+  year: 2015,
+  minPlayers: 2,
+  maxPlayers: 4,
+  aliases: ["marco polo", "les voyages de marco polo", "voyages of marco polo"],
+  description: "Parcourez la route de la soie en accomplissant des contrats commerciaux.",
+  ruleSet: {
+    id: "rule-mp-base",
+    gameId: "game-marco-polo",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [
+      cat("rule-mp-base", "cat-mp-contracts", "Contrats accomplis", "sum", { roundBased: true, helper: "Additionnez la valeur de chaque contrat" }),
+      cat("rule-mp-base", "cat-mp-cards", "Cartes personnage et ville", "bonus", { step: 1 }),
+    ],
+  },
+});
+
+order = 0;
+const istanbul = game({
+  id: "game-istanbul",
+  name: "Istanbul",
+  publisher: "Pegasus Spiele",
+  year: 2014,
+  minPlayers: 2,
+  maxPlayers: 5,
+  aliases: ["istanbul"],
+  description: "Parcourez le bazar pour être le premier à réunir cinq rubis.",
+  ruleSet: {
+    id: "rule-ist-base",
+    gameId: "game-istanbul",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [cat("rule-ist-base", "cat-ist-rubies", "Rubis collectés", "sum", { step: 1 })],
+  },
+});
+
+order = 0;
+const santaMaria = game({
+  id: "game-santa-maria",
+  name: "Santa Maria",
+  publisher: "Eggertspiele",
+  year: 2017,
+  minPlayers: 1,
+  maxPlayers: 4,
+  aliases: ["santa maria"],
+  description: "Développez votre colonie le long du fleuve grâce à un système de dés partagés.",
+  ruleSet: {
+    id: "rule-sm-base",
+    gameId: "game-santa-maria",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [
+      cat("rule-sm-base", "cat-sm-buildings", "Bâtiments construits", "sum", { step: 1 }),
+      cat("rule-sm-base", "cat-sm-goals", "Objectifs personnels", "bonus", { step: 1 }),
+    ],
+  },
+});
+
+order = 0;
+const barony = game({
+  id: "game-barony",
+  name: "Barony",
+  publisher: "Ludonaute",
+  year: 2019,
+  minPlayers: 2,
+  maxPlayers: 4,
+  aliases: ["barony"],
+  description: "Étendez votre territoire entre villages, villes et châteaux.",
+  ruleSet: {
+    id: "rule-bar-base",
+    gameId: "game-barony",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [cat("rule-bar-base", "cat-bar-territory", "Points de territoire (villages/villes/châteaux)", "sum", { step: 1 })],
+  },
+});
+
+order = 0;
+const blokus = game({
+  id: "game-blokus",
+  name: "Blokus",
+  publisher: "Mattel",
+  year: 2000,
+  minPlayers: 2,
+  maxPlayers: 4,
+  aliases: ["blokus"],
+  description: "Placez toutes vos pièces sur le plateau, coin à coin, avant vos adversaires.",
+  ruleSet: {
+    id: "rule-blk-base",
+    gameId: "game-blokus",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    sortDirection: "asc",
+    categories: [cat("rule-blk-base", "cat-blk-remaining", "Carrés restants en main", "sum", { helper: "Le score le plus bas gagne", step: 1 })],
+  },
+});
+
+order = 0;
+const kingdomBuilder = game({
+  id: "game-kingdom-builder",
+  name: "Kingdom Builder",
+  publisher: "Queen Games",
+  year: 2011,
+  minPlayers: 2,
+  maxPlayers: 4,
+  aliases: ["kingdom builder"],
+  description: "Placez vos colonies selon des règles de terrain et remplissez des objectifs tirés au sort.",
+  ruleSet: {
+    id: "rule-kgb-base",
+    gameId: "game-kingdom-builder",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [cat("rule-kgb-base", "cat-kgb-goals", "Objectifs de score (3 cartes)", "sum", { step: 1 })],
+  },
+});
+
+order = 0;
+const sevenWondersDuel = game({
+  id: "game-7-wonders-duel",
+  name: "7 Wonders Duel",
+  publisher: "Repos Production",
+  year: 2015,
+  minPlayers: 2,
+  maxPlayers: 2,
+  aliases: ["7 wonders duel", "sept merveilles duel"],
+  description: "Version à deux joueurs de 7 Wonders, avec conflit militaire et progrès scientifique.",
+  ruleSet: {
+    id: "rule-7wd-base",
+    gameId: "game-7-wonders-duel",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [
+      cat("rule-7wd-base", "cat-7wd-coins", "Pièces d'or (3 pièces = 1 pt)", "sum", { helper: "Total divisé par 3, arrondi", step: 1 }),
+      cat("rule-7wd-base", "cat-7wd-military", "Position sur la piste militaire", "sum", { step: 1 }),
+      cat("rule-7wd-base", "cat-7wd-wonders", "Merveilles construites", "sum", { step: 1 }),
+      cat("rule-7wd-base", "cat-7wd-civil", "Bâtiments civils (bleu)", "sum", { roundBased: true }),
+      cat("rule-7wd-base", "cat-7wd-commerce", "Bâtiments commerciaux et guildes", "sum", { roundBased: true }),
+      cat("rule-7wd-base", "cat-7wd-science", "Symboles scientifiques", "sum", { step: 1 }),
+    ],
+  },
+});
+
+order = 0;
+const clank = game({
+  id: "game-clank",
+  name: "Clank!",
+  publisher: "Renegade Game Studios",
+  year: 2016,
+  minPlayers: 2,
+  maxPlayers: 4,
+  aliases: ["clank"],
+  description: "Infiltrez le donjon du dragon, volez des trésors et ressortez vivant.",
+  ruleSet: {
+    id: "rule-clk-base",
+    gameId: "game-clank",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [
+      cat("rule-clk-base", "cat-clk-treasure", "Trésors rapportés", "sum", { step: 1 }),
+      cat("rule-clk-base", "cat-clk-depth", "Bonus de profondeur atteinte", "bonus", { step: 1 }),
+      cat("rule-clk-base", "cat-clk-damage", "Blessures subies", "malus", { step: 1 }),
+    ],
+  },
+});
+
+order = 0;
+const skullKing = game({
+  id: "game-skull-king",
+  name: "Skull King",
+  publisher: "Grandpa Beck's Games",
+  year: 2013,
+  minPlayers: 2,
+  maxPlayers: 8,
+  aliases: ["skull king"],
+  description: "Annoncez le nombre de plis que vous allez remporter et tenez votre pari.",
+  ruleSet: {
+    id: "rule-skk-base",
+    gameId: "game-skull-king",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [
+      cat("rule-skk-base", "cat-skk-round", "Score de la manche (pari tenu ou raté)", "sum", { roundBased: true, helper: "Positif si le pari est tenu, négatif sinon" }),
+    ],
+  },
+});
+
+order = 0;
+const hanabi = game({
+  id: "game-hanabi",
+  name: "Hanabi",
+  publisher: "Cocktail Games",
+  year: 2010,
+  minPlayers: 2,
+  maxPlayers: 5,
+  aliases: ["hanabi"],
+  description: "Coopérez sans voir vos propres cartes pour assembler le feu d'artifice parfait.",
+  ruleSet: {
+    id: "rule-han-base",
+    gameId: "game-hanabi",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [cat("rule-han-base", "cat-han-fireworks", "Cartes de feu d'artifice posées (sur 25)", "sum", { step: 1 })],
+  },
+});
+
+order = 0;
+const justOne = game({
+  id: "game-just-one",
+  name: "Just One",
+  publisher: "Repos Production",
+  year: 2018,
+  minPlayers: 3,
+  maxPlayers: 7,
+  aliases: ["just one"],
+  description: "Coopérez pour faire deviner un mot mystère à l'un d'entre vous.",
+  ruleSet: {
+    id: "rule-jo-base",
+    gameId: "game-just-one",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [cat("rule-jo-base", "cat-jo-correct", "Mots devinés (sur 13)", "sum", { step: 1 })],
+  },
+});
+
+order = 0;
+const duneImperium = game({
+  id: "game-dune-imperium",
+  name: "Dune: Imperium",
+  publisher: "Dire Wolf",
+  year: 2020,
+  minPlayers: 1,
+  maxPlayers: 4,
+  aliases: ["dune imperium", "dune"],
+  description: "Placez vos agents entre récolte d'épice, combat et intrigue politique.",
+  ruleSet: {
+    id: "rule-di-base",
+    gameId: "game-dune-imperium",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [
+      cat("rule-di-base", "cat-di-vp", "Points de victoire (combat, intrigue, cartes)", "sum", { roundBased: true, helper: "Additionnez les points gagnés à chaque round" }),
+    ],
+  },
+});
+
+order = 0;
+const wyrmspan = game({
+  id: "game-wyrmspan",
+  name: "Wyrmspan",
+  publisher: "Stonemaier Games",
+  year: 2024,
+  minPlayers: 1,
+  maxPlayers: 5,
+  aliases: ["wyrmspan"],
+  description: "Attirez des dragons dans votre repaire, dans la lignée de Wingspan.",
+  ruleSet: {
+    id: "rule-wys-base",
+    gameId: "game-wyrmspan",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [
+      cat("rule-wys-base", "cat-wys-dragons", "Points des dragons", "sum", { roundBased: true, helper: "Additionnez la valeur de chaque dragon" }),
+      cat("rule-wys-base", "cat-wys-caves", "Cavernes et ressources", "sum", { step: 1 }),
+      cat("rule-wys-base", "cat-wys-goals", "Objectifs de fin de manche", "bonus", { step: 1 }),
+    ],
+  },
+});
+
+order = 0;
+const catInTheBox = game({
+  id: "game-cat-in-the-box",
+  name: "Cat in the Box",
+  publisher: "Ninja Star Games",
+  year: 2021,
+  minPlayers: 2,
+  maxPlayers: 4,
+  aliases: ["cat in the box"],
+  description: "Jeu de plis où les cartes n'ont pas de couleur fixe : à vous de la déclarer.",
+  ruleSet: {
+    id: "rule-cib-base",
+    gameId: "game-cat-in-the-box",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [
+      cat("rule-cib-base", "cat-cib-round", "Score de la manche (pari de plis)", "sum", { roundBased: true }),
+    ],
+  },
+});
+
+order = 0;
+const cribbage = game({
+  id: "game-cribbage",
+  name: "Cribbage",
+  publisher: "Domaine public",
+  year: 1630,
+  minPlayers: 2,
+  maxPlayers: 4,
+  aliases: ["cribbage"],
+  description: "Comptez vos combinaisons de cartes sur une planche à jalons, premier à 121 gagne.",
+  ruleSet: {
+    id: "rule-crib-base",
+    gameId: "game-cribbage",
+    versionLabel: "Règles classiques",
+    isOfficial: true,
+    categories: [cat("rule-crib-base", "cat-crib-pegs", "Points marqués (jalons)", "sum", { roundBased: true, helper: "Additionnez les points de chaque main" })],
+  },
+});
+
+order = 0;
+const canasta = game({
+  id: "game-canasta",
+  name: "Canasta",
+  publisher: "Domaine public",
+  year: 1939,
+  minPlayers: 2,
+  maxPlayers: 6,
+  aliases: ["canasta"],
+  description: "Formez des combinaisons de cartes, les canastas rapportant le plus de points.",
+  ruleSet: {
+    id: "rule-can-base",
+    gameId: "game-canasta",
+    versionLabel: "Règles classiques",
+    isOfficial: true,
+    categories: [
+      cat("rule-can-base", "cat-can-melds", "Combinaisons posées", "sum", { roundBased: true }),
+      cat("rule-can-base", "cat-can-hand", "Cartes restantes en main", "malus", { roundBased: true }),
+    ],
+  },
+});
+
+order = 0;
+const ginRummy = game({
+  id: "game-gin-rummy",
+  name: "Gin Rummy",
+  publisher: "Domaine public",
+  year: 1909,
+  minPlayers: 2,
+  maxPlayers: 2,
+  aliases: ["gin rummy", "gin"],
+  description: "Formez des suites et brelans, puis 'gin' pour marquer le maximum de points.",
+  ruleSet: {
+    id: "rule-gr-base",
+    gameId: "game-gin-rummy",
+    versionLabel: "Règles classiques",
+    isOfficial: true,
+    categories: [cat("rule-gr-base", "cat-gr-points", "Points de la manche", "sum", { roundBased: true })],
+  },
+});
+
+order = 0;
+const hearts = game({
+  id: "game-hearts",
+  name: "Hearts",
+  publisher: "Domaine public",
+  year: 1850,
+  minPlayers: 3,
+  maxPlayers: 6,
+  aliases: ["hearts", "coeurs"],
+  description: "Évitez de remporter les cœurs et la dame de pique dans ce jeu de plis.",
+  ruleSet: {
+    id: "rule-hrt-base",
+    gameId: "game-hearts",
+    versionLabel: "Règles classiques",
+    isOfficial: true,
+    sortDirection: "asc",
+    categories: [cat("rule-hrt-base", "cat-hrt-points", "Cœurs et dame de pique récoltés", "sum", { roundBased: true, helper: "Le score le plus bas gagne — une entrée par manche" })],
+  },
+});
+
+order = 0;
+const spades = game({
+  id: "game-spades",
+  name: "Spades",
+  publisher: "Domaine public",
+  year: 1930,
+  minPlayers: 4,
+  maxPlayers: 4,
+  aliases: ["spades", "piques"],
+  description: "Annoncez le nombre de plis que vous allez remporter et jouez en équipe.",
+  ruleSet: {
+    id: "rule-spd-base",
+    gameId: "game-spades",
+    versionLabel: "Règles classiques",
+    isOfficial: true,
+    categories: [cat("rule-spd-base", "cat-spd-round", "Score de la manche (pari tenu ou raté)", "sum", { roundBased: true })],
+  },
+});
+
+order = 0;
+const euchre = game({
+  id: "game-euchre",
+  name: "Euchre",
+  publisher: "Domaine public",
+  year: 1850,
+  minPlayers: 4,
+  maxPlayers: 4,
+  aliases: ["euchre"],
+  description: "Jeu de plis en équipe autour de l'atout, premier à 10 points gagne.",
+  ruleSet: {
+    id: "rule-euc-base",
+    gameId: "game-euchre",
+    versionLabel: "Règles classiques",
+    isOfficial: true,
+    categories: [cat("rule-euc-base", "cat-euc-points", "Points marqués (par manche)", "sum", { roundBased: true })],
+  },
+});
+
+order = 0;
+const rummy500 = game({
+  id: "game-rummy-500",
+  name: "Rummy 500",
+  publisher: "Domaine public",
+  year: 1934,
+  minPlayers: 2,
+  maxPlayers: 8,
+  aliases: ["rummy 500", "rummy"],
+  description: "Combinez suites et brelans en piochant dans la défausse, jusqu'à 500 points.",
+  ruleSet: {
+    id: "rule-r500-base",
+    gameId: "game-rummy-500",
+    versionLabel: "Règles classiques",
+    isOfficial: true,
+    categories: [
+      cat("rule-r500-base", "cat-r500-melds", "Combinaisons posées", "sum", { roundBased: true }),
+      cat("rule-r500-base", "cat-r500-hand", "Cartes restantes en main", "malus", { roundBased: true }),
+    ],
+  },
+});
+
+order = 0;
+const phase10 = game({
+  id: "game-phase-10",
+  name: "Phase 10",
+  publisher: "Mattel",
+  year: 1982,
+  minPlayers: 2,
+  maxPlayers: 6,
+  aliases: ["phase 10"],
+  description: "Complétez dix phases de combinaisons avant vos adversaires.",
+  ruleSet: {
+    id: "rule-p10-base",
+    gameId: "game-phase-10",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    sortDirection: "asc",
+    categories: [cat("rule-p10-base", "cat-p10-hand", "Points des cartes restantes en main", "sum", { roundBased: true, helper: "Le score le plus bas gagne — une entrée par manche" })],
+  },
+});
+
+order = 0;
+const farkle = game({
+  id: "game-farkle",
+  name: "Farkle",
+  publisher: "Domaine public",
+  year: 1900,
+  minPlayers: 2,
+  maxPlayers: 8,
+  aliases: ["farkle"],
+  description: "Lancez les dés et cumulez les points sans jamais faire de Farkle.",
+  ruleSet: {
+    id: "rule-frk-base",
+    gameId: "game-farkle",
+    versionLabel: "Règles classiques",
+    isOfficial: true,
+    categories: [cat("rule-frk-base", "cat-frk-points", "Points marqués (par tour)", "sum", { roundBased: true, helper: "Additionnez le score de chaque tour" })],
+  },
+});
+
+order = 0;
+const bunco = game({
+  id: "game-bunco",
+  name: "Bunco",
+  publisher: "Domaine public",
+  year: 1855,
+  minPlayers: 4,
+  maxPlayers: 12,
+  aliases: ["bunco", "bunko"],
+  description: "Lancez trois dés pour marquer des points au numéro de la manche en cours.",
+  ruleSet: {
+    id: "rule-bnc-base",
+    gameId: "game-bunco",
+    versionLabel: "Règles classiques",
+    isOfficial: true,
+    categories: [cat("rule-bnc-base", "cat-bnc-points", "Points marqués (par manche)", "sum", { roundBased: true })],
+  },
+});
+
+order = 0;
+const dominoesClassic = game({
+  id: "game-dominoes",
+  name: "Dominos (classique)",
+  publisher: "Domaine public",
+  year: 1120,
+  minPlayers: 2,
+  maxPlayers: 4,
+  aliases: ["dominos", "dominoes"],
+  description: "Posez vos dominos en faisant correspondre les valeurs, premier sans domino gagne la manche.",
+  ruleSet: {
+    id: "rule-dom-base",
+    gameId: "game-dominoes",
+    versionLabel: "Règles classiques",
+    isOfficial: true,
+    sortDirection: "asc",
+    categories: [cat("rule-dom-base", "cat-dom-pips", "Points des dominos restants (adversaires)", "sum", { roundBased: true, helper: "Le score le plus bas gagne — une entrée par manche" })],
+  },
+});
+
+order = 0;
+const mahjong = game({
+  id: "game-mahjong",
+  name: "Mahjong",
+  publisher: "Domaine public",
+  year: 1850,
+  minPlayers: 4,
+  maxPlayers: 4,
+  aliases: ["mahjong", "majong"],
+  description: "Composez la meilleure main de tuiles en piochant et défaussant à tour de rôle.",
+  ruleSet: {
+    id: "rule-mj-base",
+    gameId: "game-mahjong",
+    versionLabel: "Règles classiques",
+    isOfficial: true,
+    categories: [cat("rule-mj-base", "cat-mj-hand", "Points de la main (par manche)", "sum", { roundBased: true })],
+  },
+});
+
+order = 0;
+const boggle = game({
+  id: "game-boggle",
+  name: "Boggle",
+  publisher: "Hasbro",
+  year: 1972,
+  minPlayers: 2,
+  maxPlayers: 8,
+  aliases: ["boggle"],
+  description: "Trouvez un maximum de mots dans la grille de dés avant la fin du sablier.",
+  ruleSet: {
+    id: "rule-bog-base",
+    gameId: "game-boggle",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [cat("rule-bog-base", "cat-bog-words", "Points des mots trouvés (par manche)", "sum", { roundBased: true, helper: "Additionnez le score de chaque manche" })],
+  },
+});
+
+order = 0;
+const balderdash = game({
+  id: "game-balderdash",
+  name: "Balderdash",
+  publisher: "Hasbro",
+  year: 1984,
+  minPlayers: 2,
+  maxPlayers: 8,
+  aliases: ["balderdash"],
+  description: "Inventez des définitions bluffantes et devinez la vraie parmi les fausses.",
+  ruleSet: {
+    id: "rule-bal-base",
+    gameId: "game-balderdash",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [cat("rule-bal-base", "cat-bal-points", "Points marqués (par manche)", "sum", { roundBased: true, helper: "Additionnez le score de chaque manche" })],
+  },
+});
+
+order = 0;
+const cardsAgainstHumanity = game({
+  id: "game-cards-against-humanity",
+  name: "Cards Against Humanity",
+  publisher: "Cards Against Humanity LLC",
+  year: 2011,
+  minPlayers: 3,
+  maxPlayers: 20,
+  aliases: ["cards against humanity", "cah"],
+  description: "Complétez des phrases avec la carte la plus (in)appropriée pour remporter la manche.",
+  ruleSet: {
+    id: "rule-cah-base",
+    gameId: "game-cards-against-humanity",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [cat("rule-cah-base", "cat-cah-wins", "Cartes noires remportées", "sum", { roundBased: true, helper: "Une entrée par manche remportée" })],
+  },
+});
+
+order = 0;
+const scattergories = game({
+  id: "game-scattergories",
+  name: "Scattergories",
+  publisher: "Hasbro",
+  year: 1988,
+  minPlayers: 2,
+  maxPlayers: 6,
+  aliases: ["scattergories"],
+  description: "Trouvez des mots uniques par catégorie commençant par la lettre tirée.",
+  ruleSet: {
+    id: "rule-scg-base",
+    gameId: "game-scattergories",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [cat("rule-scg-base", "cat-scg-points", "Réponses uniques validées (par manche)", "sum", { roundBased: true, helper: "Additionnez le score de chaque manche" })],
+  },
+});
+
+order = 0;
+const witsAndWagers = game({
+  id: "game-wits-and-wagers",
+  name: "Wits & Wagers",
+  publisher: "North Star Games",
+  year: 2005,
+  minPlayers: 3,
+  maxPlayers: 7,
+  aliases: ["wits and wagers", "wits & wagers"],
+  description: "Pariez sur la réponse la plus proche à des questions loufoques.",
+  ruleSet: {
+    id: "rule-ww-base",
+    gameId: "game-wits-and-wagers",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [cat("rule-ww-base", "cat-ww-chips", "Jetons gagnés (par manche)", "sum", { roundBased: true })],
+  },
+});
+
+order = 0;
+const backgammon = game({
+  id: "game-backgammon",
+  name: "Backgammon",
+  publisher: "Domaine public",
+  year: -3000,
+  minPlayers: 2,
+  maxPlayers: 2,
+  aliases: ["backgammon", "jacquet"],
+  description: "Faites sortir tous vos pions du plateau avant votre adversaire.",
+  ruleSet: {
+    id: "rule-bg-base",
+    gameId: "game-backgammon",
+    versionLabel: "Règles classiques",
+    isOfficial: true,
+    categories: [cat("rule-bg-base", "cat-bg-points", "Points marqués (par partie, cube inclus)", "sum", { roundBased: true })],
+  },
+});
+
+order = 0;
+const pictionary = game({
+  id: "game-pictionary",
+  name: "Pictionary",
+  publisher: "Hasbro",
+  year: 1985,
+  minPlayers: 4,
+  maxPlayers: 12,
+  aliases: ["pictionary"],
+  description: "Faites deviner des mots à votre équipe en les dessinant.",
+  ruleSet: {
+    id: "rule-pic-base",
+    gameId: "game-pictionary",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [cat("rule-pic-base", "cat-pic-squares", "Cases parcourues sur le plateau", "sum", { step: 1 })],
+  },
+});
+
+order = 0;
+const taboo = game({
+  id: "game-taboo",
+  name: "Taboo",
+  publisher: "Hasbro",
+  year: 1989,
+  minPlayers: 4,
+  maxPlayers: 10,
+  aliases: ["taboo"],
+  description: "Faites deviner un mot à votre équipe sans utiliser les mots interdits.",
+  ruleSet: {
+    id: "rule-tb-base",
+    gameId: "game-taboo",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [
+      cat("rule-tb-base", "cat-tb-correct", "Mots devinés", "sum", { roundBased: true, helper: "+1 par mot deviné" }),
+      cat("rule-tb-base", "cat-tb-taboo", "Mots tabous prononcés", "malus", { roundBased: true }),
+    ],
+  },
+});
+
+order = 0;
 const quickPlay = game({
   id: "game-quick-play",
   name: "Jeu rapide",
@@ -1069,6 +2215,61 @@ export const GAMES_SEED: GameWithRules[] = [
   camelUp,
   coltExpress,
   welcomeTo,
+  smallWorld,
+  arkNova,
+  terraMystica,
+  caverna,
+  leHavre,
+  elGrande,
+  powerGrid,
+  acquire,
+  sushiGo,
+  pointSalad,
+  cascadia,
+  calico,
+  parks,
+  bunnyKingdom,
+  isleOfCats,
+  underwaterCities,
+  trajan,
+  orleans,
+  lordsOfWaterdeep,
+  tapestry,
+  architectsWestKingdom,
+  marcoPolo,
+  istanbul,
+  santaMaria,
+  barony,
+  blokus,
+  kingdomBuilder,
+  sevenWondersDuel,
+  clank,
+  skullKing,
+  hanabi,
+  justOne,
+  duneImperium,
+  wyrmspan,
+  catInTheBox,
+  cribbage,
+  canasta,
+  ginRummy,
+  hearts,
+  spades,
+  euchre,
+  rummy500,
+  phase10,
+  farkle,
+  bunco,
+  dominoesClassic,
+  mahjong,
+  boggle,
+  balderdash,
+  cardsAgainstHumanity,
+  scattergories,
+  witsAndWagers,
+  backgammon,
+  pictionary,
+  taboo,
   quickPlay,
   genericTemplate,
 ];
