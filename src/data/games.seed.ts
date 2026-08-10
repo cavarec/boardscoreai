@@ -14,7 +14,7 @@ import type { GameWithRules, ScoreCategory } from "@/types";
  * réappliquer le catalogue après une mise à jour de l'app — sans ça, les
  * utilisateurs déjà installés ne verraient jamais les nouveaux jeux.
  */
-export const SEED_VERSION = 6;
+export const SEED_VERSION = 7;
 
 let order = 0;
 function cat(
@@ -2129,6 +2129,938 @@ const taboo = game({
 });
 
 order = 0;
+const alhambra = game({
+  id: "game-alhambra",
+  name: "Alhambra",
+  publisher: "Queen Games",
+  year: 2003,
+  minPlayers: 2,
+  maxPlayers: 6,
+  aliases: ["alhambra"],
+  description: "Achetez des bâtiments avec différentes monnaies pour composer le plus bel Alhambra.",
+  ruleSet: {
+    id: "rule-alh-base",
+    gameId: "game-alhambra",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [
+      cat("rule-alh-base", "cat-alh-scoring", "Score de manche (3 manches)", "sum", { roundBased: true, helper: "Additionnez les points de chaque manche de décompte" }),
+      cat("rule-alh-base", "cat-alh-wall", "Plus long mur", "bonus", { step: 1 }),
+    ],
+  },
+});
+
+order = 0;
+const stoneAge = game({
+  id: "game-stone-age",
+  name: "Stone Age",
+  publisher: "Hans im Glück",
+  year: 2008,
+  minPlayers: 2,
+  maxPlayers: 4,
+  aliases: ["stone age"],
+  description: "Développez votre tribu préhistorique entre récolte de ressources et constructions.",
+  ruleSet: {
+    id: "rule-sta-base",
+    gameId: "game-stone-age",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [
+      cat("rule-sta-base", "cat-sta-buildings", "Bâtiments et cartes civilisation", "sum", { roundBased: true, helper: "Additionnez la valeur de chaque carte/bâtiment" }),
+      cat("rule-sta-base", "cat-sta-resources", "Ressources et outils restants", "sum", { step: 1 }),
+      cat("rule-sta-base", "cat-sta-fields", "Champs (population non nourrie)", "malus", { step: 1 }),
+    ],
+  },
+});
+
+order = 0;
+const caylus = game({
+  id: "game-caylus",
+  name: "Caylus",
+  publisher: "Ystari Games",
+  year: 2005,
+  minPlayers: 2,
+  maxPlayers: 5,
+  aliases: ["caylus"],
+  description: "Faites progresser la construction du château pour gagner la faveur du roi.",
+  ruleSet: {
+    id: "rule-cay-base",
+    gameId: "game-caylus",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [
+      cat("rule-cay-base", "cat-cay-castle", "Points du château", "sum", { step: 1 }),
+      cat("rule-cay-base", "cat-cay-buildings", "Bâtiments privés", "bonus", { step: 1 }),
+      cat("rule-cay-base", "cat-cay-provost", "Malus du prévôt", "malus", { step: 1 }),
+    ],
+  },
+});
+
+order = 0;
+const village = game({
+  id: "game-village",
+  name: "Village",
+  publisher: "eggertspiele",
+  year: 2011,
+  minPlayers: 2,
+  maxPlayers: 4,
+  aliases: ["village"],
+  description: "Faites prospérer trois générations de votre famille de villageois, jusqu'à leur mort.",
+  ruleSet: {
+    id: "rule-vil-base",
+    gameId: "game-village",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [
+      cat("rule-vil-base", "cat-vil-activities", "Activités et voyages accomplis", "sum", { step: 1 }),
+      cat("rule-vil-base", "cat-vil-graveyard", "Villageois honorés au cimetière", "bonus", { step: 1 }),
+    ],
+  },
+});
+
+order = 0;
+const tzolkin = game({
+  id: "game-tzolkin",
+  name: "Tzolk'in: The Mayan Calendar",
+  publisher: "Czech Games Edition",
+  year: 2012,
+  minPlayers: 2,
+  maxPlayers: 4,
+  aliases: ["tzolkin", "tzolk'in"],
+  description: "Placez vos ouvriers sur des engrenages mayas qui tournent à chaque tour.",
+  ruleSet: {
+    id: "rule-tz-base",
+    gameId: "game-tzolkin",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [
+      cat("rule-tz-base", "cat-tz-buildings", "Constructions et technologies", "sum", { step: 1 }),
+      cat("rule-tz-base", "cat-tz-temples", "Progression sur les temples", "sum", { step: 1 }),
+      cat("rule-tz-base", "cat-tz-resources", "Ressources restantes", "sum", { step: 1 }),
+    ],
+  },
+});
+
+order = 0;
+const bruges = game({
+  id: "game-bruges",
+  name: "Bruges",
+  publisher: "eggertspiele",
+  year: 2013,
+  minPlayers: 2,
+  maxPlayers: 4,
+  aliases: ["bruges", "brugge"],
+  description: "Gérez des personnages-cartes pour développer votre influence à Bruges.",
+  ruleSet: {
+    id: "rule-brg-base",
+    gameId: "game-bruges",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [
+      cat("rule-brg-base", "cat-brg-cards", "Points des personnages", "sum", { step: 1 }),
+      cat("rule-brg-base", "cat-brg-threats", "Malus des menaces non gérées", "malus", { step: 1 }),
+    ],
+  },
+});
+
+order = 0;
+const rajasOfTheGanges = game({
+  id: "game-rajas-of-the-ganges",
+  name: "Rajas of the Ganges",
+  publisher: "Huch!",
+  year: 2017,
+  minPlayers: 2,
+  maxPlayers: 4,
+  aliases: ["rajas of the ganges", "les rajas du gange"],
+  description: "Équilibrez richesse et renommée sur deux pistes qui doivent se rejoindre.",
+  ruleSet: {
+    id: "rule-rog-base",
+    gameId: "game-rajas-of-the-ganges",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [cat("rule-rog-base", "cat-rog-vp", "Points de victoire (renommée)", "sum", { step: 1 })],
+  },
+});
+
+order = 0;
+const coimbra = game({
+  id: "game-coimbra",
+  name: "Coimbra",
+  publisher: "eggertspiele",
+  year: 2018,
+  minPlayers: 2,
+  maxPlayers: 4,
+  aliases: ["coimbra"],
+  description: "Lancez des dés partagés pour recruter des personnages influents au Portugal.",
+  ruleSet: {
+    id: "rule-coi-base",
+    gameId: "game-coimbra",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [cat("rule-coi-base", "cat-coi-vp", "Points de victoire cumulés", "sum", { step: 1 })],
+  },
+});
+
+order = 0;
+const nusfjord = game({
+  id: "game-nusfjord",
+  name: "Nusfjord",
+  publisher: "Lookout Games",
+  year: 2017,
+  minPlayers: 1,
+  maxPlayers: 4,
+  aliases: ["nusfjord"],
+  description: "Développez un village de pêcheurs norvégien entre bateaux et bâtiments.",
+  ruleSet: {
+    id: "rule-nus-base",
+    gameId: "game-nusfjord",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [
+      cat("rule-nus-base", "cat-nus-buildings", "Bâtiments construits", "sum", { step: 1 }),
+      cat("rule-nus-base", "cat-nus-money", "Couronnes restantes (÷3)", "sum", { step: 1 }),
+    ],
+  },
+});
+
+order = 0;
+const fresco = game({
+  id: "game-fresco",
+  name: "Fresco",
+  publisher: "Queen Games",
+  year: 2010,
+  minPlayers: 2,
+  maxPlayers: 4,
+  aliases: ["fresco"],
+  description: "Dirigez un atelier de peintres pour restaurer la fresque du plafond de la cathédrale.",
+  ruleSet: {
+    id: "rule-fre-base",
+    gameId: "game-fresco",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [
+      cat("rule-fre-base", "cat-fre-fresco", "Portions de fresque peintes", "sum", { step: 1 }),
+      cat("rule-fre-base", "cat-fre-bonus", "Bonus de personnages et vente", "bonus", { step: 1 }),
+    ],
+  },
+});
+
+order = 0;
+const eclipse = game({
+  id: "game-eclipse",
+  name: "Eclipse",
+  publisher: "Lautapelit.fi",
+  year: 2011,
+  minPlayers: 2,
+  maxPlayers: 6,
+  aliases: ["eclipse"],
+  description: "Explorez et conquérez la galaxie dans ce jeu de stratégie spatiale 4X.",
+  ruleSet: {
+    id: "rule-ecl-base",
+    gameId: "game-eclipse",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [
+      cat("rule-ecl-base", "cat-ecl-sectors", "Secteurs et vaisseaux contrôlés", "sum", { step: 1 }),
+      cat("rule-ecl-base", "cat-ecl-tech", "Technologies développées", "bonus", { step: 1 }),
+      cat("rule-ecl-base", "cat-ecl-reputation", "Tuiles de réputation", "bonus", { step: 1 }),
+    ],
+  },
+});
+
+order = 0;
+const gaiaProject = game({
+  id: "game-gaia-project",
+  name: "Gaia Project",
+  publisher: "Feuerland Spiele",
+  year: 2017,
+  minPlayers: 1,
+  maxPlayers: 4,
+  aliases: ["gaia project"],
+  description: "Développez une civilisation spatiale à travers technologies et colonisation.",
+  ruleSet: {
+    id: "rule-gp-base",
+    gameId: "game-gaia-project",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [
+      cat("rule-gp-base", "cat-gp-buildings", "Constructions et zones", "sum", { roundBased: true, helper: "Additionnez les points de chaque tour" }),
+      cat("rule-gp-base", "cat-gp-tech", "Piste technologique", "sum", { step: 1 }),
+      cat("rule-gp-base", "cat-gp-resources", "Ressources restantes", "sum", { step: 1 }),
+    ],
+  },
+});
+
+order = 0;
+const glassRoad = game({
+  id: "game-glass-road",
+  name: "Glass Road",
+  publisher: "Hans im Glück",
+  year: 2013,
+  minPlayers: 2,
+  maxPlayers: 4,
+  aliases: ["glass road"],
+  description: "Gérez production de verre et de briques dans la Forêt-Noire du 19e siècle.",
+  ruleSet: {
+    id: "rule-glr-base",
+    gameId: "game-glass-road",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [cat("rule-glr-base", "cat-glr-buildings", "Bâtiments et cartes bonus", "sum", { step: 1 })],
+  },
+});
+
+order = 0;
+const container = game({
+  id: "game-container",
+  name: "Container",
+  publisher: "Rio Grande Games",
+  year: 2007,
+  minPlayers: 3,
+  maxPlayers: 5,
+  aliases: ["container"],
+  description: "Produisez, achetez et revendez des marchandises sur un marché sans mise commune.",
+  ruleSet: {
+    id: "rule-cnt-base",
+    gameId: "game-container",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [cat("rule-cnt-base", "cat-cnt-cash", "Argent total en fin de partie", "sum", { step: 1 })],
+  },
+});
+
+order = 0;
+const antike = game({
+  id: "game-antike",
+  name: "Antike",
+  publisher: "Eggertspiele",
+  year: 2005,
+  minPlayers: 2,
+  maxPlayers: 6,
+  aliases: ["antike"],
+  description: "Développez une civilisation antique entre commerce, technologie et conquête.",
+  ruleSet: {
+    id: "rule-ant-base",
+    gameId: "game-antike",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [cat("rule-ant-base", "cat-ant-cities", "Villes et merveilles contrôlées", "sum", { step: 1 })],
+  },
+});
+
+order = 0;
+const onMars = game({
+  id: "game-on-mars",
+  name: "On Mars",
+  publisher: "eggertspiele",
+  year: 2020,
+  minPlayers: 1,
+  maxPlayers: 4,
+  aliases: ["on mars"],
+  description: "Établissez la première colonie humaine viable sur Mars.",
+  ruleSet: {
+    id: "rule-om-base",
+    gameId: "game-on-mars",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [
+      cat("rule-om-base", "cat-om-colony", "Points de colonie", "sum", { step: 1 }),
+      cat("rule-om-base", "cat-om-cards", "Cartes technologie", "bonus", { step: 1 }),
+    ],
+  },
+});
+
+order = 0;
+const anachrony = game({
+  id: "game-anachrony",
+  name: "Anachrony",
+  publisher: "Mindclash Games",
+  year: 2017,
+  minPlayers: 1,
+  maxPlayers: 4,
+  aliases: ["anachrony"],
+  description: "Reconstruisez le monde après l'apocalypse en manipulant le voyage dans le temps.",
+  ruleSet: {
+    id: "rule-anc-base",
+    gameId: "game-anachrony",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [cat("rule-anc-base", "cat-anc-vp", "Points de victoire cumulés", "sum", { step: 1 })],
+  },
+});
+
+order = 0;
+const barrage = game({
+  id: "game-barrage",
+  name: "Barrage",
+  publisher: "Cranio Creations",
+  year: 2019,
+  minPlayers: 2,
+  maxPlayers: 4,
+  aliases: ["barrage"],
+  description: "Construisez barrages et centrales pour dominer la production hydroélectrique.",
+  ruleSet: {
+    id: "rule-brr-base",
+    gameId: "game-barrage",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [
+      cat("rule-brr-base", "cat-brr-energy", "Production d'énergie", "sum", { step: 1 }),
+      cat("rule-brr-base", "cat-brr-contracts", "Contrats accomplis", "bonus", { step: 1 }),
+    ],
+  },
+});
+
+order = 0;
+const teotihuacan = game({
+  id: "game-teotihuacan",
+  name: "Teotihuacan",
+  publisher: "Board&Dice",
+  year: 2018,
+  minPlayers: 1,
+  maxPlayers: 4,
+  aliases: ["teotihuacan"],
+  description: "Bâtissez la pyramide du Soleil en gérant technologies et dieux mésoaméricains.",
+  ruleSet: {
+    id: "rule-teo-base",
+    gameId: "game-teotihuacan",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [cat("rule-teo-base", "cat-teo-vp", "Points de victoire cumulés", "sum", { step: 1 })],
+  },
+});
+
+order = 0;
+const pragaCaputRegni = game({
+  id: "game-praga-caput-regni",
+  name: "Praga Caput Regni",
+  publisher: "Delicious Games",
+  year: 2019,
+  minPlayers: 1,
+  maxPlayers: 4,
+  aliases: ["praga caput regni", "praga"],
+  description: "Développez Prague médiévale en plaçant des personnages sur un plateau modulaire.",
+  ruleSet: {
+    id: "rule-pcr-base",
+    gameId: "game-praga-caput-regni",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [cat("rule-pcr-base", "cat-pcr-vp", "Points de victoire cumulés", "sum", { step: 1 })],
+  },
+});
+
+order = 0;
+const theGallerist = game({
+  id: "game-the-gallerist",
+  name: "The Gallerist",
+  publisher: "Eagle-Gryphon Games",
+  year: 2015,
+  minPlayers: 1,
+  maxPlayers: 4,
+  aliases: ["the gallerist", "gallerist"],
+  description: "Gérez une galerie d'art : acquisition, exposition et vente d'œuvres.",
+  ruleSet: {
+    id: "rule-gal-base",
+    gameId: "game-the-gallerist",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [cat("rule-gal-base", "cat-gal-vp", "Points de victoire cumulés", "sum", { step: 1 })],
+  },
+});
+
+order = 0;
+const mombasa = game({
+  id: "game-mombasa",
+  name: "Mombasa",
+  publisher: "eggertspiele",
+  year: 2015,
+  minPlayers: 2,
+  maxPlayers: 4,
+  aliases: ["mombasa"],
+  description: "Investissez dans des compagnies coloniales africaines rivales.",
+  ruleSet: {
+    id: "rule-mba-base",
+    gameId: "game-mombasa",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [cat("rule-mba-base", "cat-mba-vp", "Points de victoire (actions et cartes)", "sum", { step: 1 })],
+  },
+});
+
+order = 0;
+const keyflower = game({
+  id: "game-keyflower",
+  name: "Keyflower",
+  publisher: "R&D Games",
+  year: 2012,
+  minPlayers: 2,
+  maxPlayers: 6,
+  aliases: ["keyflower"],
+  description: "Enchérissez sur des tuiles pour développer votre village au fil des saisons.",
+  ruleSet: {
+    id: "rule-kf-base",
+    gameId: "game-keyflower",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [cat("rule-kf-base", "cat-kf-vp", "Points de victoire (tuiles et ressources)", "sum", { step: 1 })],
+  },
+});
+
+order = 0;
+const dorfromantik = game({
+  id: "game-dorfromantik",
+  name: "Dorfromantik",
+  publisher: "Pegasus Spiele",
+  year: 2022,
+  minPlayers: 1,
+  maxPlayers: 6,
+  aliases: ["dorfromantik"],
+  description: "Assemblez des tuiles de paysage pour former le plus beau village possible.",
+  ruleSet: {
+    id: "rule-dfr-base",
+    gameId: "game-dorfromantik",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [
+      cat("rule-dfr-base", "cat-dfr-tiles", "Tuiles posées correctement", "sum", { roundBased: true }),
+      cat("rule-dfr-base", "cat-dfr-quests", "Quêtes accomplies", "bonus", { step: 1 }),
+    ],
+  },
+});
+
+order = 0;
+const machiKoro = game({
+  id: "game-machi-koro",
+  name: "Machi Koro",
+  publisher: "IELLO",
+  year: 2012,
+  minPlayers: 2,
+  maxPlayers: 5,
+  aliases: ["machi koro"],
+  description: "Développez votre ville en achetant des établissements générateurs de revenus.",
+  ruleSet: {
+    id: "rule-mk-base",
+    gameId: "game-machi-koro",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [cat("rule-mk-base", "cat-mk-coins", "Pièces accumulées (indicatif)", "sum", { step: 1, helper: "La victoire réelle est aux 4 monuments construits" })],
+  },
+});
+
+order = 0;
+const qwixx = game({
+  id: "game-qwixx",
+  name: "Qwixx",
+  publisher: "Nürnberger-Spielkarten-Verlag",
+  year: 2012,
+  minPlayers: 2,
+  maxPlayers: 5,
+  aliases: ["qwixx"],
+  description: "Cochez des cases numérotées croissantes sur quatre lignes de couleur, aux dés.",
+  ruleSet: {
+    id: "rule-qx-base",
+    gameId: "game-qwixx",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [
+      cat("rule-qx-base", "cat-qx-rows", "Cases cochées par ligne (1+2+3…)", "sum", { step: 1 }),
+      cat("rule-qx-base", "cat-qx-penalties", "Tours manqués", "malus", { perUnit: 5, helper: "5 pts par tour manqué", step: 1 }),
+    ],
+  },
+});
+
+order = 0;
+const downforce = game({
+  id: "game-downforce",
+  name: "Downforce",
+  publisher: "Restoration Games",
+  year: 2018,
+  minPlayers: 2,
+  maxPlayers: 6,
+  aliases: ["downforce"],
+  description: "Pariez sur des voitures de course et tirez profit de leurs résultats.",
+  ruleSet: {
+    id: "rule-df-base",
+    gameId: "game-downforce",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [cat("rule-df-base", "cat-df-cash", "Argent gagné sur les paris", "sum", { roundBased: true, helper: "Additionnez les gains de chaque course" })],
+  },
+});
+
+order = 0;
+const kingOfNewYork = game({
+  id: "game-king-of-new-york",
+  name: "King of New York",
+  publisher: "IELLO",
+  year: 2016,
+  minPlayers: 2,
+  maxPlayers: 6,
+  aliases: ["king of new york"],
+  description: "Incarnez un monstre géant semant le chaos dans les rues de New York.",
+  ruleSet: {
+    id: "rule-kny-base",
+    gameId: "game-king-of-new-york",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [cat("rule-kny-base", "cat-kny-vp", "Points de victoire cumulés", "sum", { step: 1 })],
+  },
+});
+
+order = 0;
+const munchkin = game({
+  id: "game-munchkin",
+  name: "Munchkin",
+  publisher: "Steve Jackson Games",
+  year: 2001,
+  minPlayers: 3,
+  maxPlayers: 6,
+  aliases: ["munchkin"],
+  description: "Combattez monstres et trahisons pour atteindre le niveau 10 en premier.",
+  ruleSet: {
+    id: "rule-mun-base",
+    gameId: "game-munchkin",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [cat("rule-mun-base", "cat-mun-level", "Niveau atteint (objectif : 10)", "sum", { step: 1 })],
+  },
+});
+
+order = 0;
+const ligretto = game({
+  id: "game-ligretto",
+  name: "Ligretto",
+  publisher: "Schmidt Spiele",
+  year: 1997,
+  minPlayers: 2,
+  maxPlayers: 4,
+  aliases: ["ligretto", "dutch blitz"],
+  description: "Défaussez vos cartes le plus vite possible sur des piles communes, en simultané.",
+  ruleSet: {
+    id: "rule-lig-base",
+    gameId: "game-ligretto",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [
+      cat("rule-lig-base", "cat-lig-played", "Cartes posées au centre", "sum", { roundBased: true }),
+      cat("rule-lig-base", "cat-lig-remaining", "Cartes restantes dans le tas Ligretto", "malus", { roundBased: true }),
+    ],
+  },
+});
+
+order = 0;
+const setGame = game({
+  id: "game-set",
+  name: "Set",
+  publisher: "Set Enterprises",
+  year: 1991,
+  minPlayers: 1,
+  maxPlayers: 20,
+  aliases: ["set"],
+  description: "Repérez le plus vite possible des combinaisons valides de trois cartes.",
+  ruleSet: {
+    id: "rule-set-base",
+    gameId: "game-set",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [cat("rule-set-base", "cat-set-found", "Combinaisons trouvées", "sum", { step: 1 })],
+  },
+});
+
+order = 0;
+const triOminos = game({
+  id: "game-tri-ominos",
+  name: "Tri-Ominos",
+  publisher: "Pressman",
+  year: 1965,
+  minPlayers: 2,
+  maxPlayers: 6,
+  aliases: ["tri-ominos", "triominos"],
+  description: "Variante triangulaire des dominos classiques, à faire correspondre par côtés.",
+  ruleSet: {
+    id: "rule-tro-base",
+    gameId: "game-tri-ominos",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    sortDirection: "asc",
+    categories: [cat("rule-tro-base", "cat-tro-pips", "Points des tuiles restantes", "sum", { roundBased: true, helper: "Le score le plus bas gagne — une entrée par manche" })],
+  },
+});
+
+order = 0;
+const mexicanTrain = game({
+  id: "game-mexican-train",
+  name: "Mexican Train",
+  publisher: "Domaine public",
+  year: 1950,
+  minPlayers: 2,
+  maxPlayers: 8,
+  aliases: ["mexican train", "train mexicain"],
+  description: "Posez vos dominos sur des trains partagés, celui qui finit le premier marque le moins.",
+  ruleSet: {
+    id: "rule-mxt-base",
+    gameId: "game-mexican-train",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    sortDirection: "asc",
+    categories: [cat("rule-mxt-base", "cat-mxt-pips", "Points des dominos restants", "sum", { roundBased: true, helper: "Le score le plus bas gagne — une entrée par manche" })],
+  },
+});
+
+order = 0;
+const belote = game({
+  id: "game-belote",
+  name: "Belote",
+  publisher: "Domaine public",
+  year: 1900,
+  minPlayers: 4,
+  maxPlayers: 4,
+  aliases: ["belote", "coinche", "belote coinchee"],
+  description: "Jeu de plis à l'atout en équipes de deux, premier à 501 ou 1000 points gagne.",
+  ruleSet: {
+    id: "rule-bel-base",
+    gameId: "game-belote",
+    versionLabel: "Règles classiques",
+    isOfficial: true,
+    categories: [cat("rule-bel-base", "cat-bel-points", "Points marqués (par donne)", "sum", { roundBased: true, helper: "Additionnez le score de chaque donne" })],
+  },
+});
+
+order = 0;
+const tarot = game({
+  id: "game-tarot",
+  name: "Tarot (jeu de cartes)",
+  publisher: "Domaine public",
+  year: 1600,
+  minPlayers: 3,
+  maxPlayers: 5,
+  aliases: ["tarot", "jeu de tarot"],
+  description: "Jeu de plis français avec bouts et annonces, à l'atout et à l'excuse.",
+  ruleSet: {
+    id: "rule-tar-base",
+    gameId: "game-tarot",
+    versionLabel: "Règles classiques",
+    isOfficial: true,
+    categories: [cat("rule-tar-base", "cat-tar-points", "Points marqués (par donne)", "sum", { roundBased: true, helper: "Additionnez le score de chaque donne" })],
+  },
+});
+
+order = 0;
+const milleBornes = game({
+  id: "game-mille-bornes",
+  name: "Mille Bornes",
+  publisher: "Dujardin",
+  year: 1954,
+  minPlayers: 2,
+  maxPlayers: 6,
+  aliases: ["mille bornes"],
+  description: "Parcourez 1000 bornes avant vos adversaires en évitant pannes et attaques.",
+  ruleSet: {
+    id: "rule-mb-base",
+    gameId: "game-mille-bornes",
+    versionLabel: "Règles classiques",
+    isOfficial: true,
+    categories: [
+      cat("rule-mb-base", "cat-mb-distance", "Distance parcourue (bornes)", "sum", { roundBased: true }),
+      cat("rule-mb-base", "cat-mb-bonus", "Bottes et coups fourrés", "bonus", { step: 1 }),
+    ],
+  },
+});
+
+order = 0;
+const manille = game({
+  id: "game-manille",
+  name: "Manille",
+  publisher: "Domaine public",
+  year: 1900,
+  minPlayers: 4,
+  maxPlayers: 4,
+  aliases: ["manille"],
+  description: "Jeu de plis en équipes où le 10 (manille) vaut plus que l'as.",
+  ruleSet: {
+    id: "rule-man-base",
+    gameId: "game-manille",
+    versionLabel: "Règles classiques",
+    isOfficial: true,
+    categories: [cat("rule-man-base", "cat-man-points", "Points marqués (par donne)", "sum", { roundBased: true })],
+  },
+});
+
+order = 0;
+const president = game({
+  id: "game-president",
+  name: "Président",
+  publisher: "Domaine public",
+  year: 1980,
+  minPlayers: 3,
+  maxPlayers: 8,
+  aliases: ["president", "trou du cul", "scum"],
+  description: "Débarrassez-vous de vos cartes le premier pour devenir Président à la manche suivante.",
+  ruleSet: {
+    id: "rule-pres-base",
+    gameId: "game-president",
+    versionLabel: "Règles classiques",
+    isOfficial: true,
+    categories: [cat("rule-pres-base", "cat-pres-rank", "Rang obtenu (Président = plus de points)", "sum", { roundBased: true, helper: "Attribuez des points selon le rang de fin de manche" })],
+  },
+});
+
+order = 0;
+const whist = game({
+  id: "game-whist",
+  name: "Whist",
+  publisher: "Domaine public",
+  year: 1700,
+  minPlayers: 4,
+  maxPlayers: 4,
+  aliases: ["whist"],
+  description: "Ancêtre du bridge, jeu de plis en équipes sans enchères.",
+  ruleSet: {
+    id: "rule-whi-base",
+    gameId: "game-whist",
+    versionLabel: "Règles classiques",
+    isOfficial: true,
+    categories: [cat("rule-whi-base", "cat-whi-tricks", "Plis remportés (par donne)", "sum", { roundBased: true })],
+  },
+});
+
+order = 0;
+const skat = game({
+  id: "game-skat",
+  name: "Skat",
+  publisher: "Domaine public",
+  year: 1810,
+  minPlayers: 3,
+  maxPlayers: 3,
+  aliases: ["skat"],
+  description: "Jeu de plis allemand à enchères, considéré comme l'un des plus riches en stratégie.",
+  ruleSet: {
+    id: "rule-ska-base",
+    gameId: "game-skat",
+    versionLabel: "Règles classiques",
+    isOfficial: true,
+    categories: [cat("rule-ska-base", "cat-ska-points", "Points marqués (par donne)", "sum", { roundBased: true })],
+  },
+});
+
+order = 0;
+const piquet = game({
+  id: "game-piquet",
+  name: "Piquet",
+  publisher: "Domaine public",
+  year: 1500,
+  minPlayers: 2,
+  maxPlayers: 2,
+  aliases: ["piquet"],
+  description: "Ancien jeu de cartes français à combinaisons, à deux joueurs.",
+  ruleSet: {
+    id: "rule-piq-base",
+    gameId: "game-piquet",
+    versionLabel: "Règles classiques",
+    isOfficial: true,
+    categories: [cat("rule-piq-base", "cat-piq-points", "Points marqués (par donne)", "sum", { roundBased: true })],
+  },
+});
+
+order = 0;
+const timesUp = game({
+  id: "game-times-up",
+  name: "Times Up!",
+  publisher: "Repos Production",
+  year: 1998,
+  minPlayers: 4,
+  maxPlayers: 20,
+  aliases: ["times up", "time's up"],
+  description: "Faites deviner des célébrités à votre équipe en trois manches de plus en plus dures.",
+  ruleSet: {
+    id: "rule-tu-base",
+    gameId: "game-times-up",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [cat("rule-tu-base", "cat-tu-cards", "Cartes devinées (par manche)", "sum", { roundBased: true, helper: "Additionnez le score de chaque manche" })],
+  },
+});
+
+order = 0;
+const concept = game({
+  id: "game-concept",
+  name: "Concept",
+  publisher: "Repos Production",
+  year: 2013,
+  minPlayers: 4,
+  maxPlayers: 12,
+  aliases: ["concept"],
+  description: "Faites deviner un mot en combinant des pictogrammes sur le plateau.",
+  ruleSet: {
+    id: "rule-con-base",
+    gameId: "game-concept",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [cat("rule-con-base", "cat-con-round", "Points marqués (par manche)", "sum", { roundBased: true })],
+  },
+});
+
+order = 0;
+const risk = game({
+  id: "game-risk",
+  name: "Risk",
+  publisher: "Hasbro",
+  year: 1957,
+  minPlayers: 2,
+  maxPlayers: 6,
+  aliases: ["risk", "risque"],
+  description: "Conquérez le monde territoire par territoire au fil de batailles aux dés.",
+  ruleSet: {
+    id: "rule-rsk-base",
+    gameId: "game-risk",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [cat("rule-rsk-base", "cat-rsk-territories", "Territoires contrôlés en fin de partie", "sum", { step: 1 })],
+  },
+});
+
+order = 0;
+const monopoly = game({
+  id: "game-monopoly",
+  name: "Monopoly",
+  publisher: "Hasbro",
+  year: 1935,
+  minPlayers: 2,
+  maxPlayers: 8,
+  aliases: ["monopoly", "monopoly deal"],
+  description: "Achetez, échangez et développez des propriétés pour ruiner vos adversaires.",
+  ruleSet: {
+    id: "rule-mono-base",
+    gameId: "game-monopoly",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [
+      cat("rule-mono-base", "cat-mono-cash", "Argent liquide", "sum", { step: 1 }),
+      cat("rule-mono-base", "cat-mono-property", "Valeur des propriétés et constructions", "sum", { step: 1 }),
+    ],
+  },
+});
+
+order = 0;
+const gameOfLife = game({
+  id: "game-of-life",
+  name: "Le Jeu de la Vie",
+  publisher: "Hasbro",
+  year: 1960,
+  minPlayers: 2,
+  maxPlayers: 6,
+  aliases: ["jeu de la vie", "game of life", "the game of life"],
+  description: "Traversez les étapes de la vie sur la roue de la fortune et amassez le plus d'argent.",
+  ruleSet: {
+    id: "rule-gol-base",
+    gameId: "game-of-life",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [cat("rule-gol-base", "cat-gol-cash", "Argent total en fin de partie", "sum", { step: 1 })],
+  },
+});
+
+order = 0;
 const quickPlay = game({
   id: "game-quick-play",
   name: "Jeu rapide",
@@ -2270,6 +3202,52 @@ export const GAMES_SEED: GameWithRules[] = [
   backgammon,
   pictionary,
   taboo,
+  alhambra,
+  stoneAge,
+  caylus,
+  village,
+  tzolkin,
+  bruges,
+  rajasOfTheGanges,
+  coimbra,
+  nusfjord,
+  fresco,
+  eclipse,
+  gaiaProject,
+  glassRoad,
+  container,
+  antike,
+  onMars,
+  anachrony,
+  barrage,
+  teotihuacan,
+  pragaCaputRegni,
+  theGallerist,
+  mombasa,
+  keyflower,
+  dorfromantik,
+  machiKoro,
+  qwixx,
+  downforce,
+  kingOfNewYork,
+  munchkin,
+  ligretto,
+  setGame,
+  triOminos,
+  mexicanTrain,
+  belote,
+  tarot,
+  milleBornes,
+  manille,
+  president,
+  whist,
+  skat,
+  piquet,
+  timesUp,
+  concept,
+  risk,
+  monopoly,
+  gameOfLife,
   quickPlay,
   genericTemplate,
 ];
