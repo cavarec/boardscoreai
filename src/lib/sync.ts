@@ -185,32 +185,3 @@ export async function pushCommunityTemplate(template: CommunityTemplate): Promis
   }
 }
 
-/** Partage une association code-barres -> jeu confirmée sur cet appareil,
- * pour que le prochain scanneur de la même boîte en profite instantanément. */
-export async function pushBarcodeLink(code: string, gameId: string): Promise<boolean> {
-  if (!supabase || !canSync()) return false;
-  try {
-    const { error } = await supabase.from("game_barcodes").upsert({ barcode: code, game_id: gameId });
-    if (error) throw error;
-    return true;
-  } catch (err) {
-    console.warn("[BoardScore AI] Échec de partage du code-barres :", err);
-    return false;
-  }
-}
-
-/** Descend la table de correspondance code-barres partagée par la communauté. */
-export async function pullBarcodeMap(): Promise<number | null> {
-  if (!supabase || !canSync()) return null;
-  try {
-    const { data, error } = await supabase.from("game_barcodes").select("barcode, game_id");
-    if (error) throw error;
-    if (data?.length) {
-      await db.barcodes.bulkPut(data.map((row) => ({ code: row.barcode, gameId: row.game_id })));
-    }
-    return data?.length ?? 0;
-  } catch (err) {
-    console.warn("[BoardScore AI] Échec de synchronisation des codes-barres :", err);
-    return null;
-  }
-}

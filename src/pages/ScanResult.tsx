@@ -3,8 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { TopBar } from "@/components/layout/TopBar";
 import { Button } from "@/components/ui/Button";
 import { Card, Pill } from "@/components/ui/Card";
-import { createMatch, getRuleSetForGame, linkBarcodeToGame } from "@/lib/db";
-import { pushBarcodeLink } from "@/lib/sync";
+import { createMatch, getRuleSetForGame } from "@/lib/db";
 import type { GameMatch } from "@/lib/matcher";
 import { HIGH_CONFIDENCE_THRESHOLD } from "@/lib/matcher";
 
@@ -12,10 +11,6 @@ interface ScanResultState {
   matches: GameMatch[];
   ocrText: string;
   mode: "box" | "sheet";
-  /** Code-barres à mémoriser une fois le jeu confirmé (scan direct ou secours OCR). */
-  scannedBarcode?: string | null;
-  /** Le meilleur candidat vient d'une correspondance directe de code-barres. */
-  viaBarcode?: boolean;
 }
 
 export default function ScanResult() {
@@ -40,10 +35,6 @@ export default function ScanResult() {
 
   async function confirm(gameId: string) {
     setStarting(true);
-    if (state!.scannedBarcode) {
-      await linkBarcodeToGame(state!.scannedBarcode, gameId);
-      void pushBarcodeLink(state!.scannedBarcode, gameId);
-    }
     const match = await createMatch(gameId);
     navigate(`/match/${match.id}/players`);
   }
@@ -64,9 +55,7 @@ export default function ScanResult() {
           </Card>
           <Button
             onClick={() =>
-              navigate("/community/new", {
-                state: { gameNameGuess: guess, scannedBarcode: state.scannedBarcode },
-              })
+              navigate("/community/new", { state: { gameNameGuess: guess } })
             }
           >
             Créer un modèle pour ce jeu
@@ -86,9 +75,7 @@ export default function ScanResult() {
         <Card className="flex flex-col gap-3">
           <div className="flex items-center justify-between">
             <h2 className="font-display text-xl font-bold">{best.game.name}</h2>
-            {state.viaBarcode ? (
-              <Pill tone="good">via code-barres</Pill>
-            ) : best.score <= HIGH_CONFIDENCE_THRESHOLD ? (
+            {best.score <= HIGH_CONFIDENCE_THRESHOLD ? (
               <Pill tone="good">confiance haute</Pill>
             ) : (
               <Pill tone="pick">à confirmer</Pill>

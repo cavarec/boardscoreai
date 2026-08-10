@@ -1,20 +1,15 @@
 import { useMemo, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { TopBar } from "@/components/layout/TopBar";
 import { useGames } from "@/hooks/useGames";
 import { matchGames } from "@/lib/matcher";
-import { createMatch, linkBarcodeToGame } from "@/lib/db";
-import { pushBarcodeLink } from "@/lib/sync";
+import { createMatch } from "@/lib/db";
 import { Button } from "@/components/ui/Button";
 
 export default function GameSearch() {
   const navigate = useNavigate();
-  const location = useLocation();
   const { games, loading } = useGames();
   const [query, setQuery] = useState("");
-  // Présent si on arrive ici après un scan de code-barres resté sans
-  // correspondance : on le mémorise dès que l'utilisateur choisit le jeu.
-  const scannedBarcode = (location.state as { scannedBarcode?: string } | null)?.scannedBarcode;
 
   const results = useMemo(() => {
     if (!query.trim()) return games;
@@ -22,10 +17,6 @@ export default function GameSearch() {
   }, [games, query]);
 
   async function pick(gameId: string) {
-    if (scannedBarcode) {
-      await linkBarcodeToGame(scannedBarcode, gameId);
-      void pushBarcodeLink(scannedBarcode, gameId);
-    }
     const match = await createMatch(gameId);
     navigate(`/match/${match.id}/players`);
   }
@@ -73,9 +64,7 @@ export default function GameSearch() {
         <Button
           variant="secondary"
           className="w-full"
-          onClick={() =>
-            navigate("/community/new", { state: { gameNameGuess: query, scannedBarcode } })
-          }
+          onClick={() => navigate("/community/new", { state: { gameNameGuess: query } })}
         >
           Ce jeu n'existe pas — créer un modèle
         </Button>

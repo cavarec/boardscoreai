@@ -22,11 +22,6 @@ import type {
  */
 type RuleSetRow = Omit<GameRuleSet, "categories">;
 
-interface BarcodeLink {
-  code: string;
-  gameId: string;
-}
-
 class BoardScoreDB extends Dexie {
   games!: EntityTable<Game, "id">;
   ruleSets!: EntityTable<RuleSetRow, "id">;
@@ -37,7 +32,6 @@ class BoardScoreDB extends Dexie {
   rankings!: EntityTable<RankingRow, "id">;
   communityTemplates!: EntityTable<CommunityTemplate, "id">;
   meta!: EntityTable<{ key: string; value: unknown }, "key">;
-  barcodes!: EntityTable<BarcodeLink, "code">;
   scoreRounds!: EntityTable<ScoreRound, "id">;
 
   constructor() {
@@ -63,6 +57,12 @@ class BoardScoreDB extends Dexie {
     // n'affecte pas le moteur de calcul, qui continue à ne lire que scores.value.
     this.version(3).stores({
       scoreRounds: "id, playerId, categoryId, [playerId+categoryId]",
+    });
+    // v4 : le scan de code-barres est abandonné (capteur caméra peu fiable
+    // sur iOS) — supprime le store devenu inutile plutôt que de le laisser
+    // trainer sur les appareils déjà en v2/v3.
+    this.version(4).stores({
+      barcodes: null,
     });
   }
 }
@@ -117,22 +117,6 @@ export async function getGameWithRules(gameId: string) {
   const ruleSet = await getRuleSetForGame(gameId);
   if (!ruleSet) return undefined;
   return { ...game, ruleSet };
-}
-
-/** Correspondance rapide code-barres -> jeu, alimentée par la communauté
- * (voir linkBarcodeToGame) : ne contient au départ aucune donnée, un scan
- * de code-barres inconnu retombe donc sur l'OCR ou la recherche manuelle. */
-export async function lookupBarcode(code: string): Promise<Game | undefined> {
-  const link = await db.barcodes.get(code);
-  if (!link) return undefined;
-  return db.games.get(link.gameId);
-}
-
-/** Mémorise l'association pour que le prochain scan de ce code-barres soit
- * instantané. Appelé dès qu'un jeu est confirmé après un scan de
- * code-barres resté sans correspondance locale. */
-export async function linkBarcodeToGame(code: string, gameId: string): Promise<void> {
-  await db.barcodes.put({ code, gameId });
 }
 
 export async function createMatch(
