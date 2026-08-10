@@ -98,12 +98,25 @@ export default function Settings() {
  * code à saisir : le modèle d'email par défaut de Supabase (sans SMTP
  * personnalisé) ne contient qu'un lien cliquable.
  */
+/**
+ * Sur iOS, une PWA ajoutée à l'écran d'accueil a un stockage isolé de
+ * Safari : le lien de connexion s'ouvre dans Safari et y crée la session,
+ * mais l'app installée ne peut pas la voir. On prévient l'utilisateur
+ * plutôt que de le laisser croire que la connexion a échoué.
+ */
+function isStandaloneDisplay(): boolean {
+  if (typeof window === "undefined") return false;
+  const nav = window.navigator as Navigator & { standalone?: boolean };
+  return window.matchMedia?.("(display-mode: standalone)").matches || nav.standalone === true;
+}
+
 function AccountCard() {
   const { session, loading } = useAuth();
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const standalone = isStandaloneDisplay();
 
   if (!isSupabaseConfigured) {
     return (
@@ -153,10 +166,19 @@ function AccountCard() {
         Connectez-vous pour sauvegarder vos parties en ligne et les retrouver sur vos autres appareils.
       </p>
 
+      {standalone && (
+        <p className="mb-3 rounded-lg bg-amber-tint px-3 py-2 text-sm text-amber-strong">
+          App installée sur l'écran d'accueil : ouvrez plutôt{" "}
+          <span className="font-medium">boardscoreai.vercel.app</span> dans Safari pour vous
+          connecter, sinon le lien reçu par email ne pourra pas signaler la connexion ici.
+        </p>
+      )}
+
       {sent ? (
         <div className="flex flex-col gap-2">
           <p className="text-sm text-ink-soft">
             Lien envoyé à {email} — ouvrez l'email et touchez "Log In" pour vous connecter.
+            {standalone && " Faites-le depuis Safari, pas depuis l'app installée."}
           </p>
           <button
             type="button"
