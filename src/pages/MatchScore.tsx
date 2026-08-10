@@ -86,13 +86,20 @@ export default function MatchScore() {
     };
   }, [quickCategory, full]);
 
+  // "Jeu rapide" peut se gagner au score le plus bas (voir MatchPlayers.tsx) :
+  // "atteindre" l'objectif de points s'inverse dans ce cas (passer EN-DESSOUS
+  // du seuil, pas au-dessus).
+  const dir = full?.match.sortDirection === "asc" ? -1 : 1;
+
   const achievements =
     full && quickCategory
       ? full.players
           .map((p) => {
             const { total } = computePlayerBreakdown(full.ruleSet, full.scores, p);
             const rounds = roundsByPlayer[p.id] ?? 0;
-            const scoreReached = Boolean(full.match.targetScore && total >= full.match.targetScore);
+            const scoreReached = Boolean(
+              full.match.targetScore && dir * total >= dir * full.match.targetScore
+            );
             const roundsReached = Boolean(
               full.match.targetRounds && rounds >= full.match.targetRounds
             );
@@ -167,7 +174,7 @@ export default function MatchScore() {
           <p className="text-ink-soft">Total actuel</p>
           <p
             className={`font-mono text-2xl font-bold tabular-nums ${
-              full.match.targetScore && total >= full.match.targetScore
+              full.match.targetScore && dir * total >= dir * full.match.targetScore
                 ? "text-amber-strong"
                 : "text-felt-strong"
             }`}
@@ -184,8 +191,10 @@ export default function MatchScore() {
               </Pill>
             )}
             {full.match.targetScore && (
-              <Pill tone={total >= full.match.targetScore ? "good" : "neutral"}>
-                {total >= full.match.targetScore ? "Objectif atteint" : `Objectif : ${full.match.targetScore} pts`}
+              <Pill tone={dir * total >= dir * full.match.targetScore ? "good" : "neutral"}>
+                {dir * total >= dir * full.match.targetScore
+                  ? "Objectif atteint"
+                  : `Objectif : ${full.match.targetScore} pts`}
               </Pill>
             )}
           </div>

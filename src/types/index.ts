@@ -110,6 +110,11 @@ export interface Match {
    * automatiquement). */
   targetRounds?: number;
   targetScore?: number;
+  /** "Jeu rapide" uniquement : le jeu réel scanné/recherché a une règle de
+   * classement fixe (ruleSet.sortDirection), mais un jeu suivi librement n'en
+   * a pas — l'utilisateur choisit ici si le plus haut ou le plus bas score
+   * gagne. Remplace ruleSet.sortDirection pour ce match précis quand défini. */
+  sortDirection?: "asc" | "desc";
 }
 
 export interface Player {

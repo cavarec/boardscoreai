@@ -1,6 +1,7 @@
 import type {
   FormulaConfig,
   GameRuleSet,
+  Match,
   Player,
   PlayerResult,
   Score,
@@ -63,6 +64,16 @@ export function computePlayerBreakdown(
 
   const total = breakdown.reduce((sum, b) => sum + b.points, 0);
   return { total, breakdown };
+}
+
+/**
+ * "Jeu rapide" n'a pas de règle de classement propre au jeu (voir
+ * Match.sortDirection) : le sens choisi pour ce match précis prime sur celui,
+ * par défaut, du modèle de score générique. Les autres jeux n'ont jamais ce
+ * champ renseigné, donc leur ruleSet.sortDirection reste inchangé.
+ */
+export function effectiveRuleSet(ruleSet: GameRuleSet, match: Pick<Match, "sortDirection">): GameRuleSet {
+  return match.sortDirection ? { ...ruleSet, sortDirection: match.sortDirection } : ruleSet;
 }
 
 /**

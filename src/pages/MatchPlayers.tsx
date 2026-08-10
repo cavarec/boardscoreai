@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { TopBar } from "@/components/layout/TopBar";
 import { Button } from "@/components/ui/Button";
-import { addPlayer, getFullMatch, removePlayer, updateMatchTargets, type FullMatch } from "@/lib/db";
+import { addPlayer, getFullMatch, removePlayer, updateMatchSettings, type FullMatch } from "@/lib/db";
 import { QUICK_PLAY_GAME_ID } from "@/data/games.seed";
 
 export default function MatchPlayers() {
@@ -13,6 +13,7 @@ export default function MatchPlayers() {
   const [name, setName] = useState("");
   const [targetRounds, setTargetRounds] = useState("");
   const [targetScore, setTargetScore] = useState("");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
 
   async function refresh() {
     if (!matchId) return;
@@ -32,6 +33,7 @@ export default function MatchPlayers() {
     if (full) {
       setTargetRounds(full.match.targetRounds ? String(full.match.targetRounds) : "");
       setTargetScore(full.match.targetScore ? String(full.match.targetScore) : "");
+      setSortDirection(full.match.sortDirection ?? "desc");
     }
     // Ne resynchroniser qu'au chargement initial du match, pas à chaque
     // refresh() (sinon on écraserait la saisie en cours de l'utilisateur).
@@ -46,10 +48,16 @@ export default function MatchPlayers() {
     if (!matchId) return;
     const rounds = Number(roundsStr);
     const score = Number(scoreStr);
-    await updateMatchTargets(matchId, {
+    await updateMatchSettings(matchId, {
       targetRounds: roundsStr.trim() && !Number.isNaN(rounds) ? rounds : undefined,
       targetScore: scoreStr.trim() && !Number.isNaN(score) ? score : undefined,
     });
+  }
+
+  async function changeSortDirection(direction: "asc" | "desc") {
+    setSortDirection(direction);
+    if (!matchId) return;
+    await updateMatchSettings(matchId, { sortDirection: direction });
   }
 
   if (!full) return null;
@@ -95,6 +103,32 @@ export default function MatchPlayers() {
       <div className="min-h-0 flex-1 overflow-y-auto px-5 pb-4">
         {full.game.id === QUICK_PLAY_GAME_ID && (
           <div className="mb-4 flex flex-col gap-3 rounded-xl border border-line bg-paper-raised p-4">
+            <p className="text-sm font-medium text-ink-soft">Qui gagne ?</p>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => changeSortDirection("desc")}
+                className={`flex-1 rounded-lg border py-2 text-sm font-medium ${
+                  sortDirection === "desc"
+                    ? "border-felt bg-felt-tint text-felt-strong"
+                    : "border-line-strong text-ink-soft"
+                }`}
+              >
+                Le plus de points
+              </button>
+              <button
+                type="button"
+                onClick={() => changeSortDirection("asc")}
+                className={`flex-1 rounded-lg border py-2 text-sm font-medium ${
+                  sortDirection === "asc"
+                    ? "border-felt bg-felt-tint text-felt-strong"
+                    : "border-line-strong text-ink-soft"
+                }`}
+              >
+                Le moins de points
+              </button>
+            </div>
+
             <p className="text-sm font-medium text-ink-soft">Objectif (optionnel)</p>
             <div className="flex gap-3">
               <label className="flex-1 text-xs text-ink-faint">

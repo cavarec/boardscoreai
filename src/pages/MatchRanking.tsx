@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { TopBar } from "@/components/layout/TopBar";
 import { Button } from "@/components/ui/Button";
 import { getFullMatch, type FullMatch } from "@/lib/db";
-import { computeRanking } from "@/lib/scoreEngine";
+import { computeRanking, effectiveRuleSet } from "@/lib/scoreEngine";
 import { pushCompletedMatch } from "@/lib/sync";
 import type { PlayerResult } from "@/types";
 
@@ -35,7 +35,7 @@ export default function MatchRanking() {
 
   if (!full) return null;
 
-  const ranking = computeRanking(full.ruleSet, full.scores, full.players);
+  const ranking = computeRanking(effectiveRuleSet(full.ruleSet, full.match), full.scores, full.players);
   // Les 3 premières lignes du classement (déjà triées) plutôt que les positions
   // 1/2/3 littérales : en cas d'égalité, deux joueurs peuvent partager le rang 1
   // et doivent tous les deux apparaître sur le podium.

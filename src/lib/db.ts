@@ -1,6 +1,6 @@
 import Dexie, { type EntityTable } from "dexie";
 import { GAMES_SEED, SEED_VERSION } from "@/data/games.seed";
-import { computeRanking } from "@/lib/scoreEngine";
+import { computeRanking, effectiveRuleSet } from "@/lib/scoreEngine";
 import { getCurrentUserId } from "@/lib/auth";
 import type {
   CommunityTemplate,
@@ -142,13 +142,14 @@ export async function createMatch(
   return match;
 }
 
-/** Utilisé par "Jeu rapide" : ajuste l'objectif indicatif après coup
- * (nombre de manches et/ou score à atteindre, tous deux optionnels). */
-export async function updateMatchTargets(
+/** Utilisé par "Jeu rapide" : ajuste l'objectif indicatif (nombre de manches
+ * et/ou score à atteindre) et le sens du classement (plus haut/bas gagne)
+ * après coup, tous optionnels. */
+export async function updateMatchSettings(
   matchId: string,
-  targets: { targetRounds?: number; targetScore?: number }
+  settings: { targetRounds?: number; targetScore?: number; sortDirection?: "asc" | "desc" }
 ): Promise<void> {
-  await db.matches.update(matchId, targets);
+  await db.matches.update(matchId, settings);
 }
 
 export async function addPlayer(matchId: string, name: string): Promise<Player> {
@@ -267,7 +268,7 @@ export async function getFullMatch(matchId: string): Promise<FullMatch | undefin
 export async function completeMatch(matchId: string): Promise<void> {
   const full = await getFullMatch(matchId);
   if (!full) return;
-  const ranking = computeRanking(full.ruleSet, full.scores, full.players);
+  const ranking = computeRanking(effectiveRuleSet(full.ruleSet, full.match), full.scores, full.players);
   await db.transaction("rw", db.matches, db.rankings, async () => {
     await db.rankings.where("matchId").equals(matchId).delete();
     await db.rankings.bulkPut(
