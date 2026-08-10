@@ -14,7 +14,7 @@ import type { GameWithRules, ScoreCategory } from "@/types";
  * réappliquer le catalogue après une mise à jour de l'app — sans ça, les
  * utilisateurs déjà installés ne verraient jamais les nouveaux jeux.
  */
-export const SEED_VERSION = 7;
+export const SEED_VERSION = 8;
 
 let order = 0;
 function cat(
@@ -3061,6 +3061,674 @@ const gameOfLife = game({
 });
 
 order = 0;
+const saboteur = game({
+  id: "game-saboteur",
+  name: "Saboteur",
+  publisher: "Amigo",
+  year: 2004,
+  minPlayers: 3,
+  maxPlayers: 10,
+  aliases: ["saboteur"],
+  description: "Creusez vers l'or ou sabotez discrètement les mineurs adverses.",
+  ruleSet: {
+    id: "rule-sab-base",
+    gameId: "game-saboteur",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [cat("rule-sab-base", "cat-sab-nuggets", "Pépites d'or gagnées", "sum", { roundBased: true, helper: "Additionnez les pépites de chaque manche" })],
+  },
+});
+
+order = 0;
+const karuba = game({
+  id: "game-karuba",
+  name: "Karuba",
+  publisher: "Haba",
+  year: 2015,
+  minPlayers: 2,
+  maxPlayers: 4,
+  aliases: ["karuba"],
+  description: "Tracez des chemins vers les temples pour guider vos explorateurs et récolter des trésors.",
+  ruleSet: {
+    id: "rule-kar-base",
+    gameId: "game-karuba",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [
+      cat("rule-kar-base", "cat-kar-temples", "Points des temples atteints", "sum", { step: 1 }),
+      cat("rule-kar-base", "cat-kar-gems", "Pierres précieuses collectées", "bonus", { step: 1 }),
+    ],
+  },
+});
+
+order = 0;
+const jungleSpeed = game({
+  id: "game-jungle-speed",
+  name: "Jungle Speed",
+  publisher: "Asmodee",
+  year: 1997,
+  minPlayers: 2,
+  maxPlayers: 10,
+  aliases: ["jungle speed"],
+  description: "Défaussez vos cartes le plus vite possible en attrapant le totem au bon moment.",
+  ruleSet: {
+    id: "rule-js-base",
+    gameId: "game-jungle-speed",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    sortDirection: "asc",
+    categories: [cat("rule-js-base", "cat-js-remaining", "Cartes restantes en main", "sum", { helper: "Le score le plus bas gagne", step: 1 })],
+  },
+});
+
+order = 0;
+const reversi = game({
+  id: "game-reversi",
+  name: "Reversi (Othello)",
+  publisher: "Domaine public",
+  year: 1883,
+  minPlayers: 2,
+  maxPlayers: 2,
+  aliases: ["reversi", "othello"],
+  description: "Retournez les pions adverses pour dominer le plateau en fin de partie.",
+  ruleSet: {
+    id: "rule-rev-base",
+    gameId: "game-reversi",
+    versionLabel: "Règles classiques",
+    isOfficial: true,
+    categories: [cat("rule-rev-base", "cat-rev-discs", "Pions de votre couleur en fin de partie", "sum", { step: 1 })],
+  },
+});
+
+order = 0;
+const mancala = game({
+  id: "game-mancala",
+  name: "Mancala (Awalé)",
+  publisher: "Domaine public",
+  year: -1000,
+  minPlayers: 2,
+  maxPlayers: 2,
+  aliases: ["mancala", "awale", "awalé"],
+  description: "Semez et récoltez des graines dans les trous du plateau pour en capturer le plus.",
+  ruleSet: {
+    id: "rule-man-mancala-base",
+    gameId: "game-mancala",
+    versionLabel: "Règles classiques",
+    isOfficial: true,
+    categories: [cat("rule-man-mancala-base", "cat-man-seeds", "Graines capturées", "sum", { step: 1 })],
+  },
+});
+
+order = 0;
+const loveLetter = game({
+  id: "game-love-letter",
+  name: "Love Letter",
+  publisher: "AEG",
+  year: 2012,
+  minPlayers: 2,
+  maxPlayers: 4,
+  aliases: ["love letter"],
+  description: "Faites parvenir votre lettre d'amour à la princesse en éliminant vos rivaux par déduction.",
+  ruleSet: {
+    id: "rule-ll-base",
+    gameId: "game-love-letter",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [cat("rule-ll-base", "cat-ll-tokens", "Jetons de faveur (manches gagnées)", "sum", { roundBased: true, helper: "Une entrée par manche gagnée" })],
+  },
+});
+
+order = 0;
+const tichu = game({
+  id: "game-tichu",
+  name: "Tichu",
+  publisher: "Fata Morgana",
+  year: 1991,
+  minPlayers: 4,
+  maxPlayers: 4,
+  aliases: ["tichu"],
+  description: "Jeu de plis en équipes de deux, avec annonces à haut risque (Tichu, Grand Tichu).",
+  ruleSet: {
+    id: "rule-tic-base",
+    gameId: "game-tichu",
+    versionLabel: "Règles classiques",
+    isOfficial: true,
+    categories: [cat("rule-tic-base", "cat-tic-points", "Points marqués (par donne)", "sum", { roundBased: true, helper: "Additionnez le score de chaque donne, annonces incluses" })],
+  },
+});
+
+order = 0;
+const quatreCentVingtEtUn = game({
+  id: "game-421",
+  name: "421 (dés)",
+  publisher: "Domaine public",
+  year: 1900,
+  minPlayers: 2,
+  maxPlayers: 8,
+  aliases: ["421", "quatre cent vingt et un"],
+  description: "Jeu de dés d'apéritif classique où la combinaison 4-2-1 rapporte le plus.",
+  ruleSet: {
+    id: "rule-421-base",
+    gameId: "game-421",
+    versionLabel: "Règles classiques",
+    isOfficial: true,
+    sortDirection: "asc",
+    categories: [cat("rule-421-base", "cat-421-jetons", "Jetons restants (ou perdus)", "sum", { roundBased: true, helper: "Le score le plus bas gagne — une entrée par manche" })],
+  },
+});
+
+order = 0;
+const rami = game({
+  id: "game-rami",
+  name: "Rami",
+  publisher: "Domaine public",
+  year: 1900,
+  minPlayers: 2,
+  maxPlayers: 6,
+  aliases: ["rami", "rummy francais"],
+  description: "Formez des combinaisons de cartes et posez-les avant vos adversaires.",
+  ruleSet: {
+    id: "rule-rami-base",
+    gameId: "game-rami",
+    versionLabel: "Règles classiques",
+    isOfficial: true,
+    sortDirection: "asc",
+    categories: [cat("rule-rami-base", "cat-rami-hand", "Points des cartes restantes en main", "sum", { roundBased: true, helper: "Le score le plus bas gagne — une entrée par manche" })],
+  },
+});
+
+order = 0;
+const modernArt = game({
+  id: "game-modern-art",
+  name: "Modern Art",
+  publisher: "Hans im Glück",
+  year: 1992,
+  minPlayers: 3,
+  maxPlayers: 5,
+  aliases: ["modern art"],
+  description: "Enchérissez et vendez des tableaux pour amasser le plus d'argent en quatre manches.",
+  ruleSet: {
+    id: "rule-ma-base",
+    gameId: "game-modern-art",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [cat("rule-ma-base", "cat-ma-cash", "Argent total en fin de partie", "sum", { step: 1 })],
+  },
+});
+
+order = 0;
+const sanJuan = game({
+  id: "game-san-juan",
+  name: "San Juan",
+  publisher: "Rio Grande Games",
+  year: 2004,
+  minPlayers: 2,
+  maxPlayers: 4,
+  aliases: ["san juan"],
+  description: "Version en jeu de cartes de Puerto Rico, plus rapide à mettre en place.",
+  ruleSet: {
+    id: "rule-sj-base",
+    gameId: "game-san-juan",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [cat("rule-sj-base", "cat-sj-buildings", "Points des bâtiments construits", "sum", { roundBased: true, helper: "Additionnez la valeur de chaque bâtiment" })],
+  },
+});
+
+order = 0;
+const ra = game({
+  id: "game-ra",
+  name: "Ra",
+  publisher: "Hans im Glück",
+  year: 1999,
+  minPlayers: 2,
+  maxPlayers: 5,
+  aliases: ["ra"],
+  description: "Enchérissez sur des jetons Soleil pour collectionner monuments et civilisations.",
+  ruleSet: {
+    id: "rule-ra-base",
+    gameId: "game-ra",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [cat("rule-ra-base", "cat-ra-epochs", "Points par époque (3 époques)", "sum", { roundBased: true, helper: "Additionnez les points de chaque époque" })],
+  },
+});
+
+order = 0;
+const tigrisEuphrates = game({
+  id: "game-tigris-euphrates",
+  name: "Tigris & Euphrates",
+  publisher: "Hans im Glück",
+  year: 1997,
+  minPlayers: 2,
+  maxPlayers: 4,
+  aliases: ["tigris et euphrate", "tigris euphrates"],
+  description: "Développez quatre civilisations en équilibre, votre score est votre couleur la plus faible.",
+  ruleSet: {
+    id: "rule-te-base",
+    gameId: "game-tigris-euphrates",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [cat("rule-te-base", "cat-te-lowest", "Score final (couleur la plus faible)", "sum", { step: 1 })],
+  },
+});
+
+order = 0;
+const innovation = game({
+  id: "game-innovation",
+  name: "Innovation",
+  publisher: "Asmodee",
+  year: 2010,
+  minPlayers: 2,
+  maxPlayers: 4,
+  aliases: ["innovation"],
+  description: "Traversez les âges de l'innovation humaine en empilant des cartes technologiques.",
+  ruleSet: {
+    id: "rule-inn-base",
+    gameId: "game-innovation",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [cat("rule-inn-base", "cat-inn-icons", "Points de score cumulés", "sum", { step: 1 })],
+  },
+});
+
+order = 0;
+const cartographers = game({
+  id: "game-cartographers",
+  name: "Cartographers",
+  publisher: "Thunderworks Games",
+  year: 2019,
+  minPlayers: 1,
+  maxPlayers: 100,
+  aliases: ["cartographers"],
+  description: "Dessinez une carte au fil de cartes révélées, en répondant à des objectifs saisonniers.",
+  ruleSet: {
+    id: "rule-crt-base",
+    gameId: "game-cartographers",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [
+      cat("rule-crt-base", "cat-crt-seasons", "Points de saison (4 saisons)", "sum", { roundBased: true, helper: "Additionnez les points de chaque saison" }),
+      cat("rule-crt-base", "cat-crt-ambush", "Malus des monstres non bloqués", "malus", { step: 1 }),
+    ],
+  },
+});
+
+order = 0;
+const quacks = game({
+  id: "game-quacks-of-quedlinburg",
+  name: "The Quacks of Quedlinburg",
+  publisher: "North Star Games",
+  year: 2018,
+  minPlayers: 2,
+  maxPlayers: 4,
+  aliases: ["quacks of quedlinburg", "les charlatans de quedlinburg"],
+  description: "Composez une potion en piochant des ingrédients dans votre sac, sans la faire exploser.",
+  ruleSet: {
+    id: "rule-qq-base",
+    gameId: "game-quacks-of-quedlinburg",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [
+      cat("rule-qq-base", "cat-qq-potion", "Points de potion (par manche)", "sum", { roundBased: true, helper: "Additionnez les points de chaque manche" }),
+      cat("rule-qq-base", "cat-qq-rubies", "Rubis dépensés en fin de partie", "bonus", { step: 1 }),
+    ],
+  },
+});
+
+order = 0;
+const prettyClever = game({
+  id: "game-thats-pretty-clever",
+  name: "That's Pretty Clever!",
+  publisher: "Schmidt Spiele",
+  year: 2018,
+  minPlayers: 1,
+  maxPlayers: 4,
+  aliases: ["that's pretty clever", "ganz schon clever", "les malins"],
+  description: "Cochez des cases colorées aux dés en optimisant six catégories interdépendantes.",
+  ruleSet: {
+    id: "rule-tpc-base",
+    gameId: "game-thats-pretty-clever",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [
+      cat("rule-tpc-base", "cat-tpc-colors", "Points par couleur (6 catégories)", "sum", { step: 1 }),
+      cat("rule-tpc-base", "cat-tpc-foxes", "Bonus renard", "bonus", { step: 1 }),
+    ],
+  },
+});
+
+order = 0;
+const kemet = game({
+  id: "game-kemet",
+  name: "Kemet",
+  publisher: "Matagot",
+  year: 2012,
+  minPlayers: 2,
+  maxPlayers: 5,
+  aliases: ["kemet"],
+  description: "Menez une armée égyptienne mythologique à la conquête de temples rivaux.",
+  ruleSet: {
+    id: "rule-kem-base",
+    gameId: "game-kemet",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [cat("rule-kem-base", "cat-kem-vp", "Points de victoire cumulés", "sum", { step: 1 })],
+  },
+});
+
+order = 0;
+const cyclades = game({
+  id: "game-cyclades",
+  name: "Cyclades",
+  publisher: "Matagot",
+  year: 2009,
+  minPlayers: 2,
+  maxPlayers: 5,
+  aliases: ["cyclades"],
+  description: "Invoquez la faveur des dieux grecs pour dominer les cités des Cyclades.",
+  ruleSet: {
+    id: "rule-cyc-base",
+    gameId: "game-cyclades",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [cat("rule-cyc-base", "cat-cyc-cities", "Métropoles contrôlées (victoire directe)", "sum", { step: 1 })],
+  },
+});
+
+order = 0;
+const risingSun = game({
+  id: "game-rising-sun",
+  name: "Rising Sun",
+  publisher: "CMON",
+  year: 2018,
+  minPlayers: 3,
+  maxPlayers: 5,
+  aliases: ["rising sun"],
+  description: "Unissez alliances et trahisons entre clans pour dominer le Japon mythologique.",
+  ruleSet: {
+    id: "rule-rs-base",
+    gameId: "game-rising-sun",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [cat("rule-rs-base", "cat-rs-vp", "Points de victoire (par saison)", "sum", { roundBased: true, helper: "Additionnez les points de chaque saison" })],
+  },
+});
+
+order = 0;
+const talisman = game({
+  id: "game-talisman",
+  name: "Talisman",
+  publisher: "Games Workshop",
+  year: 1983,
+  minPlayers: 2,
+  maxPlayers: 6,
+  aliases: ["talisman"],
+  description: "Parcourez le plateau fantastique pour atteindre la Couronne du Pouvoir.",
+  ruleSet: {
+    id: "rule-tal-base",
+    gameId: "game-talisman",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [
+      cat("rule-tal-base", "cat-tal-stats", "Force + Sagesse cumulées", "sum", { step: 1 }),
+      cat("rule-tal-base", "cat-tal-gold", "Or restant", "bonus", { step: 1 }),
+    ],
+  },
+});
+
+order = 0;
+const feastForOdin = game({
+  id: "game-feast-for-odin",
+  name: "A Feast for Odin",
+  publisher: "Feuerland Spiele",
+  year: 2016,
+  minPlayers: 1,
+  maxPlayers: 4,
+  aliases: ["a feast for odin", "feast for odin"],
+  description: "Menez un clan viking entre expéditions, artisanat et exploitation de vastes terres.",
+  ruleSet: {
+    id: "rule-ffo-base",
+    gameId: "game-feast-for-odin",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [
+      cat("rule-ffo-base", "cat-ffo-territories", "Territoires exploités", "sum", { step: 1 }),
+      cat("rule-ffo-base", "cat-ffo-goods", "Biens et bateaux", "bonus", { step: 1 }),
+      cat("rule-ffo-base", "cat-ffo-empty", "Cases vides du plateau", "malus", { step: 1 }),
+    ],
+  },
+});
+
+order = 0;
+const throughTheAges = game({
+  id: "game-through-the-ages",
+  name: "Through the Ages",
+  publisher: "Czech Games Edition",
+  year: 2015,
+  minPlayers: 2,
+  maxPlayers: 4,
+  aliases: ["through the ages"],
+  description: "Développez une civilisation de l'Antiquité à l'ère moderne, ressources et guerre incluses.",
+  ruleSet: {
+    id: "rule-tta-base",
+    gameId: "game-through-the-ages",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [
+      cat("rule-tta-base", "cat-tta-culture", "Points de culture", "sum", { step: 1 }),
+      cat("rule-tta-base", "cat-tta-military", "Malus de faiblesse militaire", "malus", { step: 1 }),
+    ],
+  },
+});
+
+order = 0;
+const civilization = game({
+  id: "game-civilization-board-game",
+  name: "Sid Meier's Civilization: Le Jeu de Plateau",
+  publisher: "Fantasy Flight Games",
+  year: 2010,
+  minPlayers: 2,
+  maxPlayers: 4,
+  aliases: ["civilization", "civilization le jeu de plateau"],
+  description: "Développez une civilisation vers une victoire culturelle, technologique, économique ou militaire.",
+  ruleSet: {
+    id: "rule-civ-base",
+    gameId: "game-civilization-board-game",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [cat("rule-civ-base", "cat-civ-vp", "Points de victoire cumulés", "sum", { step: 1 })],
+  },
+});
+
+order = 0;
+const libertalia = game({
+  id: "game-libertalia",
+  name: "Libertalia",
+  publisher: "Stonemaier Games",
+  year: 2012,
+  minPlayers: 2,
+  maxPlayers: 6,
+  aliases: ["libertalia"],
+  description: "Choisissez vos pirates dans une main commune pour piller le plus de butin.",
+  ruleSet: {
+    id: "rule-lib-base",
+    gameId: "game-libertalia",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [cat("rule-lib-base", "cat-lib-loot", "Butin collecté (par jour)", "sum", { roundBased: true, helper: "Additionnez le butin de chaque jour" })],
+  },
+});
+
+order = 0;
+const amunRe = game({
+  id: "game-amun-re",
+  name: "Amun-Re",
+  publisher: "Hans im Glück",
+  year: 2003,
+  minPlayers: 3,
+  maxPlayers: 5,
+  aliases: ["amun re", "amun-re"],
+  description: "Enchérissez sur des provinces égyptiennes et bâtissez des pyramides pour les dieux.",
+  ruleSet: {
+    id: "rule-ar-base",
+    gameId: "game-amun-re",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [
+      cat("rule-ar-base", "cat-ar-power", "Points de pouvoir (2 époques)", "sum", { roundBased: true, helper: "Additionnez les points de chaque époque" }),
+      cat("rule-ar-base", "cat-ar-gold", "Or restant (÷10)", "bonus", { step: 1 }),
+    ],
+  },
+});
+
+order = 0;
+const tajMahal = game({
+  id: "game-taj-mahal",
+  name: "Taj Mahal",
+  publisher: "Alea",
+  year: 2000,
+  minPlayers: 2,
+  maxPlayers: 5,
+  aliases: ["taj mahal"],
+  description: "Remportez des majorités provinciales pour poser des palais et collectionner des faveurs.",
+  ruleSet: {
+    id: "rule-tm-taj-base",
+    gameId: "game-taj-mahal",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [cat("rule-tm-taj-base", "cat-taj-palaces", "Points des palais construits", "sum", { roundBased: true, helper: "Additionnez la valeur de chaque palais" })],
+  },
+});
+
+order = 0;
+const barenpark = game({
+  id: "game-barenpark",
+  name: "Bärenpark",
+  publisher: "Feuerland Spiele",
+  year: 2017,
+  minPlayers: 1,
+  maxPlayers: 4,
+  aliases: ["barenpark", "bärenpark"],
+  description: "Construisez le plus grand parc à ours en assemblant des enclos façon Tetris.",
+  ruleSet: {
+    id: "rule-bp-base",
+    gameId: "game-barenpark",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [
+      cat("rule-bp-base", "cat-bp-enclosures", "Enclos et bonus", "sum", { step: 1 }),
+      cat("rule-bp-base", "cat-bp-empty", "Cases vides du parc", "malus", { step: 1 }),
+    ],
+  },
+});
+
+order = 0;
+const yspahan = game({
+  id: "game-yspahan",
+  name: "Yspahan",
+  publisher: "Ystari Games",
+  year: 2006,
+  minPlayers: 2,
+  maxPlayers: 4,
+  aliases: ["yspahan"],
+  description: "Collectez des cubes de marchandises à la Perse ancienne au fil de trois semaines.",
+  ruleSet: {
+    id: "rule-ysp-base",
+    gameId: "game-yspahan",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [
+      cat("rule-ysp-base", "cat-ysp-goods", "Marchandises livrées", "sum", { step: 1 }),
+      cat("rule-ysp-base", "cat-ysp-camels", "Chameaux et bonus de mosquée", "bonus", { step: 1 }),
+    ],
+  },
+});
+
+order = 0;
+const betweenTwoCities = game({
+  id: "game-between-two-cities",
+  name: "Between Two Cities",
+  publisher: "Stonemaier Games",
+  year: 2015,
+  minPlayers: 3,
+  maxPlayers: 7,
+  aliases: ["between two cities"],
+  description: "Construisez deux villes en binôme avec vos voisins de gauche et de droite.",
+  ruleSet: {
+    id: "rule-btc-base",
+    gameId: "game-between-two-cities",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [cat("rule-btc-base", "cat-btc-score", "Score de la ville la plus faible (partagée)", "sum", { step: 1 })],
+  },
+});
+
+order = 0;
+const rollPlayer = game({
+  id: "game-roll-player",
+  name: "Roll Player",
+  publisher: "Thunderworks Games",
+  year: 2016,
+  minPlayers: 1,
+  maxPlayers: 4,
+  aliases: ["roll player"],
+  description: "Créez votre personnage de jeu de rôle en draftant des dés de caractéristiques.",
+  ruleSet: {
+    id: "rule-rp-base",
+    gameId: "game-roll-player",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [
+      cat("rule-rp-base", "cat-rp-cards", "Cartes et objectifs de personnage", "sum", { step: 1 }),
+      cat("rule-rp-base", "cat-rp-alignment", "Bonus d'alignement et de ville", "bonus", { step: 1 }),
+    ],
+  },
+});
+
+order = 0;
+const longShot = game({
+  id: "game-long-shot",
+  name: "Long Shot: The Dice Game",
+  publisher: "Renegade Game Studios",
+  year: 2021,
+  minPlayers: 2,
+  maxPlayers: 8,
+  aliases: ["long shot", "long shot the dice game"],
+  description: "Pariez sur des chevaux de course en lançant les dés qui font avancer la piste.",
+  ruleSet: {
+    id: "rule-lsh-base",
+    gameId: "game-long-shot",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [cat("rule-lsh-base", "cat-lsh-winnings", "Gains des paris", "sum", { roundBased: true, helper: "Additionnez les gains de chaque course" })],
+  },
+});
+
+order = 0;
+const alchemists = game({
+  id: "game-alchemists",
+  name: "Alchemists",
+  publisher: "Czech Games Edition",
+  year: 2014,
+  minPlayers: 2,
+  maxPlayers: 4,
+  aliases: ["alchemists"],
+  description: "Expérimentez des ingrédients pour publier des théories alchimiques justes... ou risquées.",
+  ruleSet: {
+    id: "rule-alc-base",
+    gameId: "game-alchemists",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    categories: [
+      cat("rule-alc-base", "cat-alc-theories", "Théories publiées (justes ou fausses)", "sum", { step: 1 }),
+      cat("rule-alc-base", "cat-alc-gold", "Or restant", "bonus", { step: 1 }),
+      cat("rule-alc-base", "cat-alc-reputation", "Malus de réputation", "malus", { step: 1 }),
+    ],
+  },
+});
+
+order = 0;
 const quickPlay = game({
   id: "game-quick-play",
   name: "Jeu rapide",
@@ -3248,6 +3916,39 @@ export const GAMES_SEED: GameWithRules[] = [
   risk,
   monopoly,
   gameOfLife,
+  saboteur,
+  karuba,
+  jungleSpeed,
+  reversi,
+  mancala,
+  loveLetter,
+  tichu,
+  quatreCentVingtEtUn,
+  rami,
+  modernArt,
+  sanJuan,
+  ra,
+  tigrisEuphrates,
+  innovation,
+  cartographers,
+  quacks,
+  prettyClever,
+  kemet,
+  cyclades,
+  risingSun,
+  talisman,
+  feastForOdin,
+  throughTheAges,
+  civilization,
+  libertalia,
+  amunRe,
+  tajMahal,
+  barenpark,
+  yspahan,
+  betweenTwoCities,
+  rollPlayer,
+  longShot,
+  alchemists,
   quickPlay,
   genericTemplate,
 ];
