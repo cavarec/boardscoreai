@@ -1,16 +1,7 @@
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 import { db } from "@/lib/db";
 import { GAMES_SEED } from "@/data/games.seed";
-import type {
-  CommunityTemplate,
-  Game,
-  GameRuleSet,
-  Match,
-  Player,
-  RankingRow,
-  Score,
-  ScoreCategory,
-} from "@/types";
+import type { CommunityTemplate, Game, GameRuleSet, ScoreCategory } from "@/types";
 
 /**
  * Synchronisation opportuniste entre le cache local (source de vérité pour
@@ -95,91 +86,6 @@ export async function pullGameCatalog(): Promise<{ pulled: number } | null> {
     return { pulled: communityGames.length + communityRules.length + communityCategories.length };
   } catch (err) {
     console.warn("[BoardScore AI] Échec de synchronisation du catalogue :", err);
-    return null;
-  }
-}
-
-/** Pousse une partie terminée vers Supabase (historique multi-appareils). */
-export async function pushCompletedMatch(matchId: string): Promise<boolean> {
-  if (!supabase || !canSync()) return false;
-  try {
-    const match = await db.matches.get(matchId);
-    if (!match) return false;
-    const players = await db.players.where("matchId").equals(matchId).toArray();
-    const rankings = await db.rankings.where("matchId").equals(matchId).toArray();
-    const scores = players.length
-      ? await db.scores.where("playerId").anyOf(players.map((p) => p.id)).toArray()
-      : [];
-
-    const { error: matchError } = await supabase.from("matches").upsert(toSnakeCase(match));
-    if (matchError) throw matchError;
-    if (players.length) {
-      const { error } = await supabase.from("players").upsert(players.map(toSnakeCase));
-      if (error) throw error;
-    }
-    if (scores.length) {
-      const { error } = await supabase.from("scores").upsert(scores.map(toSnakeCase));
-      if (error) throw error;
-    }
-    if (rankings.length) {
-      const { error } = await supabase.from("rankings").upsert(rankings.map(toSnakeCase));
-      if (error) throw error;
-    }
-    return true;
-  } catch (err) {
-    console.warn("[BoardScore AI] Échec de synchronisation de la partie :", err);
-    return false;
-  }
-}
-
-/**
- * Descend les parties de l'utilisateur connecté depuis Supabase — c'est ce
- * qui rend la synchro multi-appareils réelle plutôt qu'à sens unique
- * (jusqu'ici on ne faisait que pousser). RLS filtre déjà aux parties de
- * l'utilisateur courant (`created_by = auth.uid()`), pas besoin de filtrer
- * nous-mêmes. Appelé à la connexion, voir hooks/useAuth.tsx.
- */
-export async function pullUserMatches(): Promise<number | null> {
-  if (!supabase || !canSync()) return null;
-  try {
-    const { data: matches, error: matchesError } = await supabase.from("matches").select("*");
-    if (matchesError) throw matchesError;
-    if (!matches?.length) return 0;
-
-    const camelMatches = matches.map((m) => toCamelCase<Match>(m));
-    const matchIds = camelMatches.map((m) => m.id);
-
-    const { data: players, error: playersError } = await supabase
-      .from("players")
-      .select("*")
-      .in("match_id", matchIds);
-    if (playersError) throw playersError;
-    const camelPlayers = (players ?? []).map((p) => toCamelCase<Player>(p));
-    const playerIds = camelPlayers.map((p) => p.id);
-
-    const { data: scores, error: scoresError } = playerIds.length
-      ? await supabase.from("scores").select("*").in("player_id", playerIds)
-      : { data: [] as Record<string, unknown>[], error: null };
-    if (scoresError) throw scoresError;
-    const camelScores = (scores ?? []).map((s) => toCamelCase<Score>(s));
-
-    const { data: rankings, error: rankingsError } = await supabase
-      .from("rankings")
-      .select("*")
-      .in("match_id", matchIds);
-    if (rankingsError) throw rankingsError;
-    const camelRankings = (rankings ?? []).map((r) => toCamelCase<RankingRow>(r));
-
-    await db.transaction("rw", [db.matches, db.players, db.scores, db.rankings], async () => {
-      await db.matches.bulkPut(camelMatches);
-      if (camelPlayers.length) await db.players.bulkPut(camelPlayers);
-      if (camelScores.length) await db.scores.bulkPut(camelScores);
-      if (camelRankings.length) await db.rankings.bulkPut(camelRankings);
-    });
-
-    return camelMatches.length;
-  } catch (err) {
-    console.warn("[BoardScore AI] Échec de récupération de vos parties :", err);
     return null;
   }
 }

@@ -1,11 +1,8 @@
 import { useEffect, useState } from "react";
 import { useTheme, type ThemeChoice } from "@/hooks/useTheme";
-import { useAuth } from "@/hooks/useAuth";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { db, getMeta, setMeta } from "@/lib/db";
-import { isSupabaseConfigured } from "@/lib/supabase";
-import { sendLoginLink, signOut } from "@/lib/auth";
 
 const THEME_OPTIONS: { value: ThemeChoice; label: string }[] = [
   { value: "system", label: "Système" },
@@ -67,12 +64,10 @@ export default function Settings() {
         </div>
       </Card>
 
-      <AccountCard />
-
       <Card className="border-amber bg-amber-tint">
         <p className="font-semibold text-amber-strong">Passer Premium</p>
         <p className="mt-1 text-sm text-ink-soft">
-          Sans publicité · statistiques avancées · export PDF · synchronisation multi-appareils.
+          Sans publicité · statistiques avancées · export PDF.
         </p>
         <Button size="md" variant={isPremium ? "secondary" : "primary"} className="mt-3" onClick={togglePremium}>
           {isPremium ? "Premium actif — désactiver (démo)" : "Activer Premium (démo)"}
@@ -87,130 +82,5 @@ export default function Settings() {
         Version {__APP_VERSION__}
       </p>
     </div>
-  );
-}
-
-/**
- * Connexion par lien envoyé par email : sans ça, une partie créée ne se
- * synchronise jamais (RLS exige created_by = auth.uid()) — elle reste
- * locale à l'appareil, ce qui est le comportement par défaut voulu pour un
- * usage invité, mais pas ce qu'on veut pour du multi-appareils. Pas de
- * code à saisir : le modèle d'email par défaut de Supabase (sans SMTP
- * personnalisé) ne contient qu'un lien cliquable.
- */
-/**
- * Sur iOS, une PWA ajoutée à l'écran d'accueil a un stockage isolé de
- * Safari : le lien de connexion s'ouvre dans Safari et y crée la session,
- * mais l'app installée ne peut pas la voir. On prévient l'utilisateur
- * plutôt que de le laisser croire que la connexion a échoué.
- */
-function isStandaloneDisplay(): boolean {
-  if (typeof window === "undefined") return false;
-  const nav = window.navigator as Navigator & { standalone?: boolean };
-  return window.matchMedia?.("(display-mode: standalone)").matches || nav.standalone === true;
-}
-
-function AccountCard() {
-  const { session, loading } = useAuth();
-  const [email, setEmail] = useState("");
-  const [sent, setSent] = useState(false);
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const standalone = isStandaloneDisplay();
-
-  if (!isSupabaseConfigured) {
-    return (
-      <Card>
-        <p className="font-medium">Synchronisation cloud</p>
-        <p className="text-sm text-ink-faint">Non configuré — mode local uniquement (voir .env.example).</p>
-      </Card>
-    );
-  }
-
-  if (loading) return <Card><p className="text-sm text-ink-faint">Chargement…</p></Card>;
-
-  if (session) {
-    return (
-      <Card>
-        <div className="flex items-center justify-between gap-3">
-          <div className="min-w-0">
-            <p className="font-medium">Connecté</p>
-            <p className="truncate text-sm text-ink-faint">{session.user.email}</p>
-          </div>
-          <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-felt" />
-        </div>
-        <p className="mt-2 text-sm text-ink-soft">
-          Vos parties se sauvegardent en ligne et se retrouvent sur vos autres appareils.
-        </p>
-        <Button variant="secondary" size="md" className="mt-3" onClick={() => signOut()}>
-          Se déconnecter
-        </Button>
-      </Card>
-    );
-  }
-
-  async function sendLink() {
-    if (!email.trim()) return;
-    setBusy(true);
-    setError(null);
-    const { error } = await sendLoginLink(email.trim());
-    setBusy(false);
-    if (error) setError(error);
-    else setSent(true);
-  }
-
-  return (
-    <Card>
-      <p className="font-medium">Synchronisation cloud</p>
-      <p className="mb-3 text-sm text-ink-faint">
-        Connectez-vous pour sauvegarder vos parties en ligne et les retrouver sur vos autres appareils.
-      </p>
-
-      {standalone && (
-        <p className="mb-3 rounded-lg bg-amber-tint px-3 py-2 text-sm text-amber-strong">
-          App installée sur l'écran d'accueil : ouvrez plutôt{" "}
-          <span className="font-medium">boardscoreai.vercel.app</span> dans Safari pour vous
-          connecter, sinon le lien reçu par email ne pourra pas signaler la connexion ici.
-        </p>
-      )}
-
-      {sent ? (
-        <div className="flex flex-col gap-2">
-          <p className="text-sm text-ink-soft">
-            Lien envoyé à {email} — ouvrez l'email et touchez "Log In" pour vous connecter.
-            {standalone && " Faites-le depuis Safari, pas depuis l'app installée."}
-          </p>
-          <button
-            type="button"
-            onClick={() => setSent(false)}
-            className="self-start text-sm text-ink-faint underline underline-offset-2"
-          >
-            Changer d'email / renvoyer
-          </button>
-        </div>
-      ) : (
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            sendLink();
-          }}
-          className="flex gap-2"
-        >
-          <input
-            type="email"
-            autoComplete="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="vous@exemple.com"
-            className="h-11 min-w-0 flex-1 rounded-lg border border-line-strong bg-paper px-3 text-base outline-none focus:border-felt"
-          />
-          <Button type="submit" size="md" className="h-11" disabled={busy}>
-            Envoyer le lien
-          </Button>
-        </form>
-      )}
-
-      {error && <p className="mt-2 text-sm text-brick">{error}</p>}
-    </Card>
   );
 }

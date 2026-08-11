@@ -4,7 +4,6 @@ import { TopBar } from "@/components/layout/TopBar";
 import { Button } from "@/components/ui/Button";
 import { getFullMatch, type FullMatch } from "@/lib/db";
 import { computeRanking, effectiveRuleSet } from "@/lib/scoreEngine";
-import { pushCompletedMatch } from "@/lib/sync";
 
 const RANK_BADGE: Record<number, string> = {
   1: "bg-amber text-paper-raised",
@@ -24,7 +23,6 @@ export default function MatchRanking() {
     if (!matchId) return;
     getFullMatch(matchId).then((data) => {
       setFull(data ?? null);
-      if (data?.match.status === "completed") void pushCompletedMatch(matchId);
     });
   }, [matchId]);
 

@@ -135,16 +135,6 @@ export default function Home() {
           </Link>
         </Card>
       )}
-
-      <Card className="bg-felt-tint">
-        <p className="text-sm text-ink-soft">
-          Une idée de jeu en tête ?{" "}
-          <Link to="/assistant" className="font-semibold text-felt-strong underline underline-offset-2">
-            Demandez à l'assistant
-          </Link>{" "}
-          — « je joue à Wingspan », ou décrivez le jeu si vous ne connaissez pas son nom.
-        </p>
-      </Card>
     </div>
   );
 }

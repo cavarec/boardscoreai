@@ -2,7 +2,6 @@ import { NavLink } from "react-router-dom";
 
 const TABS = [
   { to: "/", label: "Accueil", icon: HomeIcon },
-  { to: "/assistant", label: "Assistant", icon: ChatIcon },
   { to: "/history", label: "Historique", icon: HistoryIcon },
   { to: "/community", label: "Communauté", icon: CommunityIcon },
   { to: "/settings", label: "Réglages", icon: SettingsIcon },
@@ -38,13 +37,6 @@ function HomeIcon(props: React.SVGProps<SVGSVGElement>) {
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" {...props}>
       <path d="M4 11.5 12 5l8 6.5" strokeLinecap="round" strokeLinejoin="round" />
       <path d="M6 10v8a1 1 0 0 0 1 1h3v-5h4v5h3a1 1 0 0 0 1-1v-8" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-function ChatIcon(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" {...props}>
-      <path d="M4 5h16v10H9l-4 4v-4H4Z" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }

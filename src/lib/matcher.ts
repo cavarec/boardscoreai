@@ -1,11 +1,7 @@
 import Fuse from "fuse.js";
 import type { Game } from "@/types";
 
-/**
- * Reconnaissance du jeu à partir d'un texte libre : nom saisi manuellement
- * ou requête envoyée à l'assistant conversationnel. Un seul moteur de
- * correspondance floue pour les deux entrées du concept.
- */
+/** Reconnaissance floue d'un jeu à partir du nom saisi manuellement. */
 
 export interface GameMatch {
   game: Game;
@@ -35,7 +31,3 @@ export function matchGames(games: Game[], query: string, limit = 5): GameMatch[]
     .search(trimmed, { limit })
     .map((r) => ({ game: r.item, score: r.score ?? 1 }));
 }
-
-/** Un score Fuse.js proche de 0 = confiance haute. Seuil retenu pour
- * l'auto-confirmation silencieuse vs. la demande de confirmation à l'utilisateur. */
-export const HIGH_CONFIDENCE_THRESHOLD = 0.2;
