@@ -133,7 +133,7 @@ export default function MatchScore() {
     // toute la page scrollable et faisait sortir les onglets joueurs de
     // l'écran à chaque saisie. 100dvh suit la hauteur visible réelle.
     <div className="flex h-dvh flex-col">
-      <TopBar title={full.game.name} />
+      <TopBar title={full.match.name || full.game.name} />
 
       <div className="flex shrink-0 gap-1 overflow-x-auto border-b border-line px-3 py-2">
         {full.players.map((p) => (
@@ -164,8 +164,11 @@ export default function MatchScore() {
             </p>
           ))}
           <p className="mt-1 text-xs text-ink-faint">
-            La partie continue tant que vous ne regardez pas le classement.
+            La partie continue tant que vous ne cliquez pas ci-dessous.
           </p>
+          <Button size="md" className="mt-2 w-full" disabled={finishing} onClick={finish}>
+            Terminer et voir le classement
+          </Button>
         </div>
       )}
 

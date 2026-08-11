@@ -115,6 +115,9 @@ export interface Match {
    * a pas — l'utilisateur choisit ici si le plus haut ou le plus bas score
    * gagne. Remplace ruleSet.sortDirection pour ce match précis quand défini. */
   sortDirection?: "asc" | "desc";
+  /** "Jeu rapide" uniquement : nom libre pour retrouver la partie dans
+   * l'historique (ex. "Soirée jeux du 15 août") plutôt que juste "Jeu rapide". */
+  name?: string;
 }
 
 export interface Player {

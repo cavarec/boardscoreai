@@ -51,8 +51,9 @@ export default function History() {
                 to={m.status === "completed" ? `/match/${m.id}/ranking` : `/match/${m.id}/score`}
                 className="min-w-0 flex-1"
               >
-                <p className="truncate font-medium">{game?.name ?? "Jeu supprimé"}</p>
+                <p className="truncate font-medium">{m.name || game?.name || "Jeu supprimé"}</p>
                 <p className="text-xs text-ink-faint">
+                  {m.name && game?.name ? `${game.name} · ` : ""}
                   {new Date(m.playedAt ?? m.createdAt).toLocaleDateString("fr-FR", {
                     day: "numeric",
                     month: "long",

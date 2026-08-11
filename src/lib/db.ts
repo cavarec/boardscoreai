@@ -147,11 +147,16 @@ export async function createMatch(
 }
 
 /** Utilisé par "Jeu rapide" : ajuste l'objectif indicatif (nombre de manches
- * et/ou score à atteindre) et le sens du classement (plus haut/bas gagne)
- * après coup, tous optionnels. */
+ * et/ou score à atteindre), le sens du classement (plus haut/bas gagne) et le
+ * nom de la partie après coup, tous optionnels. */
 export async function updateMatchSettings(
   matchId: string,
-  settings: { targetRounds?: number; targetScore?: number; sortDirection?: "asc" | "desc" }
+  settings: {
+    targetRounds?: number;
+    targetScore?: number;
+    sortDirection?: "asc" | "desc";
+    name?: string;
+  }
 ): Promise<void> {
   await db.matches.update(matchId, settings);
 }
@@ -167,6 +172,18 @@ export async function addPlayer(matchId: string, name: string): Promise<Player> 
   };
   await db.players.put(player);
   return player;
+}
+
+/** Ordre d'affichage/de tour des joueurs (voir "Tirer au sort qui commence"
+ * dans MatchPlayers.tsx) : réattribue `order` selon l'ordre du tableau donné. */
+export async function reorderPlayers(matchId: string, orderedPlayerIds: string[]): Promise<void> {
+  await db.transaction("rw", db.players, async () => {
+    await Promise.all(
+      orderedPlayerIds.map((id, index) =>
+        db.players.where("id").equals(id).and((p) => p.matchId === matchId).modify({ order: index })
+      )
+    );
+  });
 }
 
 export async function removePlayer(playerId: string): Promise<void> {

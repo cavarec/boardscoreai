@@ -2,7 +2,15 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { TopBar } from "@/components/layout/TopBar";
 import { Button } from "@/components/ui/Button";
-import { addPlayer, getFullMatch, removePlayer, updateMatchSettings, type FullMatch } from "@/lib/db";
+import {
+  addPlayer,
+  addRoundScore,
+  getFullMatch,
+  removePlayer,
+  reorderPlayers,
+  updateMatchSettings,
+  type FullMatch,
+} from "@/lib/db";
 import { QUICK_PLAY_GAME_ID } from "@/data/games.seed";
 
 export default function MatchPlayers() {
@@ -11,9 +19,12 @@ export default function MatchPlayers() {
   // undefined = en cours de chargement, null = partie introuvable (lien mort).
   const [full, setFull] = useState<FullMatch | null | undefined>(undefined);
   const [name, setName] = useState("");
+  const [startingScore, setStartingScore] = useState("");
+  const [matchName, setMatchName] = useState("");
   const [targetRounds, setTargetRounds] = useState("");
   const [targetScore, setTargetScore] = useState("");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
+  const [drawnPlayerName, setDrawnPlayerName] = useState<string | null>(null);
 
   async function refresh() {
     if (!matchId) return;
@@ -34,6 +45,7 @@ export default function MatchPlayers() {
       setTargetRounds(full.match.targetRounds ? String(full.match.targetRounds) : "");
       setTargetScore(full.match.targetScore ? String(full.match.targetScore) : "");
       setSortDirection(full.match.sortDirection ?? "desc");
+      setMatchName(full.match.name ?? "");
     }
     // Ne resynchroniser qu'au chargement initial du match, pas à chaque
     // refresh() (sinon on écraserait la saisie en cours de l'utilisateur).
@@ -60,15 +72,42 @@ export default function MatchPlayers() {
     await updateMatchSettings(matchId, { sortDirection: direction });
   }
 
+  async function saveMatchName(value: string) {
+    setMatchName(value);
+    if (!matchId) return;
+    await updateMatchSettings(matchId, { name: value.trim() || undefined });
+  }
+
   if (!full) return null;
+
+  // Un score de départ (handicap, avantage à un jeune joueur…) n'a de sens
+  // que pour la catégorie unique et cumulative de Jeu rapide — les vrais
+  // jeux ont plusieurs catégories, ce serait ambigu d'y appliquer un montant
+  // de départ sur "le score" en général.
+  const quickPlayCategory = full.ruleSet.categories.find((c) => c.config.roundBased);
 
   async function handleAdd() {
     const trimmed = name.trim();
     if (!trimmed || !matchId) return;
-    await addPlayer(matchId, trimmed);
+    const player = await addPlayer(matchId, trimmed);
+    const handicap = Number(startingScore);
+    if (quickPlayCategory && startingScore.trim() && !Number.isNaN(handicap) && handicap !== 0) {
+      await addRoundScore(player.id, quickPlayCategory.id, handicap);
+    }
     setName("");
+    setStartingScore("");
     refresh();
   }
+
+  const players = full.players;
+  const drawStartingPlayer = async () => {
+    if (!matchId || players.length < 2) return;
+    const shuffled = [...players];
+    const [drawn] = shuffled.splice(Math.floor(Math.random() * shuffled.length), 1);
+    await reorderPlayers(matchId, [drawn.id, ...shuffled.map((p) => p.id)]);
+    setDrawnPlayerName(drawn.name);
+    refresh();
+  };
 
   return (
     // Même principe que l'écran de saisie des scores : seule la liste des
@@ -98,11 +137,31 @@ export default function MatchPlayers() {
             Ajouter
           </Button>
         </form>
+        {full.game.id === QUICK_PLAY_GAME_ID && (
+          <input
+            type="number"
+            inputMode="numeric"
+            value={startingScore}
+            onChange={(e) => setStartingScore(e.target.value)}
+            placeholder="Score de départ pour ce joueur (optionnel)"
+            className="mt-2 h-10 w-full rounded-lg border border-line-strong bg-paper px-3 text-sm outline-none focus:border-felt"
+          />
+        )}
       </div>
 
       <div className="min-h-0 flex-1 overflow-y-auto px-5 pb-4">
         {full.game.id === QUICK_PLAY_GAME_ID && (
           <div className="mb-4 flex flex-col gap-3 rounded-xl border border-line bg-paper-raised p-4">
+            <label className="text-sm font-medium text-ink-soft">
+              Nom de la partie (optionnel)
+              <input
+                value={matchName}
+                onChange={(e) => saveMatchName(e.target.value)}
+                placeholder="Ex. Soirée jeux du 15 août"
+                className="mt-1 h-11 w-full rounded-lg border border-line-strong bg-paper px-3 text-base font-normal text-ink outline-none focus:border-felt"
+              />
+            </label>
+
             <p className="text-sm font-medium text-ink-soft">Qui gagne ?</p>
             <div
               role="tablist"
@@ -169,6 +228,18 @@ export default function MatchPlayers() {
                 />
               </label>
             </div>
+          </div>
+        )}
+        {full.players.length >= 2 && (
+          <div className="mb-3 flex flex-col gap-2">
+            <Button variant="secondary" onClick={drawStartingPlayer}>
+              Tirer au sort qui commence
+            </Button>
+            {drawnPlayerName && (
+              <p className="text-center text-sm font-medium text-amber-strong">
+                {drawnPlayerName} commence la partie.
+              </p>
+            )}
           </div>
         )}
         <div className="flex flex-col gap-2">
