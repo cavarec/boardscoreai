@@ -111,9 +111,6 @@ export default function MatchRanking() {
           <Button variant="secondary" onClick={backToMatch}>
             Retour à la partie
           </Button>
-          <Button variant="secondary" onClick={() => navigate("/history")}>
-            Voir l'historique
-          </Button>
           <Button onClick={() => navigate("/")}>Terminer</Button>
         </div>
       </div>

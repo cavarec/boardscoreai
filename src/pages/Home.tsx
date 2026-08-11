@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/Card";
 import { createMatch, db, getFullMatch, type FullMatch } from "@/lib/db";
 import { useGames } from "@/hooks/useGames";
 import { GENERIC_GAME_ID, QUICK_PLAY_GAME_ID } from "@/data/games.seed";
+import { randomGameFact } from "@/data/gameFacts";
 
 function greeting(): string {
   const h = new Date().getHours();
@@ -54,6 +55,9 @@ export default function Home() {
   // vrais jeux reconnus.
   const { games } = useGames();
   const gameCount = games.filter((g) => g.id !== QUICK_PLAY_GAME_ID && g.id !== GENERIC_GAME_ID).length;
+  // Tirée une fois par ouverture de l'accueil (pas à chaque re-render) pour
+  // ne pas changer sous les yeux de l'utilisateur pendant qu'il regarde.
+  const [fact] = useState(randomGameFact);
 
   async function startQuickPlay() {
     setStartingQuick(true);
@@ -135,6 +139,13 @@ export default function Home() {
           </Link>
         </Card>
       )}
+
+      <Card className="bg-felt-tint">
+        <p className="font-mono text-[0.68rem] uppercase tracking-wide text-felt-strong">
+          Le saviez-vous ?
+        </p>
+        <p className="mt-1 text-sm text-ink-soft">{fact}</p>
+      </Card>
     </div>
   );
 }
