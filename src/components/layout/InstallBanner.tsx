@@ -63,7 +63,7 @@ export function InstallBanner() {
         <p className="text-sm font-medium text-felt-strong">Installez BoardScore AI</p>
         <p className="mt-0.5 text-xs text-ink-soft">
           {ios
-            ? "Touchez le bouton Partager de Safari, puis « Sur l'écran d'accueil »."
+            ? "Touchez le bouton Partager de votre navigateur, puis « Sur l'écran d'accueil »."
             : "Ajoutez l'app à votre écran d'accueil pour l'ouvrir en un tap, même hors ligne."}
         </p>
         {!ios && (

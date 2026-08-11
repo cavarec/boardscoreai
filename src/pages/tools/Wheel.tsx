@@ -97,12 +97,19 @@ export default function Wheel() {
                 }}
               >
                 {options.map((o, i) => {
+                  // Centre du texte au milieu du rayon de la part (pas collé
+                  // au centre ni au bord) : c'est là qu'une étiquette reste
+                  // lisible quel que soit le nombre d'options.
                   const angle = i * segAngle + segAngle / 2;
+                  const rad = (angle * Math.PI) / 180;
+                  const labelRadius = 76;
+                  const x = labelRadius * Math.sin(rad);
+                  const y = -labelRadius * Math.cos(rad);
                   return (
                     <span
                       key={i}
-                      className="absolute left-1/2 top-1/2 origin-left truncate text-xs font-semibold text-paper-raised"
-                      style={{ transform: `rotate(${angle}deg) translateX(14px)`, width: "90px" }}
+                      className="absolute left-1/2 top-1/2 w-16 truncate text-center text-xs font-semibold text-paper-raised"
+                      style={{ transform: `translate(calc(-50% + ${x}px), calc(-50% + ${y}px)) rotate(${angle}deg)` }}
                     >
                       {o}
                     </span>
