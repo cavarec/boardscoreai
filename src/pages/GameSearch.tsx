@@ -4,6 +4,7 @@ import { TopBar } from "@/components/layout/TopBar";
 import { useGames } from "@/hooks/useGames";
 import { matchGames } from "@/lib/matcher";
 import { createMatch } from "@/lib/db";
+import { QUICK_PLAY_GAME_ID } from "@/data/games.seed";
 import { Button } from "@/components/ui/Button";
 
 export default function GameSearch() {
@@ -61,12 +62,8 @@ export default function GameSearch() {
       </div>
 
       <div className="safe-bottom shrink-0 border-t border-line px-5 py-3">
-        <Button
-          variant="secondary"
-          className="w-full"
-          onClick={() => navigate("/community/new", { state: { gameNameGuess: query } })}
-        >
-          Ce jeu n'existe pas — créer un modèle
+        <Button variant="secondary" className="w-full" onClick={() => pick(QUICK_PLAY_GAME_ID)}>
+          Ce jeu n'existe pas — utiliser Jeu rapide
         </Button>
       </div>
     </div>

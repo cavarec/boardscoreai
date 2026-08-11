@@ -1,8 +1,6 @@
 /**
- * Types miroir du schéma Supabase (voir supabase/schema.sql).
- * Utilisés à la fois par le cache local (Dexie) et par le client Supabase,
- * pour que le moteur de score et les écrans n'aient jamais à distinguer
- * une donnée locale d'une donnée synchronisée.
+ * Types du modèle de données local (Dexie/IndexedDB) : l'app est 100% locale,
+ * aucune donnée ne quitte l'appareil.
  */
 
 export type FormulaType =
@@ -14,8 +12,8 @@ export type FormulaType =
   | "hidden_objective";
 
 /** Paramètres propres à chaque type de formule. Tous les champs sont optionnels
- * pour rester tolérant : un modèle communautaire mal rempli retombe sur des
- * valeurs par défaut plutôt que de faire planter le calcul. */
+ * pour rester tolérant : une configuration incomplète retombe sur des valeurs
+ * par défaut plutôt que de faire planter le calcul. */
 export interface FormulaConfig {
   /** sum / bonus / malus : multiplicateur appliqué à la valeur saisie. */
   perUnit?: number;
@@ -84,7 +82,7 @@ export interface Game {
   coverUrl?: string;
   minPlayers?: number;
   maxPlayers?: number;
-  /** Variantes de texte utiles au matching OCR / recherche floue. */
+  /** Variantes de texte utiles à la recherche floue. */
   aliases: string[];
   description?: string;
 }
@@ -101,7 +99,6 @@ export interface Match {
   id: string;
   gameId: string;
   ruleId: string;
-  createdBy?: string;
   createdAt: string;
   playedAt?: string;
   status: MatchStatus;
@@ -141,27 +138,6 @@ export interface RankingRow {
   playerId: string;
   position: number;
   total: number;
-}
-
-export type CommunityTemplateStatus = "pending" | "approved" | "rejected";
-
-export interface CommunityTemplate {
-  id: string;
-  gameId?: string;
-  gameNameGuess: string;
-  authorId?: string;
-  status: CommunityTemplateStatus;
-  proposedCategories: Omit<ScoreCategory, "id" | "ruleId">[];
-  sourceNote?: string;
-  createdAt: string;
-  votes: number;
-}
-
-export interface AppUser {
-  id: string;
-  email?: string;
-  displayName: string;
-  isPremium: boolean;
 }
 
 /** Résultat consolidé du calcul de score, prêt pour l'affichage du classement. */

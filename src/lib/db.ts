@@ -2,7 +2,6 @@ import Dexie, { type EntityTable } from "dexie";
 import { GAMES_SEED, SEED_VERSION } from "@/data/games.seed";
 import { computeRanking, effectiveRuleSet } from "@/lib/scoreEngine";
 import type {
-  CommunityTemplate,
   Game,
   GameRuleSet,
   Match,
@@ -14,10 +13,8 @@ import type {
 } from "@/types";
 
 /**
- * Stockage local de référence de l'app (IndexedDB via Dexie).
- * Toute écriture (partie, score, joueur) passe par ici en premier —
- * la synchronisation Supabase (voir lib/sync.ts) est un second temps,
- * jamais un prérequis pour jouer.
+ * Stockage local de référence de l'app (IndexedDB via Dexie) : l'app est
+ * 100% locale, aucune donnée ne quitte l'appareil.
  */
 type RuleSetRow = Omit<GameRuleSet, "categories">;
 
@@ -29,7 +26,6 @@ class BoardScoreDB extends Dexie {
   players!: EntityTable<Player, "id">;
   scores!: EntityTable<Score, "id">;
   rankings!: EntityTable<RankingRow, "id">;
-  communityTemplates!: EntityTable<CommunityTemplate, "id">;
   meta!: EntityTable<{ key: string; value: unknown }, "key">;
   scoreRounds!: EntityTable<ScoreRound, "id">;
 
@@ -62,6 +58,12 @@ class BoardScoreDB extends Dexie {
     // trainer sur les appareils déjà en v2/v3.
     this.version(4).stores({
       barcodes: null,
+    });
+    // v5 : la communauté (proposer/voter des modèles) est abandonnée —
+    // même raison que le code-barres, supprimer le store plutôt que de le
+    // laisser trainer sur les appareils qui l'avaient déjà rempli.
+    this.version(5).stores({
+      communityTemplates: null,
     });
   }
 }
@@ -325,79 +327,6 @@ export async function deleteMatch(matchId: string): Promise<void> {
       await db.matches.delete(matchId);
     }
   );
-}
-
-export async function listCommunityTemplates(): Promise<CommunityTemplate[]> {
-  return db.communityTemplates.orderBy("createdAt").reverse().toArray();
-}
-
-/**
- * Enregistre une proposition de modèle communautaire ET la rend
- * immédiatement jouable en local (nouveau Game + GameRuleSet + catégories).
- * Sans ça, la boucle du concept serait cassée : créer un modèle pour un jeu
- * non reconnu ne servirait à rien tant qu'une validation communautaire
- * distante n'aurait pas eu lieu. La validation (statut "approved") ne
- * concerne que le partage vers la base commune, pas l'usage local.
- */
-export async function submitCommunityTemplate(
-  input: Omit<CommunityTemplate, "id" | "createdAt" | "status" | "votes">
-): Promise<{ template: CommunityTemplate; game: Game }> {
-  const gameId = input.gameId ?? crypto.randomUUID();
-  const ruleId = crypto.randomUUID();
-
-  const game: Game = {
-    id: gameId,
-    name: input.gameNameGuess,
-    publisher: "Communauté BoardScore AI",
-    year: new Date().getFullYear(),
-    aliases: [input.gameNameGuess.toLowerCase()],
-    description: input.sourceNote,
-  };
-  const ruleSet: RuleSetRow = {
-    id: ruleId,
-    gameId,
-    versionLabel: "Proposé par la communauté",
-    isOfficial: false,
-  };
-  const categories: ScoreCategory[] = input.proposedCategories.map((c, i) => ({
-    ...c,
-    id: crypto.randomUUID(),
-    ruleId,
-    order: c.order ?? i,
-  }));
-
-  const template: CommunityTemplate = {
-    ...input,
-    gameId,
-    id: crypto.randomUUID(),
-    status: "pending",
-    votes: 0,
-    createdAt: new Date().toISOString(),
-  };
-
-  await db.transaction(
-    "rw",
-    db.games,
-    db.ruleSets,
-    db.categories,
-    db.communityTemplates,
-    async () => {
-      if (!input.gameId) {
-        await db.games.put(game);
-        await db.ruleSets.put(ruleSet);
-        await db.categories.bulkPut(categories);
-      }
-      await db.communityTemplates.put(template);
-    }
-  );
-
-  return { template, game };
-}
-
-export async function voteTemplate(id: string, delta: 1 | -1): Promise<void> {
-  const t = await db.communityTemplates.get(id);
-  if (!t) return;
-  await db.communityTemplates.update(id, { votes: t.votes + delta });
 }
 
 export async function getMeta<T>(key: string, fallback: T): Promise<T> {

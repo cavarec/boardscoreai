@@ -63,18 +63,6 @@ export default defineConfig({
       workbox: {
         globPatterns: ["**/*.{js,css,html,svg,png,ico,woff2}"],
         maximumFileSizeToCacheInBytes: 6 * 1024 * 1024,
-        navigateFallbackDenylist: [/^\/supabase\//],
-        runtimeCaching: [
-          {
-            urlPattern: ({ url }) => url.pathname.startsWith("/rest/v1") || url.hostname.includes("supabase.co"),
-            handler: "NetworkFirst",
-            options: {
-              cacheName: "supabase-api-cache",
-              networkTimeoutSeconds: 4,
-              expiration: { maxEntries: 100, maxAgeSeconds: 60 * 60 * 24 },
-            },
-          },
-        ],
       },
       devOptions: {
         enabled: false,
