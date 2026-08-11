@@ -4,6 +4,7 @@ import { TopBar } from "@/components/layout/TopBar";
 import { Button } from "@/components/ui/Button";
 import { getFullMatch, type FullMatch } from "@/lib/db";
 import { computeRanking, effectiveRuleSet } from "@/lib/scoreEngine";
+import { Meeple } from "@/components/ui/Meeple";
 
 const RANK_BADGE: Record<number, string> = {
   1: "bg-amber text-paper-raised",
@@ -69,6 +70,7 @@ export default function MatchRanking() {
                     >
                       {r.position}
                     </span>
+                    <Meeple playerId={r.player.id} size={16} />
                     <span className="font-medium">{r.player.name}</span>
                   </span>
                   <span className="font-mono text-lg font-bold tabular-nums text-felt-strong">

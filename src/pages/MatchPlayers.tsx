@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { TopBar } from "@/components/layout/TopBar";
 import { Button } from "@/components/ui/Button";
+import { Meeple } from "@/components/ui/Meeple";
 import {
   addPlayer,
   addRoundScore,
@@ -243,15 +244,13 @@ export default function MatchPlayers() {
           </div>
         )}
         <div className="flex flex-col gap-2">
-          {full.players.map((p, i) => (
+          {full.players.map((p) => (
             <div
               key={p.id}
               className="flex items-center justify-between rounded-xl border border-line bg-paper-raised px-4 py-3"
             >
               <span className="flex items-center gap-3">
-                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-felt-tint font-mono text-xs font-bold text-felt-strong">
-                  {i + 1}
-                </span>
+                <Meeple playerId={p.id} />
                 {p.name}
               </span>
               <button

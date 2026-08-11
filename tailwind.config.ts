@@ -56,6 +56,16 @@ export default {
           DEFAULT: "var(--brick)",
           tint: "var(--brick-tint)",
         },
+        sky: {
+          DEFAULT: "var(--sky)",
+          strong: "var(--sky-strong)",
+          tint: "var(--sky-tint)",
+        },
+        violet: {
+          DEFAULT: "var(--violet)",
+          strong: "var(--violet-strong)",
+          tint: "var(--violet-tint)",
+        },
         line: {
           DEFAULT: "var(--line)",
           strong: "var(--line-strong)",

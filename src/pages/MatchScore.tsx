@@ -4,6 +4,8 @@ import { TopBar } from "@/components/layout/TopBar";
 import { Button } from "@/components/ui/Button";
 import { Pill } from "@/components/ui/Card";
 import { Stepper } from "@/components/ui/Stepper";
+import { Meeple } from "@/components/ui/Meeple";
+import { playerColor } from "@/lib/playerColors";
 import {
   addRoundScore,
   completeMatch,
@@ -136,19 +138,23 @@ export default function MatchScore() {
       <TopBar title={full.match.name || full.game.name} />
 
       <div className="flex shrink-0 gap-1 overflow-x-auto border-b border-line px-3 py-2">
-        {full.players.map((p) => (
-          <button
-            key={p.id}
-            onClick={() => setActivePlayerId(p.id)}
-            className={`shrink-0 rounded-full px-4 py-1.5 text-sm font-semibold ${
-              p.id === activePlayerId
-                ? "bg-felt text-paper-raised"
-                : "bg-paper-raised text-ink-faint"
-            }`}
-          >
-            {p.name}
-          </button>
-        ))}
+        {full.players.map((p) => {
+          const isActive = p.id === activePlayerId;
+          const { fill, text } = playerColor(p.id);
+          return (
+            <button
+              key={p.id}
+              onClick={() => setActivePlayerId(p.id)}
+              style={isActive ? { backgroundColor: fill, color: text } : undefined}
+              className={`flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-semibold ${
+                isActive ? "" : "bg-paper-raised text-ink-faint"
+              }`}
+            >
+              <Meeple playerId={p.id} size={14} />
+              {p.name}
+            </button>
+          );
+        })}
       </div>
 
       {achievements.length > 0 && (
@@ -226,6 +232,18 @@ export default function MatchScore() {
   );
 }
 
+/** Bande de couleur par type de formule : repérer d'un coup d'œil ce qui est
+ * un cumul, un bonus, un malus ou une condition sur l'écran le plus utilisé
+ * de l'app, sans avoir à lire chaque étiquette. */
+const CATEGORY_BORDER_COLOR: Record<ScoreCategory["formulaType"], string> = {
+  sum: "var(--sky)",
+  multiplier: "var(--sky)",
+  bonus: "var(--amber)",
+  malus: "var(--brick)",
+  conditional: "var(--violet)",
+  hidden_objective: "var(--violet)",
+};
+
 function CategoryRow({
   category,
   playerId,
@@ -244,7 +262,10 @@ function CategoryRow({
     category.config.mode !== "threshold";
 
   return (
-    <div className="rounded-xl border border-line bg-paper-raised px-4 py-3">
+    <div
+      style={{ borderLeftColor: CATEGORY_BORDER_COLOR[category.formulaType] }}
+      className="rounded-r-xl border-y border-r border-l-4 border-line bg-paper-raised px-4 py-3"
+    >
       <div className="flex items-center justify-between gap-3">
         <div className="min-w-0">
           <p className="truncate font-medium">{category.label}</p>
