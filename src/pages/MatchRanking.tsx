@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { TopBar } from "@/components/layout/TopBar";
 import { Button } from "@/components/ui/Button";
-import { getFullMatch, type FullMatch } from "@/lib/db";
+import { getFullMatch, reopenMatch, type FullMatch } from "@/lib/db";
 import { computeRanking, effectiveRuleSet } from "@/lib/scoreEngine";
 import { Meeple } from "@/components/ui/Meeple";
 
@@ -32,6 +32,15 @@ export default function MatchRanking() {
   }, [full, navigate]);
 
   if (!full) return null;
+
+  async function backToMatch() {
+    // Voir le classement marque déjà la partie "terminée" (completeMatch) :
+    // sans repasser explicitement en "in_progress", la carte "Partie en
+    // cours" de l'accueil ne la retrouverait plus, et l'utilisateur croirait
+    // avoir perdu ses joueurs en en démarrant une nouvelle par erreur.
+    await reopenMatch(full!.match.id);
+    navigate(`/match/${full!.match.id}/score`);
+  }
 
   const ranking = computeRanking(effectiveRuleSet(full.ruleSet, full.match), full.scores, full.players);
   // Longueur de barre = proximité avec le gagnant, pas le score brut : ça
@@ -99,6 +108,9 @@ export default function MatchRanking() {
         </div>
 
         <div className="mt-auto flex flex-col gap-3 pt-4">
+          <Button variant="secondary" onClick={backToMatch}>
+            Retour à la partie
+          </Button>
           <Button variant="secondary" onClick={() => navigate("/history")}>
             Voir l'historique
           </Button>

@@ -304,6 +304,15 @@ export async function completeMatch(matchId: string): Promise<void> {
   });
 }
 
+/** Reprend une partie déjà marquée terminée : depuis le classement, on peut
+ * vouloir corriger un score plutôt que rejouer de zéro. Sans ça, retourner
+ * à l'écran de saisie laissait le match "completed" — invisible pour la
+ * carte "Partie en cours" de l'accueil, qui ne cherche que les parties
+ * "in_progress" (l'utilisateur croyait alors devoir tout recommencer). */
+export async function reopenMatch(matchId: string): Promise<void> {
+  await db.matches.update(matchId, { status: "in_progress" });
+}
+
 export async function listMatches(): Promise<Match[]> {
   return db.matches.orderBy("createdAt").reverse().toArray();
 }
