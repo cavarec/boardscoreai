@@ -102,7 +102,7 @@ export default function Home() {
         <p className="mt-1 text-ink-soft">À quoi tu joues ?</p>
         {gameCount > 0 && (
           <p className="mt-2 text-sm text-ink-faint">
-            {gameCount} jeux reconnus automatiquement · fait par un joueur, pas une startup
+            Plus de 150 jeux reconnus automatiquement · fait par un joueur, pour les joueurs...
           </p>
         )}
       </div>

@@ -80,6 +80,7 @@ export default function Settings() {
       <p className="text-center font-mono text-xs text-ink-faint">
         Version {__APP_VERSION__}
       </p>
+      <p className="text-center font-mono text-xs text-ink-faint">© RonCav2026</p>
     </div>
   );
 }
