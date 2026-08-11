@@ -3,6 +3,7 @@ import { NavLink } from "react-router-dom";
 const TABS = [
   { to: "/", label: "Accueil", icon: HomeIcon },
   { to: "/history", label: "Historique", icon: HistoryIcon },
+  { to: "/tools", label: "Outils", icon: ToolsIcon },
   { to: "/settings", label: "Réglages", icon: SettingsIcon },
 ];
 
@@ -44,6 +45,17 @@ function HistoryIcon(props: React.SVGProps<SVGSVGElement>) {
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" {...props}>
       <circle cx="12" cy="12" r="8" />
       <path d="M12 8v4l3 2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+function ToolsIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" {...props}>
+      <path
+        d="M14.5 6.5a3.5 3.5 0 0 0-4.6 4.1L4 16.5V20h3.5l5.9-5.9a3.5 3.5 0 0 0 4.1-4.6l-2.6 2.6-2-2 2.6-2.6Z"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
