@@ -5,14 +5,13 @@ import { Button } from "@/components/ui/Button";
 import { getFullMatch, type FullMatch } from "@/lib/db";
 import { computeRanking, effectiveRuleSet } from "@/lib/scoreEngine";
 import { pushCompletedMatch } from "@/lib/sync";
-import type { PlayerResult } from "@/types";
 
-const PODIUM_HEIGHT: Record<number, string> = { 1: "h-28", 2: "h-20", 3: "h-14" };
-const PODIUM_COLOR: Record<number, string> = {
+const RANK_BADGE: Record<number, string> = {
   1: "bg-amber text-paper-raised",
   2: "bg-ink-faint text-paper-raised",
   3: "bg-felt text-paper-raised",
 };
+const RANK_BAR: Record<number, string> = { 1: "bg-amber", 2: "bg-ink-faint", 3: "bg-felt" };
 
 export default function MatchRanking() {
   const { matchId } = useParams<{ matchId: string }>();
@@ -36,11 +35,18 @@ export default function MatchRanking() {
   if (!full) return null;
 
   const ranking = computeRanking(effectiveRuleSet(full.ruleSet, full.match), full.scores, full.players);
-  // Les 3 premières lignes du classement (déjà triées) plutôt que les positions
-  // 1/2/3 littérales : en cas d'égalité, deux joueurs peuvent partager le rang 1
-  // et doivent tous les deux apparaître sur le podium.
-  const top3 = ranking.slice(0, 3);
-  const podiumOrder = [top3[1], top3[0], top3[2]].filter(Boolean) as PlayerResult[];
+  // Longueur de barre = proximité avec le gagnant, pas le score brut : ça
+  // reste juste que le classement gagne au plus haut ou au plus bas score
+  // (Jeu rapide), et ça ne casse pas avec des scores négatifs. Le gagnant a
+  // toujours la barre pleine ; les autres sont d'autant plus courtes qu'ils
+  // sont loin de lui. Plancher à 12% pour rester visible même très distancé.
+  const winnerTotal = ranking[0]?.total ?? 0;
+  const totals = ranking.map((r) => r.total);
+  const range = Math.max(...totals) - Math.min(...totals) || 1;
+  const barWidth = (total: number) => {
+    const fraction = 1 - Math.abs(winnerTotal - total) / range;
+    return `${Math.max(12, Math.round(fraction * 100))}%`;
+  };
 
   return (
     // min-h-dvh (pas min-h-screen) : sur Safari iOS, 100vh déborde de la zone
@@ -49,34 +55,33 @@ export default function MatchRanking() {
     <div className="flex min-h-dvh flex-col">
       <TopBar title="Classement" />
       <div className="flex flex-1 flex-col gap-5 px-5 py-6">
-        {podiumOrder.length > 0 && (
-          <div className="flex items-end justify-center gap-3">
-            {podiumOrder.map((r) => (
-              <div key={r.player.id} className="flex flex-1 flex-col items-center gap-1">
-                <p className="max-w-[5.5rem] truncate text-sm font-semibold">{r.player.name}</p>
-                <div
-                  className={`flex w-full items-start justify-center rounded-t-xl pt-2 font-mono font-bold ${PODIUM_HEIGHT[r.position]} ${PODIUM_COLOR[r.position]}`}
-                >
-                  {r.position}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-
         <div className="flex flex-col gap-2">
           {ranking.map((r) => (
-            <div key={r.player.id} className="rounded-xl border border-line bg-paper-raised">
+            <div key={r.player.id} className="overflow-hidden rounded-xl border border-line bg-paper-raised">
               <button
                 onClick={() => setExpandedId(expandedId === r.player.id ? null : r.player.id)}
-                className="flex w-full items-center justify-between px-4 py-3 text-left"
+                className="relative flex w-full flex-col gap-1.5 px-4 py-3 text-left"
               >
-                <span className="flex items-center gap-3">
-                  <span className="font-mono text-sm font-bold text-ink-faint">#{r.position}</span>
-                  <span className="font-medium">{r.player.name}</span>
+                <span className="flex items-center justify-between">
+                  <span className="flex items-center gap-3">
+                    <span
+                      className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full font-mono text-xs font-bold ${
+                        RANK_BADGE[r.position] ?? "bg-paper-sunken text-ink-faint"
+                      }`}
+                    >
+                      {r.position}
+                    </span>
+                    <span className="font-medium">{r.player.name}</span>
+                  </span>
+                  <span className="font-mono text-lg font-bold tabular-nums text-felt-strong">
+                    {r.total} pts
+                  </span>
                 </span>
-                <span className="font-mono text-lg font-bold tabular-nums text-felt-strong">
-                  {r.total} pts
+                <span className="h-1.5 w-full overflow-hidden rounded-full bg-paper-sunken">
+                  <span
+                    className={`block h-full rounded-full transition-all ${RANK_BAR[r.position] ?? "bg-ink-faint"}`}
+                    style={{ width: barWidth(r.total) }}
+                  />
                 </span>
               </button>
               {expandedId === r.player.id && (

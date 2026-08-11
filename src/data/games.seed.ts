@@ -14,7 +14,7 @@ import type { GameWithRules, ScoreCategory } from "@/types";
  * réappliquer le catalogue après une mise à jour de l'app — sans ça, les
  * utilisateurs déjà installés ne verraient jamais les nouveaux jeux.
  */
-export const SEED_VERSION = 9;
+export const SEED_VERSION = 10;
 
 let order = 0;
 function cat(
@@ -439,13 +439,16 @@ const kingdomino = game({
     // le score de chaque territoire au fur et à mesure plutôt que de calculer
     // le total de tête avant de le taper.
     categories: [
+      // Les deux bonus oui/non d'abord : ce sont des cases à cocher rapides à
+      // trancher en regardant le plateau, avant de se pencher sur le compte
+      // détaillé (et plus long) de chaque territoire.
+      cat("rule-kd-base", "cat-kd-center", "Château au milieu du royaume", "conditional", { mode: "boolean", pointsIfMet: 10, pointsIfNot: 0 }),
+      cat("rule-kd-base", "cat-kd-harmony", "Royaume complet (harmonie)", "conditional", { mode: "boolean", pointsIfMet: 5, pointsIfNot: 0 }),
       cat("rule-kd-base", "cat-kd-pres", "Prés (moutons)", "sum", { roundBased: true, helper: "Tuiles × couronnes — une entrée par territoire séparé" }),
       cat("rule-kd-base", "cat-kd-forets", "Forêts (bois)", "sum", { roundBased: true, helper: "Tuiles × couronnes — une entrée par territoire séparé" }),
       cat("rule-kd-base", "cat-kd-champs", "Champs de blé", "sum", { roundBased: true, helper: "Tuiles × couronnes — une entrée par territoire séparé" }),
       cat("rule-kd-base", "cat-kd-eau", "Eau (lacs)", "sum", { roundBased: true, helper: "Tuiles × couronnes — une entrée par territoire séparé" }),
       cat("rule-kd-base", "cat-kd-mines", "Mines", "sum", { roundBased: true, helper: "Tuiles × couronnes — une entrée par territoire séparé" }),
-      cat("rule-kd-base", "cat-kd-center", "Château au milieu du royaume", "conditional", { mode: "boolean", pointsIfMet: 10, pointsIfNot: 0 }),
-      cat("rule-kd-base", "cat-kd-harmony", "Royaume complet (harmonie)", "conditional", { mode: "boolean", pointsIfMet: 5, pointsIfNot: 0 }),
     ],
   },
 });
