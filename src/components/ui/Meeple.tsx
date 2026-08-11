@@ -2,9 +2,12 @@ import { playerColor } from "@/lib/playerColors";
 
 /** Pion coloré identifiant un joueur, dans le même esprit qu'un vrai meeple
  * de jeu de société — utilisé partout où un joueur apparaît (liste,
- * onglets de saisie, classement) pour le reconnaître d'un coup d'œil. */
-export function Meeple({ playerId, size = 20 }: { playerId: string; size?: number }) {
-  const { fill } = playerColor(playerId);
+ * onglets de saisie, classement) pour le reconnaître d'un coup d'œil.
+ * `white` : sur un onglet actif dont le fond prend déjà la couleur du
+ * joueur, un pion de la même couleur devient invisible — on le passe en
+ * blanc pour qu'il reste visible sur son propre fond. */
+export function Meeple({ playerId, size = 20, white = false }: { playerId: string; size?: number; white?: boolean }) {
+  const fill = white ? "#FFFFFF" : playerColor(playerId).fill;
   return (
     <svg
       viewBox="0 0 24 28"

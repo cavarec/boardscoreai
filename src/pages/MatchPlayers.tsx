@@ -152,84 +152,100 @@ export default function MatchPlayers() {
 
       <div className="min-h-0 flex-1 overflow-y-auto px-5 pb-4">
         {full.game.id === QUICK_PLAY_GAME_ID && (
-          <div className="mb-4 flex flex-col gap-3 rounded-xl border border-line bg-paper-raised p-4">
-            <label className="text-sm font-medium text-ink-soft">
-              Nom de la partie (optionnel)
-              <input
-                value={matchName}
-                onChange={(e) => saveMatchName(e.target.value)}
-                placeholder="Ex. Soirée jeux du 15 août"
-                className="mt-1 h-11 w-full rounded-lg border border-line-strong bg-paper px-3 text-base font-normal text-ink outline-none focus:border-felt"
-              />
-            </label>
-
-            <p className="text-sm font-medium text-ink-soft">Qui gagne ?</p>
-            <div
-              role="tablist"
-              aria-label="Sens du classement"
-              className="relative flex rounded-full border border-line-strong bg-paper p-1"
-            >
-              <div
+          <details className="group mb-4 rounded-xl border border-line bg-paper-raised">
+            <summary className="flex cursor-pointer list-none items-center justify-between px-4 py-3 text-sm font-medium text-ink-soft [&::-webkit-details-marker]:hidden">
+              Options de la partie
+              <svg
+                viewBox="0 0 24 24"
+                className="h-4 w-4 shrink-0 transition-transform group-open:rotate-180"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
                 aria-hidden="true"
-                className="absolute inset-y-1 left-1 w-[calc(50%-4px)] rounded-full bg-felt transition-transform duration-200 ease-out"
-                style={{ transform: sortDirection === "asc" ? "translateX(100%)" : "translateX(0%)" }}
-              />
-              <button
-                type="button"
-                role="tab"
-                aria-selected={sortDirection === "desc"}
-                onClick={() => changeSortDirection("desc")}
-                className={`relative z-10 flex-1 rounded-full py-2 text-sm font-semibold transition-colors ${
-                  sortDirection === "desc" ? "text-paper-raised" : "text-ink-soft"
-                }`}
               >
-                Le plus de points
-              </button>
-              <button
-                type="button"
-                role="tab"
-                aria-selected={sortDirection === "asc"}
-                onClick={() => changeSortDirection("asc")}
-                className={`relative z-10 flex-1 rounded-full py-2 text-sm font-semibold transition-colors ${
-                  sortDirection === "asc" ? "text-paper-raised" : "text-ink-soft"
-                }`}
-              >
-                Le moins de points
-              </button>
-            </div>
+                <path d="M6 9l6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </summary>
 
-            <p className="text-sm font-medium text-ink-soft">Objectif (optionnel)</p>
-            <div className="flex gap-3">
-              <label className="flex-1 text-xs text-ink-faint">
-                Nombre de manches
+            <div className="flex flex-col gap-3 border-t border-line px-4 pb-4 pt-3">
+              <label className="text-sm font-medium text-ink-soft">
+                Nom de la partie (optionnel)
                 <input
-                  type="number"
-                  inputMode="numeric"
-                  value={targetRounds}
-                  onChange={(e) => {
-                    setTargetRounds(e.target.value);
-                    saveTargets(e.target.value, targetScore);
-                  }}
-                  placeholder="Ex. 10"
-                  className="mt-1 h-11 w-full rounded-lg border border-line-strong bg-paper px-3 text-base text-ink outline-none focus:border-felt"
+                  value={matchName}
+                  onChange={(e) => saveMatchName(e.target.value)}
+                  placeholder="Ex. Soirée jeux du 15 août"
+                  className="mt-1 h-11 w-full rounded-lg border border-line-strong bg-paper px-3 text-base font-normal text-ink outline-none focus:border-felt"
                 />
               </label>
-              <label className="flex-1 text-xs text-ink-faint">
-                Score à atteindre
-                <input
-                  type="number"
-                  inputMode="numeric"
-                  value={targetScore}
-                  onChange={(e) => {
-                    setTargetScore(e.target.value);
-                    saveTargets(targetRounds, e.target.value);
-                  }}
-                  placeholder="Ex. 100"
-                  className="mt-1 h-11 w-full rounded-lg border border-line-strong bg-paper px-3 text-base text-ink outline-none focus:border-felt"
+
+              <p className="text-sm font-medium text-ink-soft">Qui gagne ?</p>
+              <div
+                role="tablist"
+                aria-label="Sens du classement"
+                className="relative flex rounded-full border border-line-strong bg-paper p-1"
+              >
+                <div
+                  aria-hidden="true"
+                  className="absolute inset-y-1 left-1 w-[calc(50%-4px)] rounded-full bg-felt transition-transform duration-200 ease-out"
+                  style={{ transform: sortDirection === "asc" ? "translateX(100%)" : "translateX(0%)" }}
                 />
-              </label>
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={sortDirection === "desc"}
+                  onClick={() => changeSortDirection("desc")}
+                  className={`relative z-10 flex-1 rounded-full py-2 text-sm font-semibold transition-colors ${
+                    sortDirection === "desc" ? "text-paper-raised" : "text-ink-soft"
+                  }`}
+                >
+                  Le plus de points
+                </button>
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={sortDirection === "asc"}
+                  onClick={() => changeSortDirection("asc")}
+                  className={`relative z-10 flex-1 rounded-full py-2 text-sm font-semibold transition-colors ${
+                    sortDirection === "asc" ? "text-paper-raised" : "text-ink-soft"
+                  }`}
+                >
+                  Le moins de points
+                </button>
+              </div>
+
+              <p className="text-sm font-medium text-ink-soft">Objectif (optionnel)</p>
+              <div className="flex gap-3">
+                <label className="flex-1 text-xs text-ink-faint">
+                  Nombre de manches
+                  <input
+                    type="number"
+                    inputMode="numeric"
+                    value={targetRounds}
+                    onChange={(e) => {
+                      setTargetRounds(e.target.value);
+                      saveTargets(e.target.value, targetScore);
+                    }}
+                    placeholder="Ex. 10"
+                    className="mt-1 h-11 w-full rounded-lg border border-line-strong bg-paper px-3 text-base text-ink outline-none focus:border-felt"
+                  />
+                </label>
+                <label className="flex-1 text-xs text-ink-faint">
+                  Score à atteindre
+                  <input
+                    type="number"
+                    inputMode="numeric"
+                    value={targetScore}
+                    onChange={(e) => {
+                      setTargetScore(e.target.value);
+                      saveTargets(targetRounds, e.target.value);
+                    }}
+                    placeholder="Ex. 100"
+                    className="mt-1 h-11 w-full rounded-lg border border-line-strong bg-paper px-3 text-base text-ink outline-none focus:border-felt"
+                  />
+                </label>
+              </div>
             </div>
-          </div>
+          </details>
         )}
         {full.players.length >= 2 && (
           <div className="mb-3 flex flex-col gap-2">

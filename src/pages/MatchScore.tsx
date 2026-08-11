@@ -150,7 +150,7 @@ export default function MatchScore() {
                 isActive ? "" : "bg-paper-raised text-ink-faint"
               }`}
             >
-              <Meeple playerId={p.id} size={14} />
+              <Meeple playerId={p.id} size={14} white={isActive} />
               {p.name}
             </button>
           );
