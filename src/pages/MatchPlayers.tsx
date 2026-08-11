@@ -104,25 +104,34 @@ export default function MatchPlayers() {
         {full.game.id === QUICK_PLAY_GAME_ID && (
           <div className="mb-4 flex flex-col gap-3 rounded-xl border border-line bg-paper-raised p-4">
             <p className="text-sm font-medium text-ink-soft">Qui gagne ?</p>
-            <div className="flex gap-2">
+            <div
+              role="tablist"
+              aria-label="Sens du classement"
+              className="relative flex rounded-full border border-line-strong bg-paper p-1"
+            >
+              <div
+                aria-hidden="true"
+                className="absolute inset-y-1 left-1 w-[calc(50%-4px)] rounded-full bg-felt transition-transform duration-200 ease-out"
+                style={{ transform: sortDirection === "asc" ? "translateX(100%)" : "translateX(0%)" }}
+              />
               <button
                 type="button"
+                role="tab"
+                aria-selected={sortDirection === "desc"}
                 onClick={() => changeSortDirection("desc")}
-                className={`flex-1 rounded-lg border py-2 text-sm font-medium ${
-                  sortDirection === "desc"
-                    ? "border-felt bg-felt-tint text-felt-strong"
-                    : "border-line-strong text-ink-soft"
+                className={`relative z-10 flex-1 rounded-full py-2 text-sm font-semibold transition-colors ${
+                  sortDirection === "desc" ? "text-paper-raised" : "text-ink-soft"
                 }`}
               >
                 Le plus de points
               </button>
               <button
                 type="button"
+                role="tab"
+                aria-selected={sortDirection === "asc"}
                 onClick={() => changeSortDirection("asc")}
-                className={`flex-1 rounded-lg border py-2 text-sm font-medium ${
-                  sortDirection === "asc"
-                    ? "border-felt bg-felt-tint text-felt-strong"
-                    : "border-line-strong text-ink-soft"
+                className={`relative z-10 flex-1 rounded-full py-2 text-sm font-semibold transition-colors ${
+                  sortDirection === "asc" ? "text-paper-raised" : "text-ink-soft"
                 }`}
               >
                 Le moins de points

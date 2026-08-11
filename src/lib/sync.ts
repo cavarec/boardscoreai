@@ -1,5 +1,6 @@
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 import { db } from "@/lib/db";
+import { GAMES_SEED } from "@/data/games.seed";
 import type {
   CommunityTemplate,
   Game,
@@ -50,7 +51,17 @@ function toCamelCase<T>(row: Record<string, unknown>): T {
   return result as T;
 }
 
-/** Descend le catalogue de jeux/règles depuis Supabase vers le cache local. */
+// Le catalogue embarqué (games.seed.ts) est la source de vérité pour nos
+// propres jeux : le pull ne doit descendre que des jeux/règles VRAIMENT
+// communautaires. Sans ce filtre, une ancienne copie poussée vers Supabase
+// avant une correction locale (ex. Kingdomino découpé en catégories par
+// terrain) revenait fusionner l'ancienne et la nouvelle version — deux
+// catégories "territoires" affichées au lieu d'une mise à jour propre.
+const LOCAL_GAME_IDS = new Set(GAMES_SEED.map((g) => g.id));
+const LOCAL_RULE_IDS = new Set(GAMES_SEED.map((g) => g.ruleSet.id));
+
+/** Descend le catalogue de jeux/règles communautaires depuis Supabase vers
+ * le cache local (jamais nos propres jeux, voir LOCAL_GAME_IDS ci-dessus). */
 export async function pullGameCatalog(): Promise<{ pulled: number } | null> {
   if (!supabase || !canSync()) return null;
   try {
@@ -63,17 +74,25 @@ export async function pullGameCatalog(): Promise<{ pulled: number } | null> {
       .select("*");
     if (catError) throw catError;
 
+    const communityGames = (games ?? []).filter((g) => !LOCAL_GAME_IDS.has(g.id as string));
+    const communityRules = (rules ?? []).filter((r) => !LOCAL_RULE_IDS.has(r.id as string));
+    const communityCategories = (categories ?? []).filter(
+      (c) => !LOCAL_RULE_IDS.has(c.rule_id as string)
+    );
+
     await db.transaction("rw", db.games, db.ruleSets, db.categories, async () => {
-      if (games?.length) await db.games.bulkPut(games.map((g) => toCamelCase<Game>(g)));
-      if (rules?.length) {
-        await db.ruleSets.bulkPut(rules.map((r) => toCamelCase<Omit<GameRuleSet, "categories">>(r)));
+      if (communityGames.length) await db.games.bulkPut(communityGames.map((g) => toCamelCase<Game>(g)));
+      if (communityRules.length) {
+        await db.ruleSets.bulkPut(
+          communityRules.map((r) => toCamelCase<Omit<GameRuleSet, "categories">>(r))
+        );
       }
-      if (categories?.length) {
-        await db.categories.bulkPut(categories.map((c) => toCamelCase<ScoreCategory>(c)));
+      if (communityCategories.length) {
+        await db.categories.bulkPut(communityCategories.map((c) => toCamelCase<ScoreCategory>(c)));
       }
     });
 
-    return { pulled: (games?.length ?? 0) + (rules?.length ?? 0) + (categories?.length ?? 0) };
+    return { pulled: communityGames.length + communityRules.length + communityCategories.length };
   } catch (err) {
     console.warn("[BoardScore AI] Échec de synchronisation du catalogue :", err);
     return null;

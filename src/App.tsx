@@ -3,8 +3,6 @@ import { AppShell, FlowShell } from "@/components/layout/AppShell";
 import { ThemeProvider } from "@/hooks/useTheme";
 import { AuthProvider } from "@/hooks/useAuth";
 import Home from "@/pages/Home";
-import Scan from "@/pages/Scan";
-import ScanResult from "@/pages/ScanResult";
 import GameSearch from "@/pages/GameSearch";
 import MatchPlayers from "@/pages/MatchPlayers";
 import MatchScore from "@/pages/MatchScore";
@@ -30,8 +28,6 @@ export default function App() {
             </Route>
 
             <Route element={<FlowShell />}>
-              <Route path="/scan" element={<Scan />} />
-              <Route path="/scan/result" element={<ScanResult />} />
               <Route path="/games/search" element={<GameSearch />} />
               <Route path="/community/new" element={<CommunityNew />} />
               <Route path="/match/:matchId/players" element={<MatchPlayers />} />

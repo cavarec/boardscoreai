@@ -91,6 +91,10 @@ export async function ensureSeeded(): Promise<void> {
       const { categories, ...ruleMeta } = ruleSet;
       await db.games.put(game);
       await db.ruleSets.put(ruleMeta);
+      // bulkPut seul ne fait qu'ajouter/mettre à jour : une catégorie retirée
+      // du seed (ex. Kingdomino passant d'une catégorie combinée à une par
+      // terrain) resterait orpheline en base sans ce nettoyage préalable.
+      await db.categories.where("ruleId").equals(ruleMeta.id).delete();
       await db.categories.bulkPut(categories);
     }
   });

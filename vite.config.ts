@@ -30,7 +30,7 @@ export default defineConfig({
         name: "BoardScore AI",
         short_name: "BoardScore",
         description:
-          "Scannez la boîte, jouez, on s'occupe des points. Calcul automatique du score pour vos jeux de société.",
+          "Trouvez votre jeu, jouez, on s'occupe des points. Calcul automatique du score pour vos jeux de société.",
         theme_color: "#1F4B43",
         background_color: "#ECE8DC",
         display: "standalone",
@@ -65,20 +65,6 @@ export default defineConfig({
         maximumFileSizeToCacheInBytes: 6 * 1024 * 1024,
         navigateFallbackDenylist: [/^\/supabase\//],
         runtimeCaching: [
-          {
-            // Tesseract worker/core/lang files are fetched from a CDN at runtime;
-            // cache them so OCR keeps working after the first successful scan.
-            urlPattern: ({ url }) =>
-              url.hostname.includes("tessdata") ||
-              url.hostname.includes("unpkg.com") ||
-              url.hostname.includes("jsdelivr.net"),
-            handler: "CacheFirst",
-            options: {
-              cacheName: "ocr-engine-cache",
-              expiration: { maxEntries: 20, maxAgeSeconds: 60 * 60 * 24 * 90 },
-              cacheableResponse: { statuses: [0, 200] },
-            },
-          },
           {
             urlPattern: ({ url }) => url.pathname.startsWith("/rest/v1") || url.hostname.includes("supabase.co"),
             handler: "NetworkFirst",

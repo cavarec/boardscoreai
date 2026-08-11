@@ -2,11 +2,9 @@ import Fuse from "fuse.js";
 import type { Game } from "@/types";
 
 /**
- * Reconnaissance du jeu à partir d'un texte libre : nom saisi manuellement,
- * texte extrait par l'OCR d'une boîte / fiche de score, ou requête envoyée
- * à l'assistant conversationnel. Un seul moteur de correspondance floue pour
- * les trois entrées du concept ("scanner la boîte", "scanner la fiche",
- * "rechercher un jeu").
+ * Reconnaissance du jeu à partir d'un texte libre : nom saisi manuellement
+ * ou requête envoyée à l'assistant conversationnel. Un seul moteur de
+ * correspondance floue pour les deux entrées du concept.
  */
 
 export interface GameMatch {
@@ -36,33 +34,6 @@ export function matchGames(games: Game[], query: string, limit = 5): GameMatch[]
   return fuse
     .search(trimmed, { limit })
     .map((r) => ({ game: r.item, score: r.score ?? 1 }));
-}
-
-/**
- * Un bloc de texte OCR contient souvent du bruit (éditeur, âge conseillé,
- * accroches marketing). On essaie plusieurs lignes/segments et on garde la
- * meilleure correspondance trouvée plutôt que de matcher le texte entier.
- */
-export function matchGamesFromOcrText(games: Game[], rawText: string, limit = 3): GameMatch[] {
-  const candidates = rawText
-    .split(/\r?\n|[|•·]/)
-    .map((line) => line.trim())
-    .filter((line) => line.length >= 3 && line.length <= 60);
-
-  const fuse = buildFuse(games);
-  const best = new Map<string, GameMatch>();
-
-  for (const line of candidates.length ? candidates : [rawText]) {
-    for (const r of fuse.search(line, { limit: 3 })) {
-      const score = r.score ?? 1;
-      const prev = best.get(r.item.id);
-      if (!prev || score < prev.score) {
-        best.set(r.item.id, { game: r.item, score });
-      }
-    }
-  }
-
-  return [...best.values()].sort((a, b) => a.score - b.score).slice(0, limit);
 }
 
 /** Un score Fuse.js proche de 0 = confiance haute. Seuil retenu pour
