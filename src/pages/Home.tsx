@@ -12,19 +12,16 @@ function greeting(): string {
   return h >= 5 && h < 18 ? "Bonjour !" : "Bonsoir !";
 }
 
-/** Même dé que l'icône de l'app (public/icons/icon.svg) : couleurs de marque
- * fixes plutôt que les tokens de thème, pour rester reconnaissable partout. */
+/** Même icône que l'app (public/icons/icon-192.png), pour rester
+ * reconnaissable partout où le logo apparaît. */
 function LogoMark() {
   return (
-    <svg viewBox="0 0 64 64" className="h-8 w-8 shrink-0 rounded-lg" aria-hidden="true">
-      <rect width="64" height="64" fill="#123832" />
-      <rect x="18" y="18" width="28" height="28" rx="6" fill="#A8681F" />
-      <circle cx="32" cy="32" r="2.6" fill="#F6F3E9" />
-      <circle cx="24" cy="24" r="2.6" fill="#F6F3E9" />
-      <circle cx="40" cy="24" r="2.6" fill="#F6F3E9" />
-      <circle cx="24" cy="40" r="2.6" fill="#F6F3E9" />
-      <circle cx="40" cy="40" r="2.6" fill="#F6F3E9" />
-    </svg>
+    <img
+      src="/icons/icon-192.png"
+      alt=""
+      className="h-8 w-8 shrink-0 rounded-lg"
+      aria-hidden="true"
+    />
   );
 }
 

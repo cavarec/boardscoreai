@@ -24,7 +24,12 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: "autoUpdate",
-      includeAssets: ["icons/icon.svg", "icons/apple-touch-icon.png"],
+      includeAssets: [
+        "icons/apple-touch-icon.png",
+        "icons/favicon-16.png",
+        "icons/favicon-32.png",
+        "icons/splash.png",
+      ],
       manifest: {
         id: "/",
         name: "BoardScore AI",
