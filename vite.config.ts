@@ -36,7 +36,7 @@ export default defineConfig({
         short_name: "BoardScore",
         description:
           "Trouvez votre jeu, jouez, on s'occupe des points. Calcul automatique du score pour vos jeux de société.",
-        theme_color: "#1F4B43",
+        theme_color: "#1EA39C",
         background_color: "#ECE8DC",
         display: "standalone",
         orientation: "portrait",
