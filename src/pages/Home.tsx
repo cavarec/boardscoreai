@@ -19,7 +19,7 @@ function LogoMark() {
     <img
       src="/icons/icon-192.png"
       alt=""
-      className="h-8 w-8 shrink-0 rounded-lg"
+      className="h-20 w-20 shrink-0 rounded-2xl"
       aria-hidden="true"
     />
   );
@@ -91,11 +91,11 @@ export default function Home() {
   return (
     <div className="flex flex-col gap-6 px-5 pt-8">
       <div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-col items-center gap-2 text-center">
           <LogoMark />
           <p className="font-mono text-xs uppercase tracking-widest text-felt-strong">BoardScore AI</p>
         </div>
-        <h1 className="mt-2 font-display text-3xl font-bold">{greeting()}</h1>
+        <h1 className="mt-4 font-display text-3xl font-bold">{greeting()}</h1>
         <p className="mt-1 text-ink-soft">À quoi tu joues ?</p>
         {gameCount > 0 && (
           <p className="mt-2 text-sm text-ink-faint">
