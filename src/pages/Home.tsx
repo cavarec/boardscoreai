@@ -16,12 +16,14 @@ function greeting(): string {
  * reconnaissable partout où le logo apparaît. */
 function LogoMark() {
   return (
-    <img
-      src="/icons/icon-192.png"
-      alt=""
-      className="h-20 w-20 shrink-0 rounded-2xl"
-      aria-hidden="true"
-    />
+    <div className="h-20 w-20 shrink-0 overflow-hidden rounded-2xl">
+      <img
+        src="/icons/icon-192.png"
+        alt=""
+        className="h-full w-full scale-125 object-cover"
+        aria-hidden="true"
+      />
+    </div>
   );
 }
 
