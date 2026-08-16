@@ -4,7 +4,8 @@ import { TopBar } from "@/components/layout/TopBar";
 import { Button } from "@/components/ui/Button";
 import { getFullMatch, reopenMatch, type FullMatch } from "@/lib/db";
 import { computeRanking, effectiveRuleSet } from "@/lib/scoreEngine";
-import { Meeple } from "@/components/ui/Meeple";
+import { PlayerAvatar } from "@/components/ui/PlayerAvatar";
+import { computePlayerInitials } from "@/lib/playerInitials";
 
 const RANK_BADGE: Record<number, string> = {
   1: "bg-amber text-paper-raised",
@@ -70,6 +71,7 @@ export default function MatchRanking() {
   }
 
   const ranking = computeRanking(effectiveRuleSet(full.ruleSet, full.match), full.scores, full.players);
+  const initialsById = computePlayerInitials(full.players);
   // Longueur de barre = proximité avec le gagnant, pas le score brut : ça
   // reste juste que le classement gagne au plus haut ou au plus bas score
   // (Jeu rapide), et ça ne casse pas avec des scores négatifs. Le gagnant a
@@ -106,7 +108,7 @@ export default function MatchRanking() {
                     >
                       {r.position}
                     </span>
-                    <Meeple playerId={r.player.id} size={16} />
+                    <PlayerAvatar playerId={r.player.id} initials={initialsById[r.player.id]} size={20} />
                     <span className="font-medium">{r.player.name}</span>
                   </span>
                   <span className="font-mono text-lg font-bold tabular-nums text-felt-strong">

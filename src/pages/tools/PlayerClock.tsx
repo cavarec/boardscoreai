@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { TopBar } from "@/components/layout/TopBar";
 import { Button } from "@/components/ui/Button";
-import { Meeple } from "@/components/ui/Meeple";
+import { PlayerAvatar } from "@/components/ui/PlayerAvatar";
+import { computePlayerInitials } from "@/lib/playerInitials";
 
 interface ClockPlayer {
   id: string;
@@ -53,6 +54,8 @@ export default function PlayerClock() {
     setPlayers((prev) => prev.map((p) => ({ ...p, elapsed: 0 })));
   }
 
+  const initialsById = computePlayerInitials(players);
+
   return (
     <div className="flex min-h-dvh flex-col">
       <TopBar title="Chronomètre par joueur" />
@@ -97,7 +100,7 @@ export default function PlayerClock() {
                 }`}
               >
                 <span className="flex items-center gap-3">
-                  <Meeple playerId={p.id} />
+                  <PlayerAvatar playerId={p.id} initials={initialsById[p.id]} size={24} />
                   <span className="font-medium">{p.name}</span>
                 </span>
                 <span className="flex items-center gap-3">

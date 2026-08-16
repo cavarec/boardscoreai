@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { TopBar } from "@/components/layout/TopBar";
 import { Button } from "@/components/ui/Button";
-import { Meeple } from "@/components/ui/Meeple";
+import { PlayerAvatar } from "@/components/ui/PlayerAvatar";
+import { computePlayerInitials } from "@/lib/playerInitials";
 import {
   addPlayer,
   addRoundScore,
@@ -101,6 +102,7 @@ export default function MatchPlayers() {
   }
 
   const players = full.players;
+  const initialsById = computePlayerInitials(players);
   const drawStartingPlayer = async () => {
     if (!matchId || players.length < 2) return;
     const shuffled = [...players];
@@ -266,7 +268,7 @@ export default function MatchPlayers() {
               className="flex items-center justify-between rounded-xl border border-line bg-paper-raised px-4 py-3"
             >
               <span className="flex items-center gap-3">
-                <Meeple playerId={p.id} />
+                <PlayerAvatar playerId={p.id} initials={initialsById[p.id]} size={24} />
                 {p.name}
               </span>
               <button
