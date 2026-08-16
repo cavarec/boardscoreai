@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { TopBar } from "@/components/layout/TopBar";
 import { Button } from "@/components/ui/Button";
-import { getFullMatch, reopenMatch, type FullMatch } from "@/lib/db";
+import { getFullMatch, rematch, reopenMatch, type FullMatch } from "@/lib/db";
 import { computeRanking, effectiveRuleSet } from "@/lib/scoreEngine";
 import { PlayerAvatar } from "@/components/ui/PlayerAvatar";
 import { computePlayerInitials } from "@/lib/playerInitials";
@@ -42,6 +42,11 @@ export default function MatchRanking() {
     // avoir perdu ses joueurs en en démarrant une nouvelle par erreur.
     await reopenMatch(full!.match.id);
     navigate(`/match/${full!.match.id}/score`);
+  }
+
+  async function playAgain() {
+    const newMatch = await rematch(full!.match.id);
+    navigate(`/match/${newMatch.id}/players`);
   }
 
   async function shareRanking() {
@@ -143,10 +148,12 @@ export default function MatchRanking() {
           <Button variant="secondary" onClick={shareRanking}>
             Partager le classement
           </Button>
+          <Button onClick={playAgain}>Rejouer avec les mêmes joueurs</Button>
           <Button variant="secondary" onClick={backToMatch}>
             Retour à la partie
           </Button>
           <Button
+            variant="secondary"
             onClick={() => {
               if (confirm("Terminer la partie et revenir à l'accueil ?")) navigate("/");
             }}

@@ -313,6 +313,27 @@ export async function reopenMatch(matchId: string): Promise<void> {
   await db.matches.update(matchId, { status: "in_progress" });
 }
 
+/** Nouvelle partie du même jeu avec le même roster (mêmes prénoms, dans le
+ * même ordre) : évite de retaper les joueurs à chaque soirée jeux récurrente.
+ * Objectif et sens du classement repris aussi (règles habituelles du
+ * groupe) ; le nom de partie ne l'est pas, propre à une date précise. */
+export async function rematch(matchId: string): Promise<Match> {
+  const full = await getFullMatch(matchId);
+  if (!full) throw new Error(`Partie introuvable : ${matchId}`);
+
+  const newMatch = await createMatch(full.game.id, {
+    targetRounds: full.match.targetRounds,
+    targetScore: full.match.targetScore,
+  });
+  if (full.match.sortDirection) {
+    await updateMatchSettings(newMatch.id, { sortDirection: full.match.sortDirection });
+  }
+  for (const player of full.players) {
+    await addPlayer(newMatch.id, player.name);
+  }
+  return newMatch;
+}
+
 export async function listMatches(): Promise<Match[]> {
   return db.matches.orderBy("createdAt").reverse().toArray();
 }
