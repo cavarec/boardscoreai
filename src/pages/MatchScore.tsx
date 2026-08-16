@@ -4,8 +4,9 @@ import { TopBar } from "@/components/layout/TopBar";
 import { Button } from "@/components/ui/Button";
 import { Pill } from "@/components/ui/Card";
 import { Stepper } from "@/components/ui/Stepper";
-import { Meeple } from "@/components/ui/Meeple";
+import { PlayerAvatar } from "@/components/ui/PlayerAvatar";
 import { playerColor } from "@/lib/playerColors";
+import { computePlayerInitials } from "@/lib/playerInitials";
 import {
   addRoundScore,
   completeMatch,
@@ -116,6 +117,10 @@ export default function MatchScore() {
   if (!activePlayer) return null;
 
   const { total, breakdown } = computePlayerBreakdown(full.ruleSet, full.scores, activePlayer);
+  // Onglets triés alphabétiquement (pas l'ordre d'ajout) pour retrouver un
+  // joueur au premier coup d'œil dans une partie à beaucoup de monde.
+  const sortedPlayers = [...full.players].sort((a, b) => a.name.localeCompare(b.name, "fr"));
+  const initialsById = computePlayerInitials(full.players);
 
   async function updateValue(category: ScoreCategory, value: number) {
     await setScore(activePlayerId!, category.id, value);
@@ -138,7 +143,7 @@ export default function MatchScore() {
       <TopBar title={full.match.name || full.game.name} />
 
       <div className="flex shrink-0 gap-1 overflow-x-auto border-b border-line px-3 py-2">
-        {full.players.map((p) => {
+        {sortedPlayers.map((p) => {
           const isActive = p.id === activePlayerId;
           const { fill, text } = playerColor(p.id);
           return (
@@ -150,7 +155,7 @@ export default function MatchScore() {
                 isActive ? "" : "bg-paper-raised text-ink-faint"
               }`}
             >
-              <Meeple playerId={p.id} size={14} white={isActive} />
+              <PlayerAvatar playerId={p.id} initials={initialsById[p.id]} size={20} white={isActive} />
               {p.name}
             </button>
           );

@@ -111,7 +111,13 @@ export default function MatchRanking() {
           <Button variant="secondary" onClick={backToMatch}>
             Retour à la partie
           </Button>
-          <Button onClick={() => navigate("/")}>Terminer</Button>
+          <Button
+            onClick={() => {
+              if (confirm("Terminer la partie et revenir à l'accueil ?")) navigate("/");
+            }}
+          >
+            Terminer
+          </Button>
         </div>
       </div>
     </div>
