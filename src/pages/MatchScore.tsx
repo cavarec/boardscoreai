@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { TopBar } from "@/components/layout/TopBar";
 import { Button } from "@/components/ui/Button";
@@ -27,6 +27,7 @@ export default function MatchScore() {
   const [full, setFull] = useState<FullMatch | null | undefined>(undefined);
   const [activePlayerId, setActivePlayerId] = useState<string | null>(null);
   const [finishing, setFinishing] = useState(false);
+  const touchStart = useRef<{ x: number; y: number } | null>(null);
 
   async function refresh() {
     if (!matchId) return;
@@ -122,6 +123,33 @@ export default function MatchScore() {
   const sortedPlayers = [...full.players].sort((a, b) => a.name.localeCompare(b.name, "fr"));
   const initialsById = computePlayerInitials(full.players);
 
+  function handleTouchStart(e: React.TouchEvent) {
+    const t = e.touches[0];
+    touchStart.current = { x: t.clientX, y: t.clientY };
+  }
+
+  // Mesuré uniquement au relâché (pas de preventDefault en cours de route) :
+  // le scroll vertical de la liste des catégories continue de fonctionner
+  // normalement, on ne réagit qu'après coup si le geste était clairement
+  // horizontal — sinon un simple tap sur un stepper déclencherait un swipe.
+  function handleTouchEnd(e: React.TouchEvent) {
+    const start = touchStart.current;
+    touchStart.current = null;
+    if (!start) return;
+    const t = e.changedTouches[0];
+    const dx = t.clientX - start.x;
+    const dy = t.clientY - start.y;
+    if (Math.abs(dx) < 60 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
+
+    const currentIndex = sortedPlayers.findIndex((p) => p.id === activePlayerId);
+    if (currentIndex === -1) return;
+    const nextIndex =
+      dx < 0
+        ? Math.min(currentIndex + 1, sortedPlayers.length - 1)
+        : Math.max(currentIndex - 1, 0);
+    if (nextIndex !== currentIndex) setActivePlayerId(sortedPlayers[nextIndex].id);
+  }
+
   async function updateValue(category: ScoreCategory, value: number) {
     await setScore(activePlayerId!, category.id, value);
     refresh();
@@ -183,7 +211,11 @@ export default function MatchScore() {
         </div>
       )}
 
-      <div className="min-h-0 flex-1 overflow-y-auto px-5 py-5">
+      <div
+        className="min-h-0 flex-1 overflow-y-auto px-5 py-5"
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      >
         <div className="mb-1 flex items-center justify-between">
           <p className="text-ink-soft">Total actuel</p>
           <p
