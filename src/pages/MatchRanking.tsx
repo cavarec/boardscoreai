@@ -19,6 +19,7 @@ export default function MatchRanking() {
   // undefined = en cours de chargement, null = partie introuvable (lien mort).
   const [full, setFull] = useState<FullMatch | null | undefined>(undefined);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [shareFeedback, setShareFeedback] = useState<string | null>(null);
 
   useEffect(() => {
     if (!matchId) return;
@@ -40,6 +41,32 @@ export default function MatchRanking() {
     // avoir perdu ses joueurs en en démarrant une nouvelle par erreur.
     await reopenMatch(full!.match.id);
     navigate(`/match/${full!.match.id}/score`);
+  }
+
+  async function shareRanking() {
+    const title = full!.match.name || full!.game.name;
+    const lines = ranking.map((r) => `${r.position}. ${r.player.name} — ${r.total} pts`);
+    const text = `${title}\n${lines.join("\n")}\n\nvia BoardScore AI`;
+
+    // navigator.share ouvre le sélecteur natif (WhatsApp, SMS...) sur mobile ;
+    // les navigateurs qui ne l'ont pas (desktop, anciens Android) retombent
+    // sur une simple copie dans le presse-papiers.
+    if (navigator.share) {
+      try {
+        await navigator.share({ title, text });
+      } catch {
+        // Partage annulé par l'utilisateur : rien à faire.
+      }
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(text);
+      setShareFeedback("Classement copié dans le presse-papiers.");
+    } catch {
+      setShareFeedback("Impossible de copier automatiquement.");
+    }
+    setTimeout(() => setShareFeedback(null), 3000);
   }
 
   const ranking = computeRanking(effectiveRuleSet(full.ruleSet, full.match), full.scores, full.players);
@@ -108,6 +135,12 @@ export default function MatchRanking() {
         </div>
 
         <div className="mt-auto flex flex-col gap-3 pt-4">
+          {shareFeedback && (
+            <p className="text-center text-sm text-ink-faint">{shareFeedback}</p>
+          )}
+          <Button variant="secondary" onClick={shareRanking}>
+            Partager le classement
+          </Button>
           <Button variant="secondary" onClick={backToMatch}>
             Retour à la partie
           </Button>
