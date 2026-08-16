@@ -273,6 +273,7 @@ export default function MatchPlayers() {
               </span>
               <button
                 onClick={async () => {
+                  if (!confirm(`Retirer ${p.name} de la partie ? Son score sera perdu.`)) return;
                   await removePlayer(p.id);
                   refresh();
                 }}
