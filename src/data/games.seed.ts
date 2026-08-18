@@ -14,7 +14,7 @@ import type { GameWithRules, ScoreCategory } from "@/types";
  * réappliquer le catalogue après une mise à jour de l'app — sans ça, les
  * utilisateurs déjà installés ne verraient jamais les nouveaux jeux.
  */
-export const SEED_VERSION = 10;
+export const SEED_VERSION = 11;
 
 let order = 0;
 function cat(
@@ -3211,6 +3211,26 @@ const tichu = game({
 });
 
 order = 0;
+const bloops = game({
+  id: "game-bloops",
+  name: "Bloops",
+  publisher: "TLAMA games",
+  year: 2025,
+  minPlayers: 2,
+  maxPlayers: 5,
+  aliases: ["bloops"],
+  description: "Mémorisez vos cartes et débarrassez-vous des plus fortes valeurs pour finir avec le score le plus bas.",
+  ruleSet: {
+    id: "rule-bloops-base",
+    gameId: "game-bloops",
+    versionLabel: "Édition de base",
+    isOfficial: true,
+    sortDirection: "asc",
+    categories: [cat("rule-bloops-base", "cat-bloops-cards", "Valeur des cartes restantes", "sum", { roundBased: true, helper: "Le score le plus bas gagne — une entrée par manche" })],
+  },
+});
+
+order = 0;
 const quatreCentVingtEtUn = game({
   id: "game-421",
   name: "421 (dés)",
@@ -3936,6 +3956,7 @@ export const GAMES_SEED: GameWithRules[] = [
   mancala,
   loveLetter,
   tichu,
+  bloops,
   quatreCentVingtEtUn,
   rami,
   modernArt,
