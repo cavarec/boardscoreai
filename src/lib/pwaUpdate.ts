@@ -30,3 +30,20 @@ export async function checkForUpdate(): Promise<boolean> {
   await registration.update();
   return true;
 }
+
+// Revérifie automatiquement à chaque retour au premier plan de l'app — pas
+// seulement au rechargement manuel. Un PWA repris depuis l'écran d'accueil
+// (ou l'app-switcher) ne déclenche jamais de vraie navigation, donc le
+// navigateur ne relance jamais son propre check tout seul dans ce cas ;
+// c'est précisément ce qui laissait certains appareils bloqués sur une
+// vieille version malgré "autoUpdate". Avec un service worker trouvé,
+// l'activation et le rechargement restent automatiques (voir registerSW
+// ci-dessus) — l'utilisateur n'a rien à faire.
+let lastCheck = 0;
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState !== "visible") return;
+  const now = Date.now();
+  if (now - lastCheck < 60_000) return;
+  lastCheck = now;
+  checkForUpdate();
+});
