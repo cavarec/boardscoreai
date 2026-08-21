@@ -5,15 +5,21 @@ import { Button } from "@/components/ui/Button";
 import { PlayerAvatar } from "@/components/ui/PlayerAvatar";
 import { computePlayerInitials } from "@/lib/playerInitials";
 import {
+  addGroupToMatch,
   addPlayer,
   addRoundScore,
+  createGroup,
+  deleteGroup,
+  enableDealerTracking,
   getFullMatch,
+  listGroups,
   removePlayer,
   reorderPlayers,
   updateMatchSettings,
   type FullMatch,
 } from "@/lib/db";
 import { QUICK_PLAY_GAME_ID } from "@/data/games.seed";
+import type { PlayerGroup } from "@/types";
 
 export default function MatchPlayers() {
   const { matchId } = useParams<{ matchId: string }>();
@@ -27,14 +33,20 @@ export default function MatchPlayers() {
   const [targetScore, setTargetScore] = useState("");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
   const [drawnPlayerName, setDrawnPlayerName] = useState<string | null>(null);
+  const [groups, setGroups] = useState<PlayerGroup[]>([]);
 
   async function refresh() {
     if (!matchId) return;
     setFull((await getFullMatch(matchId)) ?? null);
   }
 
+  async function refreshGroups() {
+    setGroups(await listGroups());
+  }
+
   useEffect(() => {
     refresh();
+    refreshGroups();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [matchId]);
 
@@ -112,6 +124,34 @@ export default function MatchPlayers() {
     refresh();
   };
 
+  async function handleAddGroup(groupId: string) {
+    if (!matchId) return;
+    await addGroupToMatch(matchId, groupId);
+    refresh();
+  }
+
+  async function handleDeleteGroup(groupId: string, e: React.MouseEvent) {
+    e.stopPropagation();
+    if (!confirm("Supprimer ce groupe ?")) return;
+    await deleteGroup(groupId);
+    refreshGroups();
+  }
+
+  async function handleSaveGroup() {
+    const profileIds = players.map((p) => p.profileId).filter((id): id is string => Boolean(id));
+    if (profileIds.length === 0) return;
+    const name = prompt("Nom du groupe (ex. Soirée du jeudi) :");
+    if (!name || !name.trim()) return;
+    await createGroup(name, profileIds);
+    refreshGroups();
+  }
+
+  async function handleEnableDealer() {
+    if (!matchId) return;
+    await enableDealerTracking(matchId);
+    refresh();
+  }
+
   return (
     // Même principe que l'écran de saisie des scores : seule la liste des
     // joueurs défile, le formulaire d'ajout (en haut) et le bouton
@@ -153,6 +193,33 @@ export default function MatchPlayers() {
       </div>
 
       <div className="min-h-0 flex-1 overflow-y-auto px-5 pb-4">
+        {groups.length > 0 && (
+          <div className="mb-4 flex flex-col gap-2">
+            <p className="text-sm font-medium text-ink-soft">Ajouter un groupe</p>
+            <div className="flex flex-wrap gap-2">
+              {groups.map((g) => (
+                <div
+                  key={g.id}
+                  className="flex items-center overflow-hidden rounded-full border border-line-strong bg-paper-raised"
+                >
+                  <button
+                    onClick={() => handleAddGroup(g.id)}
+                    className="py-1.5 pl-3 pr-1 text-sm font-medium text-ink"
+                  >
+                    {g.name} ({g.profileIds.length})
+                  </button>
+                  <button
+                    onClick={(e) => handleDeleteGroup(g.id, e)}
+                    aria-label={`Supprimer le groupe ${g.name}`}
+                    className="pr-2.5 pl-1 text-ink-faint"
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
         {full.game.id === QUICK_PLAY_GAME_ID && (
           <details className="group mb-4 rounded-xl border border-line bg-paper-raised">
             <summary className="flex cursor-pointer list-none items-center justify-between px-4 py-3 text-sm font-medium text-ink-soft [&::-webkit-details-marker]:hidden">
@@ -258,6 +325,19 @@ export default function MatchPlayers() {
               <p className="text-center text-sm font-medium text-amber-strong">
                 {drawnPlayerName} commence la partie.
               </p>
+            )}
+            <Button variant="secondary" onClick={handleSaveGroup}>
+              Enregistrer ce groupe de joueurs
+            </Button>
+            {full.match.trackDealer ? (
+              <p className="text-center text-sm text-ink-faint">
+                Donneur suivi :{" "}
+                {full.players.find((p) => p.id === full.match.dealerPlayerId)?.name ?? "—"}
+              </p>
+            ) : (
+              <Button variant="secondary" onClick={handleEnableDealer}>
+                Activer le suivi du donneur
+              </Button>
             )}
           </div>
         )}

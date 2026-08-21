@@ -9,6 +9,7 @@ import { playerColor } from "@/lib/playerColors";
 import { computePlayerInitials } from "@/lib/playerInitials";
 import {
   addRoundScore,
+  advanceDealer,
   completeMatch,
   getFullMatch,
   getRounds,
@@ -162,6 +163,14 @@ export default function MatchScore() {
     navigate(`/match/${matchId}/ranking`);
   }
 
+  async function handleAdvanceDealer() {
+    if (!matchId) return;
+    await advanceDealer(matchId);
+    refresh();
+  }
+
+  const dealerName = full.players.find((p) => p.id === full.match.dealerPlayerId)?.name;
+
   return (
     // h-dvh (pas h-screen) : sur Safari iOS, 100vh ignore la barre d'adresse
     // dynamique et déborde de la zone réellement visible, ce qui rendait
@@ -192,6 +201,20 @@ export default function MatchScore() {
           );
         })}
       </div>
+
+      {full.match.trackDealer && (
+        <div className="flex shrink-0 items-center justify-between gap-3 border-b border-line bg-paper-raised px-5 py-2">
+          <span className="truncate text-sm text-ink-soft">
+            Donneur : <span className="font-medium text-ink">{dealerName ?? "—"}</span>
+          </span>
+          <button
+            onClick={handleAdvanceDealer}
+            className="shrink-0 text-sm font-medium text-felt-strong underline underline-offset-2"
+          >
+            Manche suivante →
+          </button>
+        </div>
+      )}
 
       {achievements.length > 0 && (
         <div className="shrink-0 border-b border-line bg-amber-tint px-5 py-3">

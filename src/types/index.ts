@@ -115,6 +115,12 @@ export interface Match {
   /** "Jeu rapide" uniquement : nom libre pour retrouver la partie dans
    * l'historique (ex. "Soirée jeux du 15 août") plutôt que juste "Jeu rapide". */
   name?: string;
+  /** Active un indicateur de donneur tournant (jeux de cartes : Belote,
+   * Tarot...) — off par défaut pour ne pas encombrer l'écran de saisie des
+   * jeux qui n'en ont pas besoin. */
+  trackDealer?: boolean;
+  /** Joueur donneur actuel, avancé manuellement manche après manche. */
+  dealerPlayerId?: string;
 }
 
 export interface Player {
@@ -136,6 +142,17 @@ export interface Player {
 export interface Profile {
   id: string;
   name: string;
+  createdAt: string;
+}
+
+/** Groupe nommé de profils réutilisable d'une partie à l'autre — pour
+ * ajouter d'un coup "la bande du jeudi" à une toute nouvelle partie, même la
+ * première fois qu'on joue à ce jeu ensemble (contrairement à "Rejouer avec
+ * les mêmes joueurs", qui suppose une partie déjà jouée). */
+export interface PlayerGroup {
+  id: string;
+  name: string;
+  profileIds: string[];
   createdAt: string;
 }
 

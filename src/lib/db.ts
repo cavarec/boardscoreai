@@ -6,6 +6,7 @@ import type {
   GameRuleSet,
   Match,
   Player,
+  PlayerGroup,
   Profile,
   RankingRow,
   Score,
@@ -30,6 +31,7 @@ class BoardScoreDB extends Dexie {
   meta!: EntityTable<{ key: string; value: unknown }, "key">;
   scoreRounds!: EntityTable<ScoreRound, "id">;
   profiles!: EntityTable<Profile, "id">;
+  playerGroups!: EntityTable<PlayerGroup, "id">;
 
   constructor() {
     super("boardscore-ai");
@@ -94,6 +96,11 @@ class BoardScoreDB extends Dexie {
           await tx.table("players").update(p.id, { profileId });
         }
       });
+    // v7 : groupes de joueurs réutilisables (voir createGroup) — table à
+    // part, aucune migration nécessaire (aucun groupe n'existait avant).
+    this.version(7).stores({
+      playerGroups: "id, name",
+    });
   }
 }
 
@@ -186,6 +193,30 @@ export async function updateMatchSettings(
   await db.matches.update(matchId, settings);
 }
 
+/** Active le suivi du donneur pour cette partie (jeux de cartes où la donne
+ * tourne : Belote, Tarot...) et désigne le premier joueur (dans l'ordre
+ * d'affichage) comme donneur de départ. */
+export async function enableDealerTracking(matchId: string): Promise<void> {
+  const firstPlayer = await db.players.where("matchId").equals(matchId).sortBy("order");
+  await db.matches.update(matchId, {
+    trackDealer: true,
+    dealerPlayerId: firstPlayer[0]?.id,
+  });
+}
+
+/** Fait tourner la donne au joueur suivant (dans l'ordre d'affichage),
+ * appelé manuellement manche après manche plutôt que déduit automatiquement
+ * — le rythme d'une manche varie trop d'un jeu à l'autre pour le deviner. */
+export async function advanceDealer(matchId: string): Promise<void> {
+  const match = await db.matches.get(matchId);
+  if (!match) return;
+  const players = await db.players.where("matchId").equals(matchId).sortBy("order");
+  if (players.length === 0) return;
+  const currentIndex = players.findIndex((p) => p.id === match.dealerPlayerId);
+  const nextIndex = currentIndex === -1 ? 0 : (currentIndex + 1) % players.length;
+  await db.matches.update(matchId, { dealerPlayerId: players[nextIndex].id });
+}
+
 /** Retrouve le profil existant pour ce prénom (normalisé) ou en crée un
  * nouveau — sans ça, deux parties avec "Alice" créeraient deux identités
  * distinctes et les stats croisées ne pourraient jamais la reconnaître. */
@@ -234,6 +265,43 @@ export async function mergeProfiles(sourceProfileId: string, targetProfileId: st
     await db.players.where("profileId").equals(sourceProfileId).modify({ profileId: targetProfileId });
     await db.profiles.delete(sourceProfileId);
   });
+}
+
+export async function listGroups(): Promise<PlayerGroup[]> {
+  return db.playerGroups.orderBy("name").toArray();
+}
+
+/** Sauvegarde le roster actuel comme groupe réutilisable ("la bande du
+ * jeudi") pour l'ajouter d'un coup à une future partie — même la toute
+ * première fois qu'on joue à un jeu donné avec ce groupe, contrairement à
+ * "Rejouer avec les mêmes joueurs" qui suppose une partie déjà jouée. */
+export async function createGroup(name: string, profileIds: string[]): Promise<PlayerGroup> {
+  const group: PlayerGroup = {
+    id: crypto.randomUUID(),
+    name: name.trim(),
+    profileIds,
+    createdAt: new Date().toISOString(),
+  };
+  await db.playerGroups.put(group);
+  return group;
+}
+
+export async function deleteGroup(groupId: string): Promise<void> {
+  await db.playerGroups.delete(groupId);
+}
+
+/** Ajoute tous les membres d'un groupe à une partie en une fois. Passe par
+ * addPlayer (donc par le nom du profil, pas son id) : ça retrouve le même
+ * profil via findOrCreateProfile plutôt que d'en créer un doublon, et un
+ * membre supprimé depuis est simplement ignoré plutôt que de faire échouer
+ * tout le groupe. */
+export async function addGroupToMatch(matchId: string, groupId: string): Promise<void> {
+  const group = await db.playerGroups.get(groupId);
+  if (!group) return;
+  const profiles = await db.profiles.bulkGet(group.profileIds);
+  for (const profile of profiles) {
+    if (profile) await addPlayer(matchId, profile.name);
+  }
 }
 
 /** Ordre d'affichage/de tour des joueurs (voir "Tirer au sort qui commence"
