@@ -145,21 +145,18 @@ export default function MatchRanking() {
           {shareFeedback && (
             <p className="text-center text-sm text-ink-faint">{shareFeedback}</p>
           )}
-          <Button style={{ backgroundColor: "var(--sky)" }} onClick={backToMatch}>
-            Retour à la partie
-          </Button>
-          <Button style={{ backgroundColor: "var(--violet)" }} onClick={shareRanking}>
+          <Button onClick={backToMatch}>Retour à la partie</Button>
+          <Button variant="secondary" onClick={shareRanking}>
             Partager le classement
           </Button>
           <Button
-            style={{ backgroundColor: "var(--amber)" }}
             onClick={() => {
               if (confirm("Terminer la partie et revenir à l'accueil ?")) navigate("/");
             }}
           >
             Terminer
           </Button>
-          <Button style={{ backgroundColor: "var(--felt)" }} onClick={playAgain}>
+          <Button variant="secondary" onClick={playAgain}>
             Rejouer avec les mêmes joueurs
           </Button>
         </div>
