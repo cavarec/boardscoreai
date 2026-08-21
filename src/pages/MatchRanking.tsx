@@ -6,6 +6,7 @@ import { getFullMatch, rematch, reopenMatch, type FullMatch } from "@/lib/db";
 import { computeRanking, effectiveRuleSet } from "@/lib/scoreEngine";
 import { PlayerAvatar } from "@/components/ui/PlayerAvatar";
 import { computePlayerInitials } from "@/lib/playerInitials";
+import { renderRankingImage } from "@/lib/rankingImage";
 
 const RANK_BADGE: Record<number, string> = {
   1: "bg-amber text-paper-raised",
@@ -53,6 +54,22 @@ export default function MatchRanking() {
     const title = full!.match.name || full!.game.name;
     const lines = ranking.map((r) => `${r.position}. ${r.player.name} — ${r.total} pts`);
     const text = `${title}\n${lines.join("\n")}\n\nvia BoardScore AI`;
+
+    // Image plus engageante qu'un message texte pour un partage de groupe —
+    // mais seulement si la plateforme sait partager un fichier (Web Share
+    // Level 2, surtout mobile) ; sinon on ne tente même pas, pour ne pas
+    // laisser passer un clic dans le vide sur une plateforme qui ne l'ouvrira
+    // simplement pas.
+    const imageBlob = await renderRankingImage({ title, ranking, initialsById });
+    const file = imageBlob ? new File([imageBlob], "classement.png", { type: "image/png" }) : null;
+    if (file && navigator.canShare?.({ files: [file] })) {
+      try {
+        await navigator.share({ files: [file], title });
+      } catch {
+        // Partage annulé par l'utilisateur : rien à faire.
+      }
+      return;
+    }
 
     // navigator.share ouvre le sélecteur natif (WhatsApp, SMS...) sur mobile ;
     // les navigateurs qui ne l'ont pas (desktop, anciens Android) retombent
