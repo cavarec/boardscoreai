@@ -4,6 +4,7 @@ import { Analytics } from "@vercel/analytics/react";
 import App from "@/App";
 import "@/index.css";
 import { ensureSeeded } from "@/lib/db";
+import "@/lib/pwaUpdate";
 
 ensureSeeded();
 

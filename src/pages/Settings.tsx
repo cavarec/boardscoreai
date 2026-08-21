@@ -3,6 +3,7 @@ import { useTheme, type ThemeChoice } from "@/hooks/useTheme";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { db, getMeta, setMeta } from "@/lib/db";
+import { checkForUpdate } from "@/lib/pwaUpdate";
 
 const THEME_OPTIONS: { value: ThemeChoice; label: string }[] = [
   { value: "system", label: "Système" },
@@ -13,6 +14,7 @@ const THEME_OPTIONS: { value: ThemeChoice; label: string }[] = [
 export default function Settings() {
   const { theme, setTheme } = useTheme();
   const [isPremium, setIsPremium] = useState(false);
+  const [checkingUpdate, setCheckingUpdate] = useState(false);
 
   useEffect(() => {
     getMeta("isPremium", false).then(setIsPremium);
@@ -38,6 +40,20 @@ export default function Settings() {
       }
     );
     location.reload();
+  }
+
+  async function handleCheckUpdate() {
+    setCheckingUpdate(true);
+    const hasServiceWorker = await checkForUpdate();
+    if (!hasServiceWorker) {
+      alert("Aucun service worker actif ici (normal en développement).");
+      setCheckingUpdate(false);
+      return;
+    }
+    // Laisse le temps au service worker de s'activer (registerType
+    // "autoUpdate" l'active automatiquement dès qu'il est trouvé) avant de
+    // recharger pour charger les nouveaux fichiers.
+    setTimeout(() => location.reload(), 800);
   }
 
   return (
@@ -75,6 +91,10 @@ export default function Settings() {
 
       <Button variant="danger" size="md" onClick={resetData}>
         Réinitialiser les données locales
+      </Button>
+
+      <Button variant="secondary" size="md" disabled={checkingUpdate} onClick={handleCheckUpdate}>
+        {checkingUpdate ? "Vérification..." : "Vérifier les mises à jour"}
       </Button>
 
       <p className="text-center font-mono text-xs text-ink-faint">

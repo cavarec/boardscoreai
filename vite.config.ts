@@ -24,6 +24,10 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: "autoUpdate",
+      // On enregistre le service worker nous-mêmes (src/lib/pwaUpdate.ts)
+      // pour garder une référence à l'enregistrement : nécessaire pour le
+      // bouton "Vérifier les mises à jour" dans Réglages.
+      injectRegister: false,
       includeAssets: [
         "icons/apple-touch-icon.png",
         "icons/favicon-16.png",
