@@ -28,6 +28,7 @@ export default function MatchScore() {
   const [full, setFull] = useState<FullMatch | null | undefined>(undefined);
   const [activePlayerId, setActivePlayerId] = useState<string | null>(null);
   const [finishing, setFinishing] = useState(false);
+  const [viewMode, setViewMode] = useState<"entry" | "sheet">("entry");
   const touchStart = useRef<{ x: number; y: number } | null>(null);
 
   async function refresh() {
@@ -123,6 +124,12 @@ export default function MatchScore() {
   // joueur au premier coup d'œil dans une partie à beaucoup de monde.
   const sortedPlayers = [...full.players].sort((a, b) => a.name.localeCompare(b.name, "fr"));
   const initialsById = computePlayerInitials(full.players);
+  // Pour la vue tableau : le détail de chaque joueur calculé une fois, pas
+  // par cellule, pour comparer tout le monde catégorie par catégorie plutôt
+  // que de basculer d'un onglet joueur à l'autre.
+  const breakdownByPlayer = new Map(
+    sortedPlayers.map((p) => [p.id, computePlayerBreakdown(full.ruleSet, full.scores, p)])
+  );
 
   function handleTouchStart(e: React.TouchEvent) {
     const t = e.touches[0];
@@ -177,30 +184,42 @@ export default function MatchScore() {
     // toute la page scrollable et faisait sortir les onglets joueurs de
     // l'écran à chaque saisie. 100dvh suit la hauteur visible réelle.
     <div className="flex h-dvh flex-col">
-      <TopBar title={full.match.name || full.game.name} />
+      <TopBar
+        title={full.match.name || full.game.name}
+        action={
+          <button
+            onClick={() => setViewMode((v) => (v === "entry" ? "sheet" : "entry"))}
+            className="shrink-0 text-sm font-medium text-felt-strong underline underline-offset-2"
+          >
+            {viewMode === "entry" ? "Vue tableau" : "Vue saisie"}
+          </button>
+        }
+      />
 
-      <div className="flex shrink-0 gap-1 overflow-x-auto border-b border-line px-3 py-2">
-        {sortedPlayers.map((p) => {
-          const isActive = p.id === activePlayerId;
-          // Le profil (pas l'id de joueur, propre à cette partie) donne une
-          // couleur stable pour la même personne d'une partie à l'autre.
-          const colorKey = p.profileId ?? p.id;
-          const { fill, text } = playerColor(colorKey);
-          return (
-            <button
-              key={p.id}
-              onClick={() => setActivePlayerId(p.id)}
-              style={isActive ? { backgroundColor: fill, color: text } : undefined}
-              className={`flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-semibold ${
-                isActive ? "" : "bg-paper-raised text-ink-faint"
-              }`}
-            >
-              <PlayerAvatar playerId={colorKey} initials={initialsById[p.id]} size={20} white={isActive} />
-              {p.name}
-            </button>
-          );
-        })}
-      </div>
+      {viewMode === "entry" && (
+        <div className="flex shrink-0 gap-1 overflow-x-auto border-b border-line px-3 py-2">
+          {sortedPlayers.map((p) => {
+            const isActive = p.id === activePlayerId;
+            // Le profil (pas l'id de joueur, propre à cette partie) donne une
+            // couleur stable pour la même personne d'une partie à l'autre.
+            const colorKey = p.profileId ?? p.id;
+            const { fill, text } = playerColor(colorKey);
+            return (
+              <button
+                key={p.id}
+                onClick={() => setActivePlayerId(p.id)}
+                style={isActive ? { backgroundColor: fill, color: text } : undefined}
+                className={`flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-semibold ${
+                  isActive ? "" : "bg-paper-raised text-ink-faint"
+                }`}
+              >
+                <PlayerAvatar playerId={colorKey} initials={initialsById[p.id]} size={20} white={isActive} />
+                {p.name}
+              </button>
+            );
+          })}
+        </div>
+      )}
 
       {full.match.trackDealer && (
         <div className="flex shrink-0 items-center justify-between gap-3 border-b border-line bg-paper-raised px-5 py-2">
@@ -237,54 +256,104 @@ export default function MatchScore() {
         </div>
       )}
 
-      <div
-        className="min-h-0 flex-1 overflow-y-auto px-5 py-5"
-        onTouchStart={handleTouchStart}
-        onTouchEnd={handleTouchEnd}
-      >
-        <div className="mb-1 flex items-center justify-between">
-          <p className="text-ink-soft">Total actuel</p>
-          <p
-            className={`font-mono text-2xl font-bold tabular-nums ${
-              full.match.targetScore && dir * total >= dir * full.match.targetScore
-                ? "text-amber-strong"
-                : "text-felt-strong"
-            }`}
-          >
-            {total} pts
-          </p>
+      {viewMode === "sheet" ? (
+        <div className="min-h-0 flex-1 overflow-auto px-5 py-5">
+          <table className="w-full border-collapse text-sm">
+            <thead>
+              <tr>
+                <th className="sticky left-0 z-10 bg-paper pb-2 pr-2 text-left align-bottom font-medium text-ink-faint">
+                  {""}
+                </th>
+                {sortedPlayers.map((p) => (
+                  <th
+                    key={p.id}
+                    className="min-w-[76px] px-2 pb-2 text-center align-bottom font-medium text-ink-soft"
+                  >
+                    {p.name}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {full.ruleSet.categories.map((cat) => (
+                <tr key={cat.id} className="border-t border-line">
+                  <td className="sticky left-0 z-10 bg-paper py-2 pr-2 text-ink-soft">{cat.label}</td>
+                  {sortedPlayers.map((p) => {
+                    const points =
+                      breakdownByPlayer.get(p.id)?.breakdown.find((b) => b.category.id === cat.id)
+                        ?.points ?? 0;
+                    return (
+                      <td key={p.id} className="px-2 py-2 text-center font-mono tabular-nums">
+                        {points}
+                      </td>
+                    );
+                  })}
+                </tr>
+              ))}
+              <tr className="border-t-2 border-line-strong font-bold">
+                <td className="sticky left-0 z-10 bg-paper py-2 pr-2">Total</td>
+                {sortedPlayers.map((p) => (
+                  <td
+                    key={p.id}
+                    className="px-2 py-2 text-center font-mono tabular-nums text-felt-strong"
+                  >
+                    {breakdownByPlayer.get(p.id)?.total ?? 0}
+                  </td>
+                ))}
+              </tr>
+            </tbody>
+          </table>
         </div>
-
-        {quickCategory && (full.match.targetRounds || full.match.targetScore) && (
-          <div className="mb-3 flex flex-wrap items-center gap-2">
-            {full.match.targetRounds && (
-              <Pill tone={roundsPlayed >= full.match.targetRounds ? "good" : "neutral"}>
-                Manche {roundsPlayed} / {full.match.targetRounds}
-              </Pill>
-            )}
-            {full.match.targetScore && (
-              <Pill tone={dir * total >= dir * full.match.targetScore ? "good" : "neutral"}>
-                {dir * total >= dir * full.match.targetScore
-                  ? "Objectif atteint"
-                  : `Objectif : ${full.match.targetScore} pts`}
-              </Pill>
-            )}
+      ) : (
+        <div
+          className="min-h-0 flex-1 overflow-y-auto px-5 py-5"
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+        >
+          <div className="mb-1 flex items-center justify-between">
+            <p className="text-ink-soft">Total actuel</p>
+            <p
+              className={`font-mono text-2xl font-bold tabular-nums ${
+                full.match.targetScore && dir * total >= dir * full.match.targetScore
+                  ? "text-amber-strong"
+                  : "text-felt-strong"
+              }`}
+            >
+              {total} pts
+            </p>
           </div>
-        )}
 
-        <div className="flex flex-col gap-2">
-          {breakdown.map(({ category }) => (
-            <CategoryRow
-              key={category.id}
-              category={category}
-              playerId={activePlayerId}
-              value={getRawValue(full.scores, activePlayerId, category.id)}
-              onChange={(v) => updateValue(category, v)}
-              onRoundsChanged={refresh}
-            />
-          ))}
+          {quickCategory && (full.match.targetRounds || full.match.targetScore) && (
+            <div className="mb-3 flex flex-wrap items-center gap-2">
+              {full.match.targetRounds && (
+                <Pill tone={roundsPlayed >= full.match.targetRounds ? "good" : "neutral"}>
+                  Manche {roundsPlayed} / {full.match.targetRounds}
+                </Pill>
+              )}
+              {full.match.targetScore && (
+                <Pill tone={dir * total >= dir * full.match.targetScore ? "good" : "neutral"}>
+                  {dir * total >= dir * full.match.targetScore
+                    ? "Objectif atteint"
+                    : `Objectif : ${full.match.targetScore} pts`}
+                </Pill>
+              )}
+            </div>
+          )}
+
+          <div className="flex flex-col gap-2">
+            {breakdown.map(({ category }) => (
+              <CategoryRow
+                key={category.id}
+                category={category}
+                playerId={activePlayerId}
+                value={getRawValue(full.scores, activePlayerId, category.id)}
+                onChange={(v) => updateValue(category, v)}
+                onRoundsChanged={refresh}
+              />
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       <div className="safe-bottom shrink-0 border-t border-line px-5 py-3">
         <Button disabled={finishing} className="w-full" onClick={finish}>

@@ -558,6 +558,56 @@ export async function getProfileStats(): Promise<ProfileStats[]> {
     .sort((a, b) => b.matchesPlayed - a.matchesPlayed);
 }
 
+export interface HeadToHead {
+  matchesPlayed: number;
+  winsA: number;
+  winsB: number;
+  ties: number;
+}
+
+/**
+ * Confrontation directe entre deux profils : sur les parties terminées où
+ * les deux ont joué ensemble, qui a fini devant l'autre — comparé à leur
+ * position au classement l'un par rapport à l'autre, pas à qui a gagné la
+ * partie dans son ensemble (utile même à 3 joueurs ou plus : un troisième
+ * larron peut gagner sans que ça ne dise rien de qui, entre A et B, a fait
+ * le mieux).
+ */
+export async function getHeadToHead(profileIdA: string, profileIdB: string): Promise<HeadToHead> {
+  const result: HeadToHead = { matchesPlayed: 0, winsA: 0, winsB: 0, ties: 0 };
+  if (profileIdA === profileIdB) return result;
+
+  const [playersA, playersB] = await Promise.all([
+    db.players.where("profileId").equals(profileIdA).toArray(),
+    db.players.where("profileId").equals(profileIdB).toArray(),
+  ]);
+  const playerIdByMatchA = new Map(playersA.map((p) => [p.matchId, p.id]));
+  const playerIdByMatchB = new Map(playersB.map((p) => [p.matchId, p.id]));
+  const sharedMatchIds = [...playerIdByMatchA.keys()].filter((id) => playerIdByMatchB.has(id));
+  if (sharedMatchIds.length === 0) return result;
+
+  const matches = await db.matches.bulkGet(sharedMatchIds);
+  const completedMatchIds = matches
+    .filter((m): m is Match => Boolean(m) && m!.status === "completed")
+    .map((m) => m.id);
+  if (completedMatchIds.length === 0) return result;
+
+  const rankings = await db.rankings.where("matchId").anyOf(completedMatchIds).toArray();
+  const rankingByPlayerId = new Map(rankings.map((r) => [r.playerId, r]));
+
+  for (const matchId of completedMatchIds) {
+    const rankA = rankingByPlayerId.get(playerIdByMatchA.get(matchId)!);
+    const rankB = rankingByPlayerId.get(playerIdByMatchB.get(matchId)!);
+    if (!rankA || !rankB) continue;
+    result.matchesPlayed++;
+    if (rankA.position < rankB.position) result.winsA++;
+    else if (rankB.position < rankA.position) result.winsB++;
+    else result.ties++;
+  }
+
+  return result;
+}
+
 export async function deleteMatch(matchId: string): Promise<void> {
   await db.transaction(
     "rw",
