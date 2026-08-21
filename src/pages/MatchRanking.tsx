@@ -113,7 +113,7 @@ export default function MatchRanking() {
                     >
                       {r.position}
                     </span>
-                    <PlayerAvatar playerId={r.player.id} initials={initialsById[r.player.id]} size={20} />
+                    <PlayerAvatar playerId={r.player.profileId ?? r.player.id} initials={initialsById[r.player.id]} size={20} />
                     <span className="font-medium">{r.player.name}</span>
                   </span>
                   <span className="font-mono text-lg font-bold tabular-nums text-felt-strong">

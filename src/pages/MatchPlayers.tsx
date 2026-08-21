@@ -268,7 +268,7 @@ export default function MatchPlayers() {
               className="flex items-center justify-between rounded-xl border border-line bg-paper-raised px-4 py-3"
             >
               <span className="flex items-center gap-3">
-                <PlayerAvatar playerId={p.id} initials={initialsById[p.id]} size={24} />
+                <PlayerAvatar playerId={p.profileId ?? p.id} initials={initialsById[p.id]} size={24} />
                 {p.name}
               </span>
               <button

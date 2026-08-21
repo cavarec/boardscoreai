@@ -214,6 +214,28 @@ export async function addPlayer(matchId: string, name: string): Promise<Player> 
   return player;
 }
 
+/** Corrige une faute de frappe sur un prénom sans casser le rattachement aux
+ * parties déjà jouées (contrairement à retirer/ré-ajouter le joueur). Ne
+ * touche pas le nom déjà figé sur les Player existants (voir addPlayer) —
+ * seul l'écran Joueurs reflète le nom à jour du profil. */
+export async function renameProfile(profileId: string, name: string): Promise<void> {
+  const trimmed = name.trim();
+  if (!trimmed) return;
+  await db.profiles.update(profileId, { name: trimmed });
+}
+
+/** Fusionne deux profils qui désignent la même personne (ex. deux prénoms
+ * orthographiés différemment) : tous les joueurs du profil source sont
+ * rattachés au profil cible, qui hérite de leurs parties pour les stats
+ * croisées ; le profil source est ensuite supprimé. Irréversible. */
+export async function mergeProfiles(sourceProfileId: string, targetProfileId: string): Promise<void> {
+  if (sourceProfileId === targetProfileId) return;
+  await db.transaction("rw", db.players, db.profiles, async () => {
+    await db.players.where("profileId").equals(sourceProfileId).modify({ profileId: targetProfileId });
+    await db.profiles.delete(sourceProfileId);
+  });
+}
+
 /** Ordre d'affichage/de tour des joueurs (voir "Tirer au sort qui commence"
  * dans MatchPlayers.tsx) : réattribue `order` selon l'ordre du tableau donné. */
 export async function reorderPlayers(matchId: string, orderedPlayerIds: string[]): Promise<void> {
@@ -382,53 +404,90 @@ export async function listMatches(): Promise<Match[]> {
   return db.matches.orderBy("createdAt").reverse().toArray();
 }
 
-export interface ProfileStats {
-  profile: Profile;
+export interface ProfileGameStats {
+  gameId: string;
+  gameName: string;
   matchesPlayed: number;
   wins: number;
 }
 
+export interface ProfileStats {
+  profile: Profile;
+  matchesPlayed: number;
+  wins: number;
+  /** Détail par jeu, trié par nombre de parties jouées — de quoi répondre à
+   * "qui gagne le plus à Catane" plutôt qu'un seul total toutes parties
+   * confondues. */
+  byGame: ProfileGameStats[];
+}
+
 /**
  * Stats croisées entre parties, par profil : nombre de parties terminées et
- * de victoires. Ne compte que les parties à au moins deux joueurs — un
- * "classement" à un seul joueur gagne trivialement et fausserait le taux de
- * victoire. Triées par nombre de parties jouées (les plus actifs en premier).
+ * de victoires, dans l'ensemble et par jeu. Ne compte que les parties à au
+ * moins deux joueurs — un "classement" à un seul joueur gagne trivialement
+ * et fausserait le taux de victoire. Triées par nombre de parties jouées
+ * (les plus actifs en premier).
  */
 export async function getProfileStats(): Promise<ProfileStats[]> {
   const profiles = await db.profiles.toArray();
-  const statsByProfile = new Map<string, ProfileStats>(
-    profiles.map((profile) => [profile.id, { profile, matchesPlayed: 0, wins: 0 }])
+  const statsByProfile = new Map(
+    profiles.map((profile) => [
+      profile.id,
+      { profile, matchesPlayed: 0, wins: 0, byGame: new Map<string, ProfileGameStats>() },
+    ])
   );
 
   const completedMatches = await db.matches.where("status").equals("completed").toArray();
-  if (completedMatches.length === 0) return [...statsByProfile.values()];
-  const matchIds = completedMatches.map((m) => m.id);
+  if (completedMatches.length > 0) {
+    const matchIds = completedMatches.map((m) => m.id);
+    const gameIdByMatch = new Map(completedMatches.map((m) => [m.id, m.gameId]));
 
-  const players = await db.players.where("matchId").anyOf(matchIds).toArray();
-  const playersByMatch = new Map<string, Player[]>();
-  for (const p of players) {
-    const arr = playersByMatch.get(p.matchId) ?? [];
-    arr.push(p);
-    playersByMatch.set(p.matchId, arr);
-  }
-  const eligibleMatchIds = matchIds.filter((id) => (playersByMatch.get(id)?.length ?? 0) >= 2);
+    const players = await db.players.where("matchId").anyOf(matchIds).toArray();
+    const playersByMatch = new Map<string, Player[]>();
+    for (const p of players) {
+      const arr = playersByMatch.get(p.matchId) ?? [];
+      arr.push(p);
+      playersByMatch.set(p.matchId, arr);
+    }
+    const eligibleMatchIds = matchIds.filter((id) => (playersByMatch.get(id)?.length ?? 0) >= 2);
 
-  const rankings = eligibleMatchIds.length
-    ? await db.rankings.where("matchId").anyOf(eligibleMatchIds).toArray()
-    : [];
-  const rankingByPlayerId = new Map(rankings.map((r) => [r.playerId, r]));
+    const rankings = eligibleMatchIds.length
+      ? await db.rankings.where("matchId").anyOf(eligibleMatchIds).toArray()
+      : [];
+    const rankingByPlayerId = new Map(rankings.map((r) => [r.playerId, r]));
 
-  for (const matchId of eligibleMatchIds) {
-    for (const p of playersByMatch.get(matchId) ?? []) {
-      if (!p.profileId) continue;
-      const stats = statsByProfile.get(p.profileId);
-      if (!stats) continue;
-      stats.matchesPlayed++;
-      if (rankingByPlayerId.get(p.id)?.position === 1) stats.wins++;
+    const gameIds = [...new Set(eligibleMatchIds.map((id) => gameIdByMatch.get(id)!))];
+    const games = await db.games.bulkGet(gameIds);
+    const gameNameById = new Map(games.filter(Boolean).map((g) => [g!.id, g!.name]));
+
+    for (const matchId of eligibleMatchIds) {
+      const gameId = gameIdByMatch.get(matchId)!;
+      const gameName = gameNameById.get(gameId) ?? "Jeu supprimé";
+      for (const p of playersByMatch.get(matchId) ?? []) {
+        if (!p.profileId) continue;
+        const stats = statsByProfile.get(p.profileId);
+        if (!stats) continue;
+        const won = rankingByPlayerId.get(p.id)?.position === 1;
+
+        stats.matchesPlayed++;
+        if (won) stats.wins++;
+
+        const gameStats = stats.byGame.get(gameId) ?? { gameId, gameName, matchesPlayed: 0, wins: 0 };
+        gameStats.matchesPlayed++;
+        if (won) gameStats.wins++;
+        stats.byGame.set(gameId, gameStats);
+      }
     }
   }
 
-  return [...statsByProfile.values()].sort((a, b) => b.matchesPlayed - a.matchesPlayed);
+  return [...statsByProfile.values()]
+    .map(({ profile, matchesPlayed, wins, byGame }) => ({
+      profile,
+      matchesPlayed,
+      wins,
+      byGame: [...byGame.values()].sort((a, b) => b.matchesPlayed - a.matchesPlayed),
+    }))
+    .sort((a, b) => b.matchesPlayed - a.matchesPlayed);
 }
 
 export async function deleteMatch(matchId: string): Promise<void> {

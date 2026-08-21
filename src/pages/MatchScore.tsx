@@ -173,7 +173,10 @@ export default function MatchScore() {
       <div className="flex shrink-0 gap-1 overflow-x-auto border-b border-line px-3 py-2">
         {sortedPlayers.map((p) => {
           const isActive = p.id === activePlayerId;
-          const { fill, text } = playerColor(p.id);
+          // Le profil (pas l'id de joueur, propre à cette partie) donne une
+          // couleur stable pour la même personne d'une partie à l'autre.
+          const colorKey = p.profileId ?? p.id;
+          const { fill, text } = playerColor(colorKey);
           return (
             <button
               key={p.id}
@@ -183,7 +186,7 @@ export default function MatchScore() {
                 isActive ? "" : "bg-paper-raised text-ink-faint"
               }`}
             >
-              <PlayerAvatar playerId={p.id} initials={initialsById[p.id]} size={20} white={isActive} />
+              <PlayerAvatar playerId={colorKey} initials={initialsById[p.id]} size={20} white={isActive} />
               {p.name}
             </button>
           );
