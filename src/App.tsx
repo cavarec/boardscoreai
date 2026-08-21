@@ -7,6 +7,7 @@ import MatchPlayers from "@/pages/MatchPlayers";
 import MatchScore from "@/pages/MatchScore";
 import MatchRanking from "@/pages/MatchRanking";
 import History from "@/pages/History";
+import Profiles from "@/pages/Profiles";
 import Settings from "@/pages/Settings";
 import Tools from "@/pages/Tools";
 import Timer from "@/pages/tools/Timer";
@@ -30,6 +31,7 @@ export default function App() {
 
           <Route element={<FlowShell />}>
             <Route path="/games/search" element={<GameSearch />} />
+            <Route path="/profiles" element={<Profiles />} />
             <Route path="/match/:matchId/players" element={<MatchPlayers />} />
             <Route path="/match/:matchId/score" element={<MatchScore />} />
             <Route path="/match/:matchId/ranking" element={<MatchRanking />} />

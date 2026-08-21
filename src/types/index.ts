@@ -123,6 +123,20 @@ export interface Player {
   name: string;
   isGuest: boolean;
   order: number;
+  /** Profil réutilisé d'une partie à l'autre pour ce prénom (voir
+   * lib/db.ts findOrCreateProfile) — permet les stats croisées entre
+   * parties sans compte ni étape supplémentaire. Absent sur les joueurs
+   * créés avant l'introduction des profils et jamais migrés. */
+  profileId?: string;
+}
+
+/** Identité réutilisée d'une partie à l'autre pour un même prénom, sur cet
+ * appareil — pas un compte, juste de quoi reconnaître "Alice" d'une soirée
+ * jeux à l'autre pour calculer ses stats. */
+export interface Profile {
+  id: string;
+  name: string;
+  createdAt: string;
 }
 
 export interface Score {

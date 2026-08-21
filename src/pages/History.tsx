@@ -29,7 +29,15 @@ export default function History() {
 
   return (
     <div className="flex flex-col gap-4 px-5 pt-8">
-      <h1 className="font-display text-2xl font-bold">Historique</h1>
+      <div className="flex items-center justify-between gap-3">
+        <h1 className="font-display text-2xl font-bold">Historique</h1>
+        <Link
+          to="/profiles"
+          className="shrink-0 rounded-full border border-line-strong px-3 py-1.5 text-sm font-medium text-ink-soft active:bg-paper-sunken"
+        >
+          Joueurs
+        </Link>
+      </div>
 
       {completed.length > 0 && (
         <Card className="bg-felt-tint">

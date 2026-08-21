@@ -6,6 +6,7 @@ import type {
   GameRuleSet,
   Match,
   Player,
+  Profile,
   RankingRow,
   Score,
   ScoreCategory,
@@ -28,6 +29,7 @@ class BoardScoreDB extends Dexie {
   rankings!: EntityTable<RankingRow, "id">;
   meta!: EntityTable<{ key: string; value: unknown }, "key">;
   scoreRounds!: EntityTable<ScoreRound, "id">;
+  profiles!: EntityTable<Profile, "id">;
 
   constructor() {
     super("boardscore-ai");
@@ -65,6 +67,33 @@ class BoardScoreDB extends Dexie {
     this.version(5).stores({
       communityTemplates: null,
     });
+    // v6 : profils de joueurs réutilisés d'une partie à l'autre (stats
+    // croisées) — chaque Player existant est rattaché à un profil retrouvé
+    // ou créé d'après son prénom, pour que l'historique déjà joué compte
+    // dans les stats dès l'activation plutôt que de repartir de zéro.
+    this.version(6)
+      .stores({
+        profiles: "id, name",
+        players: "id, matchId, profileId",
+      })
+      .upgrade(async (tx) => {
+        const players = await tx.table("players").toArray();
+        const profileIdByName = new Map<string, string>();
+        for (const p of players) {
+          const key = p.name.trim().toLowerCase();
+          let profileId = profileIdByName.get(key);
+          if (!profileId) {
+            profileId = crypto.randomUUID();
+            await tx.table("profiles").put({
+              id: profileId,
+              name: p.name.trim(),
+              createdAt: new Date().toISOString(),
+            });
+            profileIdByName.set(key, profileId);
+          }
+          await tx.table("players").update(p.id, { profileId });
+        }
+      });
   }
 }
 
@@ -157,12 +186,27 @@ export async function updateMatchSettings(
   await db.matches.update(matchId, settings);
 }
 
+/** Retrouve le profil existant pour ce prénom (normalisé) ou en crée un
+ * nouveau — sans ça, deux parties avec "Alice" créeraient deux identités
+ * distinctes et les stats croisées ne pourraient jamais la reconnaître. */
+async function findOrCreateProfile(name: string): Promise<Profile> {
+  const trimmed = name.trim();
+  const key = trimmed.toLowerCase();
+  const existing = await db.profiles.filter((p) => p.name.trim().toLowerCase() === key).first();
+  if (existing) return existing;
+  const profile: Profile = { id: crypto.randomUUID(), name: trimmed, createdAt: new Date().toISOString() };
+  await db.profiles.put(profile);
+  return profile;
+}
+
 export async function addPlayer(matchId: string, name: string): Promise<Player> {
   const existing = await db.players.where("matchId").equals(matchId).count();
+  const profile = await findOrCreateProfile(name);
   const player: Player = {
     id: crypto.randomUUID(),
     matchId,
-    name,
+    name: profile.name,
+    profileId: profile.id,
     isGuest: true,
     order: existing,
   };
@@ -336,6 +380,55 @@ export async function rematch(matchId: string): Promise<Match> {
 
 export async function listMatches(): Promise<Match[]> {
   return db.matches.orderBy("createdAt").reverse().toArray();
+}
+
+export interface ProfileStats {
+  profile: Profile;
+  matchesPlayed: number;
+  wins: number;
+}
+
+/**
+ * Stats croisées entre parties, par profil : nombre de parties terminées et
+ * de victoires. Ne compte que les parties à au moins deux joueurs — un
+ * "classement" à un seul joueur gagne trivialement et fausserait le taux de
+ * victoire. Triées par nombre de parties jouées (les plus actifs en premier).
+ */
+export async function getProfileStats(): Promise<ProfileStats[]> {
+  const profiles = await db.profiles.toArray();
+  const statsByProfile = new Map<string, ProfileStats>(
+    profiles.map((profile) => [profile.id, { profile, matchesPlayed: 0, wins: 0 }])
+  );
+
+  const completedMatches = await db.matches.where("status").equals("completed").toArray();
+  if (completedMatches.length === 0) return [...statsByProfile.values()];
+  const matchIds = completedMatches.map((m) => m.id);
+
+  const players = await db.players.where("matchId").anyOf(matchIds).toArray();
+  const playersByMatch = new Map<string, Player[]>();
+  for (const p of players) {
+    const arr = playersByMatch.get(p.matchId) ?? [];
+    arr.push(p);
+    playersByMatch.set(p.matchId, arr);
+  }
+  const eligibleMatchIds = matchIds.filter((id) => (playersByMatch.get(id)?.length ?? 0) >= 2);
+
+  const rankings = eligibleMatchIds.length
+    ? await db.rankings.where("matchId").anyOf(eligibleMatchIds).toArray()
+    : [];
+  const rankingByPlayerId = new Map(rankings.map((r) => [r.playerId, r]));
+
+  for (const matchId of eligibleMatchIds) {
+    for (const p of playersByMatch.get(matchId) ?? []) {
+      if (!p.profileId) continue;
+      const stats = statsByProfile.get(p.profileId);
+      if (!stats) continue;
+      stats.matchesPlayed++;
+      if (rankingByPlayerId.get(p.id)?.position === 1) stats.wins++;
+    }
+  }
+
+  return [...statsByProfile.values()].sort((a, b) => b.matchesPlayed - a.matchesPlayed);
 }
 
 export async function deleteMatch(matchId: string): Promise<void> {
