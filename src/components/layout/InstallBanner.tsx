@@ -60,7 +60,7 @@ export function InstallBanner() {
   return (
     <div className="mx-4 mt-3 flex items-start gap-3 rounded-xl border border-felt bg-felt-tint px-4 py-3">
       <div className="min-w-0 flex-1">
-        <p className="text-sm font-medium text-felt-strong">Installez BoardScore AI</p>
+        <p className="text-sm font-medium text-felt-strong">Installez BoardScore</p>
         <p className="mt-0.5 text-xs text-ink-soft">
           {ios
             ? "Touchez le bouton Partager de votre navigateur, puis « Sur l'écran d'accueil »."

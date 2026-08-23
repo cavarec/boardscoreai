@@ -14,7 +14,7 @@ import type { GameWithRules, ScoreCategory } from "@/types";
  * réappliquer le catalogue après une mise à jour de l'app — sans ça, les
  * utilisateurs déjà installés ne verraient jamais les nouveaux jeux.
  */
-export const SEED_VERSION = 11;
+export const SEED_VERSION = 12;
 
 let order = 0;
 function cat(
@@ -3765,7 +3765,7 @@ order = 0;
 const quickPlay = game({
   id: "game-quick-play",
   name: "Jeu rapide",
-  publisher: "BoardScore AI",
+  publisher: "BoardScore",
   year: new Date().getFullYear(),
   aliases: ["jeu rapide", "partie libre", "quick play", "libre"],
   description:
@@ -3788,7 +3788,7 @@ order = 0;
 const genericTemplate = game({
   id: "game-generic",
   name: "Autre jeu (modèle générique)",
-  publisher: "Communauté BoardScore AI",
+  publisher: "Communauté BoardScore",
   year: new Date().getFullYear(),
   aliases: ["autre", "generique", "modèle générique", "custom"],
   description: "Point de départ pour un jeu non reconnu : trois catégories modifiables.",

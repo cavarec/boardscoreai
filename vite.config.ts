@@ -36,7 +36,7 @@ export default defineConfig({
       ],
       manifest: {
         id: "/",
-        name: "BoardScore AI",
+        name: "BoardScore",
         short_name: "BoardScore",
         description:
           "Trouvez votre jeu, jouez, on s'occupe des points. Calcul automatique du score pour vos jeux de société.",

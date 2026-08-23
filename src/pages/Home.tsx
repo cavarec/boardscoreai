@@ -93,7 +93,7 @@ export default function Home() {
       <div>
         <div className="flex flex-col items-center gap-2 text-center">
           <LogoMark />
-          <p className="font-mono text-xs uppercase tracking-widest text-felt-strong">BoardScore AI</p>
+          <p className="font-mono text-xs uppercase tracking-widest text-felt-strong">BoardScore</p>
         </div>
         <h1 className="mt-4 font-display text-3xl font-bold">{greeting()}</h1>
         <p className="mt-1 text-ink-soft">À quoi tu joues ?</p>

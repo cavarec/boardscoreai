@@ -53,7 +53,7 @@ export default function MatchRanking() {
   async function shareRanking() {
     const title = full!.match.name || full!.game.name;
     const lines = ranking.map((r) => `${r.position}. ${r.player.name} — ${r.total} pts`);
-    const text = `${title}\n${lines.join("\n")}\n\nvia BoardScore AI`;
+    const text = `${title}\n${lines.join("\n")}\n\nvia BoardScore`;
 
     // Image plus engageante qu'un message texte pour un partage de groupe —
     // mais seulement si la plateforme sait partager un fichier (Web Share

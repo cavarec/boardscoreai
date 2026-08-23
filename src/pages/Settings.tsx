@@ -49,11 +49,11 @@ export default function Settings() {
   }
 
   async function shareApp() {
-    const text = `J'utilise BoardScore AI pour compter les points de nos jeux de société — gratuit, sans compte, sans pub. Je te le conseille : ${APP_URL}`;
+    const text = `J'utilise BoardScore pour compter les points de nos jeux de société — gratuit, sans compte, sans pub. Je te le conseille : ${APP_URL}`;
 
     if (navigator.share) {
       try {
-        await navigator.share({ title: "BoardScore AI", text, url: APP_URL });
+        await navigator.share({ title: "BoardScore", text, url: APP_URL });
       } catch {
         // Partage annulé par l'utilisateur : rien à faire.
       }
@@ -95,7 +95,7 @@ export default function Settings() {
       <Card className="border-felt bg-felt-tint">
         <p className="font-semibold text-felt-strong">Faire découvrir l'app</p>
         <p className="mt-1 text-sm text-ink-soft">
-          Vous appréciez BoardScore AI ? Partagez-le à vos amis joueurs.
+          Vous appréciez BoardScore ? Partagez-le à vos amis joueurs.
         </p>
         {shareFeedback && (
           <p className="mt-2 text-sm text-ink-faint">{shareFeedback}</p>

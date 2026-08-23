@@ -51,7 +51,7 @@ export function renderRankingImage({
 
   ctx.fillStyle = feltStrong;
   ctx.font = "600 28px ui-monospace, monospace";
-  ctx.fillText("BOARDSCORE AI", paddingX, 84);
+  ctx.fillText("BOARDSCORE", paddingX, 84);
 
   ctx.fillStyle = ink;
   ctx.font = "700 52px ui-serif, Georgia, serif";
