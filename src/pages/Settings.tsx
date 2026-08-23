@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useTheme, type ThemeChoice } from "@/hooks/useTheme";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { db, getMeta, setMeta } from "@/lib/db";
+import { db } from "@/lib/db";
 import { checkForUpdate } from "@/lib/pwaUpdate";
 
 const THEME_OPTIONS: { value: ThemeChoice; label: string }[] = [
@@ -11,20 +11,12 @@ const THEME_OPTIONS: { value: ThemeChoice; label: string }[] = [
   { value: "dark", label: "Sombre" },
 ];
 
+const APP_URL = "https://boardscoreai.vercel.app";
+
 export default function Settings() {
   const { theme, setTheme } = useTheme();
-  const [isPremium, setIsPremium] = useState(false);
   const [checkingUpdate, setCheckingUpdate] = useState(false);
-
-  useEffect(() => {
-    getMeta("isPremium", false).then(setIsPremium);
-  }, []);
-
-  async function togglePremium() {
-    const next = !isPremium;
-    setIsPremium(next);
-    await setMeta("isPremium", next);
-  }
+  const [shareFeedback, setShareFeedback] = useState<string | null>(null);
 
   async function resetData() {
     if (!confirm("Supprimer toutes les parties et joueurs locaux ?")) return;
@@ -56,6 +48,27 @@ export default function Settings() {
     setTimeout(() => location.reload(), 800);
   }
 
+  async function shareApp() {
+    const text = `J'utilise BoardScore AI pour compter les points de nos jeux de société — gratuit, sans compte, sans pub. Je te le conseille : ${APP_URL}`;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: "BoardScore AI", text, url: APP_URL });
+      } catch {
+        // Partage annulé par l'utilisateur : rien à faire.
+      }
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(text);
+      setShareFeedback("Lien copié dans le presse-papiers.");
+    } catch {
+      setShareFeedback("Impossible de copier automatiquement.");
+    }
+    setTimeout(() => setShareFeedback(null), 3000);
+  }
+
   return (
     <div className="flex flex-col gap-5 px-5 pt-8 pb-8">
       <h1 className="font-display text-2xl font-bold">Réglages</h1>
@@ -79,13 +92,16 @@ export default function Settings() {
         </div>
       </Card>
 
-      <Card className="border-amber bg-amber-tint">
-        <p className="font-semibold text-amber-strong">Passer Premium</p>
+      <Card className="border-felt bg-felt-tint">
+        <p className="font-semibold text-felt-strong">Faire découvrir l'app</p>
         <p className="mt-1 text-sm text-ink-soft">
-          Sans publicité · statistiques avancées · export PDF.
+          Vous appréciez BoardScore AI ? Partagez-le à vos amis joueurs.
         </p>
-        <Button size="md" variant={isPremium ? "secondary" : "primary"} className="mt-3" onClick={togglePremium}>
-          {isPremium ? "Premium actif — désactiver (démo)" : "Activer Premium (démo)"}
+        {shareFeedback && (
+          <p className="mt-2 text-sm text-ink-faint">{shareFeedback}</p>
+        )}
+        <Button size="md" className="mt-3" onClick={shareApp}>
+          Partager l'app
         </Button>
       </Card>
 
