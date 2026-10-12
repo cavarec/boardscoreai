@@ -1,5 +1,6 @@
 import { playerColor } from "@/lib/playerColors";
 import type { PlayerResult } from "@/types";
+import { SITE_HOST } from "@/lib/site";
 
 interface RankingImageOptions {
   title: string;
@@ -114,7 +115,7 @@ export function renderRankingImage({
 
   ctx.fillStyle = inkFaint;
   ctx.font = "400 26px -apple-system, system-ui, sans-serif";
-  ctx.fillText("boardscoreai.vercel.app", paddingX, height - footerHeight / 2 + 10);
+  ctx.fillText(SITE_HOST, paddingX, height - footerHeight / 2 + 10);
 
   return new Promise((resolve) => canvas.toBlob((blob) => resolve(blob), "image/png"));
 }

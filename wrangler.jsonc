@@ -1,0 +1,14 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  // Le nom doit être identique à celui du Worker créé dans Cloudflare.
+  "name": "boardscore",
+  "compatibility_date": "2026-10-12",
+  "assets": {
+    "directory": "./dist",
+    // App monopage : toute adresse inconnue renvoie index.html.
+    "not_found_handling": "single-page-application"
+  },
+  // Crée automatiquement l'enregistrement DNS et le certificat HTTPS
+  // au premier déploiement (le domaine atao.dev doit être dans ce compte).
+  "routes": [{ "pattern": "boardscore.atao.dev", "custom_domain": true }]
+}

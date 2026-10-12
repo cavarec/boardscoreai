@@ -8,7 +8,7 @@ import path from "node:path";
 // que de deviner si un correctif a été pris en compte ou si le service
 // worker sert encore une version en cache.
 const appVersion =
-  process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7) ??
+  (process.env.WORKERS_CI_COMMIT_SHA ?? process.env.VERCEL_GIT_COMMIT_SHA)?.slice(0, 7) ??
   new Date().toISOString().slice(0, 16).replace("T", " ");
 
 export default defineConfig({

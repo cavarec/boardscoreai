@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { db } from "@/lib/db";
 import { checkForUpdate } from "@/lib/pwaUpdate";
+import { SITE_URL } from "@/lib/site";
 
 const THEME_OPTIONS: { value: ThemeChoice; label: string }[] = [
   { value: "system", label: "Système" },
@@ -11,7 +12,7 @@ const THEME_OPTIONS: { value: ThemeChoice; label: string }[] = [
   { value: "dark", label: "Sombre" },
 ];
 
-const APP_URL = "https://boardscoreai.vercel.app";
+const APP_URL = SITE_URL;
 
 export default function Settings() {
   const { theme, setTheme } = useTheme();
