@@ -1,10 +1,14 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useTheme, type ThemeChoice } from "@/hooks/useTheme";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { db } from "@/lib/db";
 import { checkForUpdate } from "@/lib/pwaUpdate";
-import { SITE_URL } from "@/lib/site";
+import { SITE_HOST, SITE_URL } from "@/lib/site";
+import { backupFileName, buildBackup, importBackup, readBackupFile } from "@/lib/backup";
+
+// Ancienne adresse de l'app (Vercel) : on y rappelle de sauvegarder avant de changer d'adresse.
+const OLD_HOSTS = ["boardscoreai.vercel.app"];
 
 const THEME_OPTIONS: { value: ThemeChoice; label: string }[] = [
   { value: "system", label: "Système" },
@@ -18,6 +22,55 @@ export default function Settings() {
   const { theme, setTheme } = useTheme();
   const [checkingUpdate, setCheckingUpdate] = useState(false);
   const [shareFeedback, setShareFeedback] = useState<string | null>(null);
+  const [backupMessage, setBackupMessage] = useState<string | null>(null);
+  const fileInput = useRef<HTMLInputElement>(null);
+  const onOldAddress = OLD_HOSTS.includes(location.host);
+
+  async function exportData() {
+    setBackupMessage(null);
+    try {
+      const backup = await buildBackup();
+      const count = backup.data.matches.length;
+      const blob = new Blob([JSON.stringify(backup)], { type: "application/json" });
+      const file = new File([blob], backupFileName(), { type: "application/json" });
+      // Sur téléphone, le partage natif permet d'enregistrer le fichier ou de se
+      // l'envoyer (Fichiers, e-mail, AirDrop...) ; sinon, téléchargement classique.
+      if (navigator.canShare?.({ files: [file] })) {
+        try {
+          await navigator.share({ files: [file], title: "Sauvegarde BoardScore" });
+          setBackupMessage(`${count} partie(s) exportée(s).`);
+        } catch {
+          // Partage annulé : rien à faire.
+        }
+        return;
+      }
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = backupFileName();
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      setBackupMessage(`${count} partie(s) exportée(s).`);
+    } catch {
+      setBackupMessage("L'export a échoué.");
+    }
+  }
+
+  async function importData(file: File | undefined) {
+    if (!file) return;
+    setBackupMessage(null);
+    try {
+      const summary = await importBackup(await readBackupFile(file));
+      setBackupMessage(
+        `${summary.matches} partie(s) importée(s)` +
+          (summary.skippedMatches ? `, ${summary.skippedMatches} ignorée(s) (jeu inconnu).` : "."),
+      );
+    } catch (e) {
+      setBackupMessage(e instanceof Error ? e.message : "L'import a échoué.");
+    } finally {
+      if (fileInput.current) fileInput.current.value = "";
+    }
+  }
 
   async function resetData() {
     if (!confirm("Supprimer toutes les parties et joueurs locaux ?")) return;
@@ -91,6 +144,40 @@ export default function Settings() {
             </button>
           ))}
         </div>
+      </Card>
+
+      {onOldAddress && (
+        <Card className="border-brick bg-brick-tint">
+          <p className="font-semibold text-brick">BoardScore change d'adresse</p>
+          <p className="mt-1 text-sm text-ink-soft">
+            Nouvelle adresse : <span className="font-mono">{SITE_HOST}</span>. Vos parties restent sur cet appareil et
+            cette adresse : exportez-les ci-dessous, ouvrez la nouvelle adresse, puis importez le fichier.
+          </p>
+        </Card>
+      )}
+
+      <Card>
+        <p className="font-medium">Sauvegarde des parties</p>
+        <p className="mt-1 text-sm text-ink-soft">
+          Exportez vos parties dans un fichier pour les garder en sécurité ou les retrouver sur un autre appareil ou une
+          autre adresse. L'import ajoute les parties sans rien supprimer.
+        </p>
+        {backupMessage && <p className="mt-2 text-sm text-ink-faint">{backupMessage}</p>}
+        <div className="mt-3 flex gap-2">
+          <Button size="md" variant="secondary" className="flex-1" onClick={exportData}>
+            Exporter
+          </Button>
+          <Button size="md" variant="secondary" className="flex-1" onClick={() => fileInput.current?.click()}>
+            Importer
+          </Button>
+        </div>
+        <input
+          ref={fileInput}
+          type="file"
+          accept="application/json,.json"
+          className="hidden"
+          onChange={(e) => importData(e.target.files?.[0])}
+        />
       </Card>
 
       <Card className="border-felt bg-felt-tint">
